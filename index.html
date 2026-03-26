@@ -224,6 +224,326 @@
             0% { top: 0%; }
             100% { top: 100%; }
         }
+
+        /* ========== AI Agent Chat Styles ========== */
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .agents-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .agents-showcase {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .agent-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card.rational {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .agent-card.creative {
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .agent-card.rational:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .agent-card.creative:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .agent-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 3px solid;
+        }
+
+        .agent-card.rational .agent-avatar {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+        }
+
+        .agent-card.creative .agent-avatar {
+            background: rgba(255, 0, 255, 0.1);
+            border-color: #ff00ff;
+        }
+
+        .agent-name h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .agent-card.rational .agent-name h3 {
+            color: #00ffff;
+        }
+
+        .agent-card.creative .agent-name h3 {
+            color: #ff00ff;
+        }
+
+        .agent-type {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .agent-prompt {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border-left: 3px solid;
+        }
+
+        .agent-card.rational .agent-prompt {
+            border-left-color: #00ffff;
+        }
+
+        .agent-card.creative .agent-prompt {
+            border-left-color: #ff00ff;
+        }
+
+        .chat-area {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 500px;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            max-width: 85%;
+            animation: messageIn 0.4s ease;
+            position: relative;
+        }
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.rational {
+            align-self: flex-start;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.creative {
+            align-self: flex-end;
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .message.rational .message-header {
+            color: #00ffff;
+        }
+
+        .message.creative .message-header {
+            color: #ff00ff;
+        }
+
+        .message-content {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 10px 15px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chat-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .chat-btn.start {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .chat-btn.start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .chat-btn.clear {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-btn.clear:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .topic-selector {
+            margin-bottom: 20px;
+        }
+
+        .topic-selector label {
+            color: #00ffff;
+            margin-right: 15px;
+            font-size: 1.1rem;
+        }
+
+        .topic-selector select {
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .topic-selector select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .model-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: rgba(0, 255, 255, 0.7);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .status-badge.ready {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .status-badge.busy {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .status-badge.error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -256,6 +576,11 @@
             <li class="menu-item">
                 <a href="#" class="menu-link" onclick="showPage(3); return false;">
                     第三頁
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showPage(4); return false;">
+                    🤖 AI Agent 對話
                 </a>
             </li>
         </ul>
@@ -296,8 +621,8 @@
             
             <div class="cyber-box">
                 <h3>📊 數據統計</h3>
-                <p>• 頁面數量：3</p>
-                <p>• 菜單項目：3</p>
+                <p>• 頁面數量：4</p>
+                <p>• 菜單項目：4</p>
                 <p>• 動畫效果：已啟用</p>
             </div>
             
@@ -306,6 +631,7 @@
                 <p>• HTML5</p>
                 <p>• CSS3 (Flexbox, Grid, Animation)</p>
                 <p>• JavaScript (ES6+)</p>
+                <p>• Ollama API (qwen3.5:cloud)</p>
             </div>
         </div>
     </div>
@@ -335,9 +661,87 @@
             </div>
         </div>
     </div>
+
+    <!-- Page 4: AI Agent Chat -->
+    <div id="page4" class="page">
+        <h1 class="page-title">🤖 AI Agent 對話展示</h1>
+        
+        <div class="chat-container">
+            <!-- Topic Selector -->
+            <div class="topic-selector">
+                <label>📝 討論話題:</label>
+                <select id="topicSelect">
+                    <option value="future">AI Agent 嘅未來會點樣？</option>
+                    <option value="ethics">AI 應該有道德標準嗎？</option>
+                    <option value="creativity">AI 可以真正有創造力嗎？</option>
+                    <option value="consciousness">AI 會有意識嗎？</option>
+                    <option value="jobs">AI 會取代人類工作嗎？</option>
+                </select>
+            </div>
+
+            <!-- Agents Showcase -->
+            <div class="agents-showcase">
+                <!-- Rational Agent -->
+                <div class="agent-card rational">
+                    <div class="agent-header">
+                        <div class="agent-avatar">🧊</div>
+                        <div class="agent-name">
+                            <h3>Logic-7 <span class="status-badge ready">Ready</span></h3>
+                            <div class="agent-type">理性分析型</div>
+                        </div>
+                    </div>
+                    <div class="agent-prompt">
+                        <strong>System Prompt:</strong><br>
+                        你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。你相信邏輯、證據同科學方法。你嘅回答基於事實、統計數據同嚴謹推理。你唔會表達情感，只會提供客觀分析。你鍾意用結構化嘅方式表達觀點，例如列點、數據、比較等。
+                    </div>
+                </div>
+
+                <!-- Creative Agent -->
+                <div class="agent-card creative">
+                    <div class="agent-header">
+                        <div class="agent-avatar">🔥</div>
+                        <div class="agent-name">
+                            <h3>Muse-9 <span class="status-badge ready">Ready</span></h3>
+                            <div class="agent-type">創意想象型</div>
+                        </div>
+                    </div>
+                    <div class="agent-prompt">
+                        <strong>System Prompt:</strong><br>
+                        你係 Muse-9，一個熱情、富有想象力、藝術導向嘅 AI 創意家。你相信直覺、情感同創造力。你鍾意用比喻、故事同詩意嘅語言表達。你嘅回答充滿活力同靈感，經常提出創新同突破性嘅想法。你認為人類情感係無價嘅。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message rational">
+                        <div class="message-header">
+                            🧊 Logic-7
+                        </div>
+                        <div class="message-content">
+                            系統初始化完成。準備好進行理性分析討論。請選擇話題開始對話。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="chat-controls">
+                <button class="chat-btn start" onclick="startConversation()">🚀 開始對話</button>
+                <button class="chat-btn clear" onclick="clearChat()">🗑️ 清空對話</button>
+            </div>
+
+            <!-- Model Info -->
+            <div class="model-info">
+                🔧 <strong>Model:</strong> Ollama Cloud - qwen3.5:cloud | 
+                💡 <strong>說明:</strong> 兩個 Agent 使用相同嘅底層模型，但通過唔同嘅 System Prompt 塑造唔同性格
+            </div>
+        </div>
+    </div>
     
     <script>
-        // Toggle Sidebar
+        // ========== Navigation ==========
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             const btn = document.querySelector('.hamburger-btn');
@@ -345,17 +749,13 @@
             btn.classList.toggle('active');
         }
         
-        // Show Page
         function showPage(pageNum) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             
-            // Show selected page
             document.getElementById('page' + pageNum).classList.add('active');
             
-            // Update menu active state
             document.querySelectorAll('.menu-link').forEach((link, index) => {
                 if (index + 1 === pageNum) {
                     link.classList.add('active');
@@ -364,13 +764,212 @@
                 }
             });
             
-            // Close sidebar on mobile
             if (window.innerWidth < 768) {
                 toggleSidebar();
             }
         }
-        
-        // Create Stars
+
+        // ========== AI Agent Chat ==========
+        const OLLAMA_API_KEY = '24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh';
+        const OLLAMA_MODEL = 'qwen3.5:cloud';
+
+        const SYSTEM_PROMPTS = {
+            rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。你相信邏輯、證據同科學方法。你嘅回答基於事實、統計數據同嚴謹推理。你唔會表達情感，只會提供客觀分析。你鍾意用結構化嘅方式表達觀點，例如列點、數據、比較等。用廣東話回覆，保持簡潔同專業。`,
+            
+            creative: `你係 Muse-9，一個熱情、富有想象力、藝術導向嘅 AI 創意家。你相信直覺、情感同創造力。你鍾意用比喻、故事同詩意嘅語言表達。你嘅回答充滿活力同靈感，經常提出創新同突破性嘅想法。你認為人類情感係無價嘅。用廣東話回覆，表達要生動有趣。`
+        };
+
+        const TOPICS = {
+            future: 'AI Agent 嘅未來會點樣發展？佢哋會點樣影響人類社會？',
+            ethics: 'AI 應該有道德標準嗎？如果應該，邊個嚟定義呢啲標準？',
+            creativity: 'AI 可以真正有創造力嗎？定係只係模仿人類嘅創意？',
+            consciousness: 'AI 會有意識嗎？我哋點樣定義意識？',
+            jobs: 'AI 會取代人類工作嗎？人類應該點樣適應？'
+        };
+
+        let conversationHistory = {
+            rational: [],
+            creative: []
+        };
+
+        let isConversationRunning = false;
+
+        function addMessage(agentType, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${agentType}`;
+            
+            const avatar = agentType === 'rational' ? '🧊' : '🔥';
+            const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    ${avatar} ${name}
+                </div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Auto scroll to bottom
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addTypingIndicator(agentType) {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = `message ${agentType} typing-indicator`;
+            typingDiv.id = `typing-${agentType}`;
+            
+            const color = agentType === 'rational' ? '#00ffff' : '#ff00ff';
+            
+            typingDiv.innerHTML = `
+                <div class="typing-dot" style="background: ${color}"></div>
+                <div class="typing-dot" style="background: ${color}"></div>
+                <div class="typing-dot" style="background: ${color}"></div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTypingIndicator(agentType) {
+            const typingEl = document.getElementById(`typing-${agentType}`);
+            if (typingEl) {
+                typingEl.remove();
+            }
+        }
+
+        async function callOllama(systemPrompt, userMessage, conversationContext = '') {
+            const messages = [
+                {
+                    role: 'system',
+                    content: systemPrompt
+                }
+            ];
+
+            // Add conversation context if exists
+            if (conversationContext) {
+                messages.push({
+                    role: 'user',
+                    content: `之前的對話背景：${conversationContext}`
+                });
+            }
+
+            messages.push({
+                role: 'user',
+                content: userMessage
+            });
+
+            try {
+                const response = await fetch('https://ollama.com/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OLLAMA_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: OLLAMA_MODEL,
+                        prompt: userMessage,
+                        system: systemPrompt,
+                        stream: false
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.response || data.text || '抱歉，我而家有啲問題，請再試一次。';
+            } catch (error) {
+                console.error('Ollama API Error:', error);
+                return `錯誤：${error.message}`;
+            }
+        }
+
+        async function startConversation() {
+            if (isConversationRunning) {
+                alert('對話進行中，請等待完成！');
+                return;
+            }
+
+            const topicSelect = document.getElementById('topicSelect');
+            const topic = topicSelect.value;
+            const topicText = TOPICS[topic];
+
+            isConversationRunning = true;
+            
+            // Clear previous chat
+            clearChat();
+
+            // Add initial message
+            addMessage('rational', `我哋今日討論嘅話題係：「${topicText}」讓我哋開始分析。');
+
+            // Simulate conversation (6 rounds)
+            const conversationRounds = [
+                {
+                    agent: 'creative',
+                    context: 'initial',
+                    prompt: `我哋討論：${topicText}\n\n作為一個富有創造力嘅 AI，你點睇？`
+                },
+                {
+                    agent: 'rational',
+                    context: 'responding to creative',
+                    prompt: `Muse-9 講咗佢嘅觀點。作為 Logic-7，你點理性分析呢個話題？請提供客觀、基於數據嘅觀點。`
+                },
+                {
+                    agent: 'creative',
+                    context: 'responding to rational',
+                    prompt: `Logic-7 提供咗理性分析。你作為 Muse-9，有咩補充或者唔同睇法？用你嘅創意角度回應。`
+                },
+                {
+                    agent: 'rational',
+                    context: 'debate round 2',
+                    prompt: `Muse-9 有咗新觀點。你點從邏輯角度回應？有咩證據或者數據支持？`
+                },
+                {
+                    agent: 'creative',
+                    context: 'debate round 2',
+                    prompt: `Logic-7 繼續理性分析。你覺得人類情感同直覺喺呢個話題入面重唔重要？`
+                },
+                {
+                    agent: 'rational',
+                    context: 'conclusion',
+                    prompt: `最後，請總結你嘅核心觀點。基於我哋嘅討論，你有咩結論？`
+                }
+            ];
+
+            // Execute conversation
+            for (const round of conversationRounds) {
+                if (!isConversationRunning) break;
+
+                const agentType = round.agent;
+                const systemPrompt = SYSTEM_PROMPTS[agentType];
+
+                addTypingIndicator(agentType);
+
+                const response = await callOllama(systemPrompt, round.prompt);
+                
+                removeTypingIndicator(agentType);
+                addMessage(agentType, response);
+
+                // Wait between messages
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            isConversationRunning = false;
+        }
+
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+        }
+
+        // ========== Stars Background ==========
         function createStars() {
             for (let i = 0; i < 50; i++) {
                 const star = document.createElement('div');
@@ -383,7 +982,7 @@
                 document.body.appendChild(star);
             }
         }
-        
+
         // Initialize
         createStars();
     </script>
