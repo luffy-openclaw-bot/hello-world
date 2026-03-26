@@ -3,58 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World - Moving Animation</title>
+    <title>Hello World - Cyber Menu</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-family: 'Courier New', monospace;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            overflow-x: hidden;
             position: relative;
         }
-        .hello-world {
-            font-size: 4rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: move 8s infinite;
+        
+        /* ========== Hamburger Button ========== */
+        .hamburger-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+        }
+        
+        .hamburger-btn span {
+            display: block;
+            width: 28px;
+            height: 3px;
+            background: #000;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        /* ========== Sidebar ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+            border-right: 2px solid #00ffff;
+            box-shadow: 5px 0 30px rgba(0, 255, 255, 0.3);
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            padding: 80px 0 20px;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-header h2 {
+            color: #00ffff;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .menu-items {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin: 10px 20px;
+        }
+        
+        .menu-link {
+            display: block;
+            padding: 15px 20px;
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-link::before {
+            content: '';
             position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
-        @keyframes move {
-            0%, 100% { transform: translate(-100px, -50px); }
-            25% { transform: translate(0, -100px); }
-            50% { transform: translate(100px, -50px); }
-            75% { transform: translate(0, 50px); }
+        
+        .menu-link:hover::before {
+            left: 100%;
         }
+        
+        .menu-link:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .menu-link.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* ========== Page Content ========== */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 80px 40px 40px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page-title {
+            color: #00ffff;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 15px;
+            display: inline-block;
+        }
+        
+        .page-content {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 800px;
+        }
+        
+        .cyber-box {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+        
+        .cyber-box h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        /* ========== Stars Background ========== */
         .star {
-            position: absolute;
-            background: white;
+            position: fixed;
+            background: #00ffff;
             border-radius: 50%;
             animation: twinkle 2s infinite;
+            pointer-events: none;
         }
+        
         @keyframes twinkle {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
+        
+        /* ========== Scanline Effect ========== */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 255, 0.1);
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+            z-index: 998;
+        }
+        
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="hello-world">Hello World! 👋</div>
+    <!-- Scanline Effect -->
+    <div class="scanline"></div>
+    
+    <!-- Hamburger Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🤖 CYBER MENU</h2>
+        </div>
+        <ul class="menu-items">
+            <li class="menu-item">
+                <a href="#" class="menu-link active" onclick="showPage(1); return false;">
+                    第一頁
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showPage(2); return false;">
+                    第二頁
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showPage(3); return false;">
+                    第三頁
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Page 1 -->
+    <div id="page1" class="page active">
+        <h1 class="page-title">🚀 第一頁 - 歡迎來到 Cyber 世界</h1>
+        <div class="page-content">
+            <div class="cyber-box">
+                <h3>📌 關於本頁面</h3>
+                <p>歡迎來到 Hello World Cyber Menu 系統！這是一個具有未來感嘅網頁界面。</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>🎯 功能特點</h3>
+                <p>• Hamburger Menu 側邊欄導航</p>
+                <p>• Cyberpunk 風格設計</p>
+                <p>• 流暢嘅頁面切換動畫</p>
+                <p>• 響應式佈局</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>💡 使用說明</h3>
+                <p>點擊左上角嘅 Hamburger 按鈕，可以打開側邊欄菜單，選擇不同嘅頁面。</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 2 -->
+    <div id="page2" class="page">
+        <h1 class="page-title">⚡ 第二頁 - 系統資訊</h1>
+        <div class="page-content">
+            <div class="cyber-box">
+                <h3>🔧 系統狀態</h3>
+                <p>系統運行正常，所有模塊已加载。</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>📊 數據統計</h3>
+                <p>• 頁面數量：3</p>
+                <p>• 菜單項目：3</p>
+                <p>• 動畫效果：已啟用</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>🌐 技術棧</h3>
+                <p>• HTML5</p>
+                <p>• CSS3 (Flexbox, Grid, Animation)</p>
+                <p>• JavaScript (ES6+)</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 3 -->
+    <div id="page3" class="page">
+        <h1 class="page-title">🎨 第三頁 - 關於設計</h1>
+        <div class="page-content">
+            <div class="cyber-box">
+                <h3>🎭 設計理念</h3>
+                <p>Cyberpunk 風格結合咗未來科技同黑暗美學，創造出獨特嘅視覺體驗。</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>🌈 配色方案</h3>
+                <p>• 主色：青色 (#00ffff)</p>
+                <p>• 背景：深藍黑色漸變</p>
+                <p>• 強調：霓虹光效</p>
+            </div>
+            
+            <div class="cyber-box">
+                <h3>✨ 動畫效果</h3>
+                <p>• 側邊欄滑入動畫</p>
+                <p>• 頁面切換淡入效果</p>
+                <p>• 掃描線移動效果</p>
+                <p>• 星星閃爍背景</p>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        for (let i = 0; i < 50; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = Math.random() * 3 + 1 + 'px';
-            star.style.height = star.style.width;
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 2 + 's';
-            document.body.appendChild(star);
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const btn = document.querySelector('.hamburger-btn');
+            sidebar.classList.toggle('active');
+            btn.classList.toggle('active');
         }
+        
+        // Show Page
+        function showPage(pageNum) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById('page' + pageNum).classList.add('active');
+            
+            // Update menu active state
+            document.querySelectorAll('.menu-link').forEach((link, index) => {
+                if (index + 1 === pageNum) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+        
+        // Create Stars
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(star);
+            }
+        }
+        
+        // Initialize
+        createStars();
     </script>
 </body>
 </html>
