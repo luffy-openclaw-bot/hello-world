@@ -916,10 +916,10 @@
                 }
             }
 
-            async function callOllama(systemPrompt, userMessage, onChunk = null) {
-                // 設置 45 秒超時
+            async function callOllama(systemPrompt, userMessage) {
+                // 設置 60 秒超時 (畀多啲時間 LLM)
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 45000);
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
                 
                 try {
                     const response = await fetch(BACKEND_API_URL, {
@@ -931,36 +931,17 @@
                             prompt: userMessage,
                             system: systemPrompt,
                             model: 'qwen3.5:cloud',
-                            stream: onChunk !== null  // 如果有 onChunk，啟用串流
+                            stream: false  // 暫時關閉串流，用非串流模式
                         }),
                         signal: controller.signal
                     });
+
+                    clearTimeout(timeoutId);
 
                     if (!response.ok) {
                         throw new Error(`API Error: ${response.status}`);
                     }
 
-                    // 串流模式
-                    if (onChunk && response.body) {
-                        const reader = response.body.getReader();
-                        const decoder = new TextDecoder();
-                        let fullText = '';
-                        
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done) break;
-                            
-                            const chunk = decoder.decode(value);
-                            fullText += chunk;
-                            onChunk(fullText);  // 即時更新 UI
-                        }
-                        
-                        clearTimeout(timeoutId);
-                        return fullText;
-                    }
-                    
-                    // 非串流模式
-                    clearTimeout(timeoutId);
                     const data = await response.json();
                     return data.response || '抱歉，我而家有啲問題，請再試一次。';
                     
@@ -969,7 +950,7 @@
                     console.error('Backend API Error:', error);
                     
                     if (error.name === 'AbortError') {
-                        return '⏱️ 請求超時 (超過 45 秒)，LLM 處理需時，請稍後再試。';
+                        return '⏱️ 請求超時 (超過 60 秒)，LLM 處理需時，請稍後再試。';
                     }
                     return `錯誤：${error.message}`;
                 }
@@ -1033,32 +1014,31 @@
                         prompt = `${agentName}，直接回應（${WORD_LIMIT}字）。${historyContext}${wordLimitInstruction}`;
                     }
 
-                    // 顯示思考中提示
+                    // 顯示思考中提示（帶秒數）
                     const startTime = Date.now();
                     addTypingIndicator(agentType);
                     
-                    // 使用串流模式，即時顯示內容
-                    let currentText = '';
-                    const response = await callOllama(systemPrompt, prompt, (chunk) => {
-                        currentText = chunk;
-                        // 更新 UI：移除打字指示，顯示實際內容
+                    // 每秒更新進度提示
+                    const progressInterval = setInterval(() => {
+                        const elapsed = Math.round((Date.now() - startTime) / 1000);
                         const typingEl = document.getElementById(`typing-${agentType}`);
                         if (typingEl) {
                             const contentEl = typingEl.querySelector('.message-content');
                             if (contentEl) {
-                                contentEl.textContent = chunk;
-                                contentEl.style.color = '#e0e0e0';
-                                contentEl.style.fontSize = '0.95rem';
+                                const agentName = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+                                const color = agentType === 'rational' ? '#00ffff' : '#ff00ff';
+                                contentEl.textContent = `💭 ${agentName} 思考中... (${elapsed}秒)`;
+                                contentEl.style.color = color;
+                                contentEl.style.fontSize = '0.9rem';
                             }
-                            // 移除打字動畫
-                            const dotsEl = typingEl.querySelector('.typing-dots');
-                            if (dotsEl) dotsEl.style.display = 'none';
                         }
-                    });
+                    }, 1000);
+
+                    const response = await callOllama(systemPrompt, prompt);
                     
-                    // 移除打字指示，添加正式訊息
+                    clearInterval(progressInterval);
                     removeTypingIndicator(agentType);
-                    addMessage(agentType, currentText || response);
+                    addMessage(agentType, response);
 
                     // 更新聊天歷史
                     chatHistory.push(`${agentName}: ${response.substring(0, 100)}${response.length > 100 ? '...' : ''}`);
