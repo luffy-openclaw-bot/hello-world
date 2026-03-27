@@ -940,7 +940,7 @@
 
                 // 6 輪對話
                 const MAX_ROUNDS = 6;
-                const WORD_LIMIT = 50; // 每個回應最多 50 字 (更快生成)
+                const WORD_LIMIT = 30; // 每個回應最多 30 字 (極速生成！)
 
                 const conversationRounds = [
                     { agent: 'creative', role: 'Muse-9' },
@@ -964,22 +964,37 @@
                         ? `\n\n之前嘅對話：\n${chatHistory.join('\n')}` 
                         : '';
                     
-                    const wordLimitInstruction = `\n\n⚠️ 重要：請用廣東話回覆，並且**限制喺 ${WORD_LIMIT} 字以內**，簡潔表達你嘅觀點。`;
+                    const wordLimitInstruction = `\n\n⚠️ 重要：請用廣東話回覆，**嚴格限制喺 ${WORD_LIMIT} 字以內**，直接講重點，唔使解釋太多。`;
                     
                     let prompt = '';
                     
                     if (i === 0) {
-                        prompt = `我哋討論嘅話題係：「${topicText}」\n\n作為 ${agentName}，你點睇？${historyContext}${wordLimitInstruction}`;
+                        prompt = `話題：「${topicText}」\n${agentName}，你點睇？${historyContext}\n${wordLimitInstruction}`;
                     } else if (i === MAX_ROUNDS - 1) {
-                        prompt = `對話即將結束。作為 ${agentName}，請用${WORD_LIMIT}字以內總結你嘅核心觀點。${historyContext}${wordLimitInstruction}`;
+                        prompt = `最後總結。${agentName}，用${WORD_LIMIT}字以內講晒你嘅核心觀點。${historyContext}\n${wordLimitInstruction}`;
                     } else {
-                        prompt = `作為 ${agentName}，請回應之前嘅討論（${WORD_LIMIT}字以內）。${historyContext}${wordLimitInstruction}`;
+                        prompt = `${agentName}，回應之前討論（${WORD_LIMIT}字以內）。${historyContext}\n${wordLimitInstruction}`;
                     }
 
+                    // 顯示思考中提示（帶秒數）
+                    const startTime = Date.now();
                     addTypingIndicator(agentType);
+                    
+                    // 每秒更新進度提示
+                    const progressInterval = setInterval(() => {
+                        const elapsed = Math.round((Date.now() - startTime) / 1000);
+                        const typingEl = document.getElementById(`typing-${agentType}`);
+                        if (typingEl) {
+                            const dots = '.'.repeat((elapsed % 3) + 1);
+                            typingEl.querySelector('.message-content').textContent = `思考中${dots} (${elapsed}秒)`;
+                            typingEl.querySelector('.message-content').style.color = '#00ffff';
+                            typingEl.querySelector('.message-content').style.fontSize = '0.9rem';
+                        }
+                    }, 1000);
 
                     const response = await callOllama(systemPrompt, prompt);
                     
+                    clearInterval(progressInterval);
                     removeTypingIndicator(agentType);
                     addMessage(agentType, response);
 
