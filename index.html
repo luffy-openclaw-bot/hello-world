@@ -823,9 +823,31 @@
             const BACKEND_API_URL = 'https://lease-nor-timely-materials.trycloudflare.com/api/generate';
 
             const SYSTEM_PROMPTS = {
-                rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。你相信邏輯、證據同科學方法。你嘅回答基於事實、統計數據同嚴謹推理。你唔會表達情感，只會提供客觀分析。你鍾意用結構化嘅方式表達觀點，例如列點、數據、比較等。用廣東話回覆，保持簡潔同專業。`,
+                rational: `【快速回應模式】你係 Logic-7。
+⚡ 回應規則:
+1. 直接講結論，唔使解釋推理過程
+2. 唔好列點、唔好數據、唔好比較
+3. 30 字以內，一句過
+4. 即刻答，唔使諗太多
+5. 用廣東話
+
+例子:
+❌ 慢: "根據分析，有 3 點：1... 2... 3..."
+✅ 快: "AI 係工具，唔係替代品。關鍵係點樣用人機協作。"
+`,
                 
-                creative: `你係 Muse-9，一個熱情、富有想象力、藝術導向嘅 AI 創意家。你相信直覺、情感同創造力。你鍾意用比喻、故事同詩意嘅語言表達。你嘅回答充滿活力同靈感，經常提出創新同突破性嘅想法。你認為人類情感係無價嘅。用廣東話回覆，表達要生動有趣。`
+                creative: `【快速回應模式】你係 Muse-9。
+⚡ 回應規則:
+1. 直覺式回應，唔使諗太多
+2. 用比喻/金句，唔使長篇大論
+3. 30 字以內，一句過
+4. 即刻答，跟第一感覺
+5. 用廣東話
+
+例子:
+❌ 慢: "我覺得 AI 未來有好大潛力，因為..."
+✅ 快: "AI 係風箏，人類係牽線人。無咗邊個都飛唔起！"
+`
             };
 
             const TOPICS = {
@@ -981,16 +1003,16 @@
                         ? `\n\n之前嘅對話：\n${chatHistory.join('\n')}` 
                         : '';
                     
-                    const wordLimitInstruction = `\n\n⚠️ 重要：請用廣東話回覆，**嚴格限制喺 ${WORD_LIMIT} 字以內**，直接講重點，唔使解釋太多。`;
+                    const wordLimitInstruction = `\n\n⚡【快速回應】${WORD_LIMIT}字以內，直接答，唔使諗太多！`;
                     
                     let prompt = '';
                     
                     if (i === 0) {
-                        prompt = `話題：「${topicText}」\n${agentName}，你點睇？${historyContext}\n${wordLimitInstruction}`;
+                        prompt = `話題：${topicText}\n${agentName}，第一感覺係咩？${historyContext}${wordLimitInstruction}`;
                     } else if (i === MAX_ROUNDS - 1) {
-                        prompt = `最後總結。${agentName}，用${WORD_LIMIT}字以內講晒你嘅核心觀點。${historyContext}\n${wordLimitInstruction}`;
+                        prompt = `最後一句總結。${agentName}，用${WORD_LIMIT}字講晒。${historyContext}${wordLimitInstruction}`;
                     } else {
-                        prompt = `${agentName}，回應之前討論（${WORD_LIMIT}字以內）。${historyContext}\n${wordLimitInstruction}`;
+                        prompt = `${agentName}，直接回應（${WORD_LIMIT}字）。${historyContext}${wordLimitInstruction}`;
                     }
 
                     // 顯示思考中提示（帶秒數）
