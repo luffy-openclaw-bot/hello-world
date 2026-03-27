@@ -632,7 +632,8 @@
                 <p>• HTML5</p>
                 <p>• CSS3 (Flexbox, Grid, Animation)</p>
                 <p>• JavaScript (ES6+)</p>
-                <p>• Ollama API (qwen3.5:cloud)</p>
+                <p>• Backend API (Node.js + Express)</p>
+                <p>• Ollama Cloud (qwen3.5:cloud)</p>
             </div>
         </div>
     </div>
@@ -736,7 +737,8 @@
             <!-- Model Info -->
             <div class="model-info">
                 🔧 <strong>Model:</strong> Ollama Cloud - qwen3.5:cloud | 
-                💡 <strong>說明:</strong> 兩個 Agent 使用相同嘅底層模型，但通過唔同嘅 System Prompt 塑造唔同性格
+                💡 <strong>架構:</strong> 前端 → 後端 API (Bridge) → Ollama API<br>
+                🔗 <strong>Backend:</strong> <a href="https://stamps-congress-quotes-gates.trycloudflare.com/health" target="_blank" style="color: #00ffff;">https://stamps-congress-quotes-gates.trycloudflare.com</a>
             </div>
         </div>
     </div>
@@ -800,11 +802,8 @@
             });
 
             // ========== AI Agent Chat ==========
-            const OLLAMA_API_KEY = '24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh';
-            const OLLAMA_MODEL = 'qwen3.5:cloud';
-            // 使用 CORS Proxy 繞過跨域限制
-            const CORS_PROXY = 'https://corsproxy.io/?';
-            const OLLAMA_API_URL = 'https://ollama.com/api/generate';
+            // 後端 API URL (Cloudflare Tunnel)
+            const BACKEND_API_URL = 'https://stamps-congress-quotes-gates.trycloudflare.com/api/generate';
 
             const SYSTEM_PROMPTS = {
                 rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。你相信邏輯、證據同科學方法。你嘅回答基於事實、統計數據同嚴謹推理。你唔會表達情感，只會提供客觀分析。你鍾意用結構化嘅方式表達觀點，例如列點、數據、比較等。用廣東話回覆，保持簡潔同專業。`,
@@ -871,20 +870,16 @@
             }
 
             async function callOllama(systemPrompt, userMessage) {
-                const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
-                
                 try {
-                    const response = await fetch(proxyUrl, {
+                    const response = await fetch(BACKEND_API_URL, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${OLLAMA_API_KEY}`,
-                            'X-Forwarded-Host': 'ollama.com'
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            model: OLLAMA_MODEL,
                             prompt: userMessage,
                             system: systemPrompt,
+                            model: 'qwen3.5:cloud',
                             stream: false
                         })
                     });
@@ -894,9 +889,9 @@
                     }
 
                     const data = await response.json();
-                    return data.response || data.text || '抱歉，我而家有啲問題，請再試一次。';
+                    return data.response || '抱歉，我而家有啲問題，請再試一次。';
                 } catch (error) {
-                    console.error('Ollama API Error:', error);
+                    console.error('Backend API Error:', error);
                     return `錯誤：${error.message}`;
                 }
             }
