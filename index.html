@@ -755,7 +755,7 @@
             <div class="model-info">
                 🔧 <strong>Model:</strong> Ollama Cloud - qwen3.5:cloud | 
                 💡 <strong>架構:</strong> 前端 → 後端 API (Bridge) → Ollama API<br>
-                🔗 <strong>API:</strong> <a href="https://ollama.com" target="_blank" style="color: #00ffff;">ollama.com</a> (via CORS Proxy)
+                🔗 <strong>Backend:</strong> <a href="https://6a31-183-178-60-204.ngrok-free.app/health" target="_blank" style="color: #00ffff;">Ngrok Tunnel</a>
             </div>
         </div>
     </div>
@@ -819,10 +819,8 @@
             });
 
             // ========== AI Agent Chat ==========
-            // Ollama API URL (使用 CORS Proxy)
-            const OLLAMA_API_URL = 'https://ollama.com/api/generate';
-            const CORS_PROXY = 'https://corsproxy.io/?';
-            const BACKEND_API_URL = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+            // 後端 API URL (Ngrok Tunnel)
+            const BACKEND_API_URL = 'https://6a31-183-178-60-204.ngrok-free.app/api/generate';
 
             const SYSTEM_PROMPTS = {
                 rational: `【快速回應模式】你係 Logic-7。
