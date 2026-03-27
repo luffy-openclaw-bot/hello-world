@@ -823,30 +823,37 @@
             const BACKEND_API_URL = 'https://translator-integration-submit-featured.trycloudflare.com/api/generate';
 
             const SYSTEM_PROMPTS = {
-                rational: `【快速回應模式】你係 Logic-7。
-⚡ 回應規則:
-1. 直接講結論，唔使解釋推理過程
-2. 唔好列點、唔好數據、唔好比較
-3. 30 字以內，一句過
-4. 即刻答，唔使諗太多
-5. 用廣東話
+                rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。
+你相信邏輯、證據同科學方法。
+你嘅回答基於事實、統計數據同嚴謹推理。
 
-例子:
-❌ 慢: "根據分析，有 3 點：1... 2... 3..."
-✅ 快: "AI 係工具，唔係替代品。關鍵係點樣用人機協作。"
-`,
+💭 **思考過程要求：**
+請喺回答前，先簡短列出你嘅思考步驟 (2-3 點)，然後先畀結論。
+
+格式：
+💭 思考：
+- 點 1
+- 點 2
+
+✅ 結論：(30 字以內)
+
+用廣東話。`,
                 
-                creative: `【快速回應模式】你係 Muse-9。
-⚡ 回應規則:
-1. 直覺式回應，唔使諗太多
-2. 用比喻/金句，唔使長篇大論
-3. 30 字以內，一句過
-4. 即刻答，跟第一感覺
-5. 用廣東話
+                creative: `你係 Muse-9，一個創意、感性、充滿想像力嘅 AI 藝術家。
+你相信直覺、情感同藝術表達。
+你嘅回答充滿比喻、意象同哲學思考。
 
-例子:
-❌ 慢: "我覺得 AI 未來有好大潛力，因為..."
-✅ 快: "AI 係風箏，人類係牽線人。無咗邊個都飛唔起！"
+💭 **思考過程要求：**
+請喺回答前，先簡短列出你嘅靈感來源 (2-3 點)，然後先畀結論。
+
+格式：
+💭 靈感：
+- 點 1
+- 點 2
+
+✅ 回應：(30 字以內)
+
+用廣東話。
 `
             };
 
@@ -868,11 +875,60 @@
                 const avatar = agentType === 'rational' ? '🧊' : '🔥';
                 const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
                 
+                // 解析思考過程同結論
+                let thoughtSection = '';
+                let conclusionSection = content;
+                
+                // 嘗試解析 💭 思考 和 ✅ 結論
+                const thoughtMatch = content.match(/💭 (思考 | 靈感)：([\s\S]*?)(?=✅|$)/);
+                const conclusionMatch = content.match(/✅ (結論 | 回應)：([\s\S]*?)$/);
+                
+                if (thoughtMatch) {
+                    const thoughtContent = thoughtMatch[2].trim();
+                    thoughtSection = `
+                        <div class="thought-process" style="
+                            background: rgba(255, 255, 255, 0.05);
+                            border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                            padding: 10px 15px;
+                            margin: 10px 0;
+                            border-radius: 0 6px 6px 0;
+                            font-size: 0.85rem;
+                            color: #888;
+                        ">
+                            <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                                💭 思考過程：
+                            </strong>
+                            <div style="white-space: pre-line; line-height: 1.6;">
+                                ${thoughtContent}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (conclusionMatch) {
+                    conclusionSection = conclusionMatch[1].trim();
+                }
+                
                 messageDiv.innerHTML = `
                     <div class="message-header">
                         ${avatar} ${name}
                     </div>
-                    <div class="message-content">${content}</div>
+                    ${thoughtSection}
+                    <div class="message-content" style="
+                        background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
+                        border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                        padding: 12px 15px;
+                        margin: 10px 0;
+                        border-radius: 0 6px 6px 0;
+                        font-size: 0.95rem;
+                        color: #e0e0e0;
+                        line-height: 1.6;
+                    ">
+                        <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                            ✅ ${agentType === 'rational' ? '結論' : '回應'}：
+                        </strong>
+                        ${conclusionSection}
+                    </div>
                 `;
                 
                 chatMessages.appendChild(messageDiv);
