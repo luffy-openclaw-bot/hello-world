@@ -755,7 +755,7 @@
             <div class="model-info">
                 🔧 <strong>Model:</strong> Ollama Cloud - qwen3.5:cloud | 
                 💡 <strong>架構:</strong> 前端 → 後端 API (Bridge) → Ollama API<br>
-                🔗 <strong>Backend:</strong> <a href="https://drums-try-terms-safely.trycloudflare.com/health" target="_blank" style="color: #00ffff;">https://drums-try-terms-safely.trycloudflare.com</a>
+                🔗 <strong>API:</strong> <a href="https://ollama.com" target="_blank" style="color: #00ffff;">ollama.com</a> (via CORS Proxy)
             </div>
         </div>
     </div>
@@ -819,8 +819,10 @@
             });
 
             // ========== AI Agent Chat ==========
-            // 後端 API URL (Cloudflare Tunnel)
-            const BACKEND_API_URL = 'https://drums-try-terms-safely.trycloudflare.com/api/generate';
+            // Ollama API URL (使用 CORS Proxy)
+            const OLLAMA_API_URL = 'https://ollama.com/api/generate';
+            const CORS_PROXY = 'https://corsproxy.io/?';
+            const BACKEND_API_URL = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
 
             const SYSTEM_PROMPTS = {
                 rational: `【快速回應模式】你係 Logic-7。
