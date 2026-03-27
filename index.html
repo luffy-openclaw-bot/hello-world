@@ -945,14 +945,32 @@
                         const reader = response.body.getReader();
                         const decoder = new TextDecoder();
                         let fullText = '';
+                        let buffer = '';
                         
                         while (true) {
                             const { done, value } = await reader.read();
                             if (done) break;
                             
                             const chunk = decoder.decode(value);
-                            fullText += chunk;
-                            onChunk(fullText);  // 即時更新 UI
+                            buffer += chunk;
+                            
+                            // 解析 JSON Lines (Ollama 格式)
+                            const lines = buffer.split('\n');
+                            buffer = lines.pop() || ''; // 保留最後一行可能不完整
+                            
+                            for (const line of lines) {
+                                if (line.trim()) {
+                                    try {
+                                        const data = JSON.parse(line);
+                                        if (data.response) {
+                                            fullText += data.response;
+                                            onChunk(fullText);
+                                        }
+                                    } catch (e) {
+                                        console.warn('JSON parse error:', e);
+                                    }
+                                }
+                            }
                         }
                         
                         clearTimeout(timeoutId);
