@@ -909,50 +909,67 @@
                 isConversationRunning = true;
                 clearChat();
 
+                // 聊天歷史記錄
+                let chatHistory = [];
+                
+                // 開場白
                 addMessage('rational', `我哋今日討論嘅話題係：「${topicText}」讓我哋開始分析。`);
+                chatHistory.push(`[主持人] 話題：${topicText}`);
+
+                // 6 輪對話
+                const MAX_ROUNDS = 6;
+                const WORD_LIMIT = 80; // 每個回應最多 80 字
 
                 const conversationRounds = [
-                    {
-                        agent: 'creative',
-                        prompt: `我哋討論：${topicText}\n\n作為一個富有創造力嘅 AI，你點睇？`
-                    },
-                    {
-                        agent: 'rational',
-                        prompt: `Muse-9 講咗佢嘅觀點。作為 Logic-7，你點理性分析呢個話題？請提供客觀、基於數據嘅觀點。`
-                    },
-                    {
-                        agent: 'creative',
-                        prompt: `Logic-7 提供咗理性分析。你作為 Muse-9，有咩補充或者唔同睇法？用你嘅創意角度回應。`
-                    },
-                    {
-                        agent: 'rational',
-                        prompt: `Muse-9 有咗新觀點。你點從邏輯角度回應？有咩證據或者數據支持？`
-                    },
-                    {
-                        agent: 'creative',
-                        prompt: `Logic-7 繼續理性分析。你覺得人類情感同直覺喺呢個話題入面重唔重要？`
-                    },
-                    {
-                        agent: 'rational',
-                        prompt: `最後，請總結你嘅核心觀點。基於我哋嘅討論，你有咩結論？`
-                    }
+                    { agent: 'creative', role: 'Muse-9' },
+                    { agent: 'rational', role: 'Logic-7' },
+                    { agent: 'creative', role: 'Muse-9' },
+                    { agent: 'rational', role: 'Logic-7' },
+                    { agent: 'creative', role: 'Muse-9' },
+                    { agent: 'rational', role: 'Logic-7' }
                 ];
 
-                for (const round of conversationRounds) {
+                for (let i = 0; i < MAX_ROUNDS; i++) {
                     if (!isConversationRunning) break;
 
+                    const round = conversationRounds[i];
                     const agentType = round.agent;
+                    const agentName = round.role;
                     const systemPrompt = SYSTEM_PROMPTS[agentType];
+
+                    // 構建提示詞（包含聊天歷史）
+                    const historyContext = chatHistory.length > 0 
+                        ? `\n\n之前嘅對話：\n${chatHistory.join('\n')}` 
+                        : '';
+                    
+                    const wordLimitInstruction = `\n\n⚠️ 重要：請用廣東話回覆，並且**限制喺 ${WORD_LIMIT} 字以內**，簡潔表達你嘅觀點。`;
+                    
+                    let prompt = '';
+                    
+                    if (i === 0) {
+                        prompt = `我哋討論嘅話題係：「${topicText}」\n\n作為 ${agentName}，你點睇？${historyContext}${wordLimitInstruction}`;
+                    } else if (i === MAX_ROUNDS - 1) {
+                        prompt = `對話即將結束。作為 ${agentName}，請用${WORD_LIMIT}字以內總結你嘅核心觀點。${historyContext}${wordLimitInstruction}`;
+                    } else {
+                        prompt = `作為 ${agentName}，請回應之前嘅討論（${WORD_LIMIT}字以內）。${historyContext}${wordLimitInstruction}`;
+                    }
 
                     addTypingIndicator(agentType);
 
-                    const response = await callOllama(systemPrompt, round.prompt);
+                    const response = await callOllama(systemPrompt, prompt);
                     
                     removeTypingIndicator(agentType);
                     addMessage(agentType, response);
 
+                    // 更新聊天歷史
+                    chatHistory.push(`${agentName}: ${response.substring(0, 100)}${response.length > 100 ? '...' : ''}`);
+
+                    // 等待 1 秒
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
+
+                // 對話結束提示
+                addMessage('rational', `🎉 對話結束！多謝 Logic-7 同 Muse-9 嘅精彩討論。`);
 
                 isConversationRunning = false;
             }
