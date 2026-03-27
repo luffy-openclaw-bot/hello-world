@@ -16,7 +16,7 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
@@ -80,10 +80,10 @@
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             white-space: pre-wrap;
             word-wrap: break-word;
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
         
@@ -135,40 +135,71 @@
             border-left-color: #00ffff;
             background: rgba(0, 255, 255, 0.05);
         }
+        
+        .proxy-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+        
+        .proxy-status.working {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .proxy-status.failed {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧪 Ollama API 測試頁面</h1>
+        <h1>🧪 Ollama API 測試頁面 (多 Proxy 測試)</h1>
         
         <!-- API 資訊 -->
         <div class="info-box">
             <strong>📡 API 端點:</strong> https://ollama.com/api/generate<br>
             <strong>🤖 Model:</strong> qwen3.5:cloud<br>
             <strong>🔑 API Key:</strong> 已配置<br>
-            <strong>🌐 CORS Proxy:</strong> https://corsproxy.io/?
+            <strong>🌐 測試緊:</strong> 多個 CORS Proxy 服務
         </div>
         
-        <!-- 測試 1: 直接請求 -->
+        <!-- 測試所有 Proxy -->
         <div class="test-section">
-            <h2>📡 測試 1: 使用 CORS Proxy 請求</h2>
-            <p>呢個測試會通過 corsproxy.io 代理請求 Ollama API</p>
-            <button class="btn btn-test" onclick="testWithProxy()">🚀 開始測試 (CORS Proxy)</button>
-            <div id="proxy-result" class="status-box" style="display: none;"></div>
+            <h2>🚀 測試所有 CORS Proxy</h2>
+            <p>自動測試唔同嘅 CORS Proxy 服務，睇下邊個可用</p>
+            <button class="btn btn-test" onclick="testAllProxies()">🔍 開始測試所有 Proxy</button>
+            <div id="all-proxies-result" class="status-box" style="display: none;"></div>
         </div>
         
-        <!-- 測試 2: 直接請求 (應該失敗) -->
+        <!-- 手動選擇 Proxy -->
         <div class="test-section">
-            <h2>⚠️ 測試 2: 直接請求 (無 Proxy)</h2>
-            <p>呢個測試會直接請求 Ollama API，預計會因為 CORS 被阻止</p>
-            <button class="btn btn-test" onclick="testDirect()">⚡ 開始測試 (直接請求)</button>
-            <div id="direct-result" class="status-box" style="display: none;"></div>
+            <h2>🎯 手動選擇 Proxy 測試</h2>
+            <p>如果你知道邊個 Proxy 工作，可以手動選擇</p>
+            
+            <div style="margin: 15px 0;">
+                <label style="color: #00ffff; margin-right: 10px;">選擇 Proxy:</label>
+                <select id="proxySelect" style="padding: 8px 15px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,255,255,0.3); color: #00ffff; border-radius: 5px; font-family: 'Courier New', monospace;">
+                    <option value="https://api.allorigins.win/raw?url=">AllOrigins (raw)</option>
+                    <option value="https://corsproxy.io/?">CORS Proxy IO</option>
+                    <option value="https://cors.sh/api/fetch/">Cors.sh</option>
+                    <option value="https://api.codetabs.com/v1/proxy?quest=">CodeTabs</option>
+                    <option value="https://proxy.cors.sh/">Proxy CORS.sh</option>
+                    <option value="direct">直接請求 (無 Proxy)</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-test" onclick="testSelectedProxy()">⚡ 測試所選 Proxy</button>
+            <div id="selected-proxy-result" class="status-box" style="display: none;"></div>
         </div>
         
         <!-- 測試 3: 完整對話 -->
         <div class="test-section">
-            <h2>💬 測試 3: 完整對話測試</h2>
-            <p>測試完整嘅 AI 對話流程</p>
+            <h2>💬 完整對話測試</h2>
+            <p>使用工作中嘅 Proxy 進行完整對話測試</p>
             <button class="btn btn-test" onclick="testConversation()">💬 開始對話測試</button>
             <div id="conversation-result" class="status-box" style="display: none;"></div>
         </div>
@@ -177,6 +208,17 @@
         <div style="margin-top: 20px;">
             <button class="btn btn-clear" onclick="clearAll()">🗑️ 清空所有結果</button>
         </div>
+        
+        <!-- 說明 -->
+        <div class="info-box" style="margin-top: 30px;">
+            <strong>📖 說明:</strong><br>
+            由於 GitHub Pages 係靜態網站，無法直接請求第三方 API (CORS 限制)。<br>
+            我哋需要通過 CORS Proxy 服務繞過呢個限制。<br><br>
+            <strong>⚠️ 注意:</strong> 公共 Proxy 服務可能唔穩定，如果所有 Proxy 都失敗，建議:<br>
+            1. 使用後端服務代理請求<br>
+            2. 或者喺本地運行網頁 (唔係 GitHub Pages)<br>
+            3. 或者安裝瀏覽器 CORS 插件 (僅限開發)
+        </div>
     </div>
     
     <script>
@@ -184,7 +226,15 @@
         const OLLAMA_API_KEY = '24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh';
         const OLLAMA_MODEL = 'qwen3.5:cloud';
         const OLLAMA_API_URL = 'https://ollama.com/api/generate';
-        const CORS_PROXY = 'https://corsproxy.io/?';
+        
+        // 多個 CORS Proxy 服務
+        const PROXIES = [
+            { name: 'AllOrigins (raw)', url: 'https://api.allorigins.win/raw?url=' },
+            { name: 'CORS Proxy IO', url: 'https://corsproxy.io/?' },
+            { name: 'Cors.sh', url: 'https://cors.sh/api/fetch/' },
+            { name: 'CodeTabs', url: 'https://api.codetabs.com/v1/proxy?quest=' },
+            { name: 'Proxy CORS.sh', url: 'https://proxy.cors.sh/' }
+        ];
 
         // ========== 工具函數 ==========
         function showResult(elementId, message, type) {
@@ -207,24 +257,21 @@
         }
         
         function clearAll() {
-            ['proxy-result', 'direct-result', 'conversation-result'].forEach(id => {
+            ['all-proxies-result', 'selected-proxy-result', 'conversation-result'].forEach(id => {
                 const el = document.getElementById(id);
                 el.style.display = 'none';
                 el.innerHTML = '';
             });
         }
 
-        // ========== 測試 1: 使用 CORS Proxy ==========
-        async function testWithProxy() {
-            const resultId = 'proxy-result';
-            showResult(resultId, '⏳ 請求中...', 'loading');
-            
-            const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+        // ========== 測試單個 Proxy ==========
+        async function testProxy(proxyName, proxyUrl) {
+            const fullUrl = proxyUrl + encodeURIComponent(OLLAMA_API_URL);
             
             try {
                 const startTime = Date.now();
                 
-                const response = await fetch(proxyUrl, {
+                const response = await fetch(fullUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -247,99 +294,185 @@
                 }
                 
                 const data = await response.json();
-                
                 const result = data.response || data.text || '(無回應內容)';
                 
-                const output = `✅ 請求成功！
-
-⏱️  耗時：${duration}ms
-📊 HTTP 狀態：${response.status}
-🤖 Model: ${OLLAMA_MODEL}
-
-📝 AI 回應:
-${result}
-
-📦 完整回應:
-${JSON.stringify(data, null, 2)}`;
-                
-                showResult(resultId, output, 'success');
+                return {
+                    success: true,
+                    name: proxyName,
+                    duration: duration,
+                    status: response.status,
+                    result: result
+                };
                 
             } catch (error) {
-                const output = `❌ 請求失敗！
-
-錯誤類型：${error.name}
-錯誤訊息：${error.message}
-
-請檢查:
-1. API Key 是否正確
-2. CORS Proxy 是否可用
-3. 網絡連接是否正常`;
-                
-                showResult(resultId, output, 'error');
+                return {
+                    success: false,
+                    name: proxyName,
+                    error: error.message
+                };
             }
         }
 
-        // ========== 測試 2: 直接請求 (應該失敗) ==========
-        async function testDirect() {
-            const resultId = 'direct-result';
-            showResult(resultId, '⏳ 請求中...', 'loading');
+        // ========== 測試所有 Proxy ==========
+        async function testAllProxies() {
+            const resultId = 'all-proxies-result';
+            document.getElementById(resultId).innerHTML = '';
+            document.getElementById(resultId).style.display = 'block';
             
-            try {
-                const startTime = Date.now();
+            appendLog(resultId, '開始測試所有 CORS Proxy...', 'info');
+            
+            let workingProxies = [];
+            
+            for (const proxy of PROXIES) {
+                appendLog(resultId, `測試緊：${proxy.name}...`, 'info');
                 
-                const response = await fetch(OLLAMA_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${OLLAMA_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: OLLAMA_MODEL,
-                        prompt: '用一句廣東話打招呼',
-                        system: '你係一個友好嘅 AI 助手。用廣東話回覆。',
-                        stream: false
-                    })
-                });
+                const result = await testProxy(proxy.name, proxy.url);
                 
-                const endTime = Date.now();
-                const duration = endTime - startTime;
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                if (result.success) {
+                    appendLog(resultId, `✅ ${proxy.name} - 成功！(${result.duration}ms)`, 'success');
+                    workingProxies.push(proxy);
+                } else {
+                    appendLog(resultId, `❌ ${proxy.name} - 失敗：${result.error}`, 'error');
                 }
                 
-                const data = await response.json();
-                
-                const result = `⚠️ 居然成功咗？！(CORS 可能被允許)
+                // 等待 500ms 先測試下一個
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            appendLog(resultId, `\n📊 測試結果總結:`, 'info');
+            appendLog(resultId, `總共測試：${PROXIES.length} 個 Proxy`, 'info');
+            appendLog(resultId, `工作中：${workingProxies.length} 個`, 'success');
+            appendLog(resultId, `失敗：${PROXIES.length - workingProxies.length} 個`, 'error');
+            
+            if (workingProxies.length > 0) {
+                appendLog(resultId, `\n✅ 工作中嘅 Proxy:`, 'success');
+                workingProxies.forEach(p => {
+                    appendLog(resultId, `  • ${p.name}`, 'success');
+                });
+                appendLog(resultId, `\n💡 建議使用第一個工作中嘅 Proxy 進行對話測試！`, 'success');
+            } else {
+                appendLog(resultId, `\n❌ 所有 Proxy 都失敗！`, 'error');
+                appendLog(resultId, `\n可能原因:`, 'error');
+                appendLog(resultId, `  1. Ollama API 阻止咗所有公共 Proxy`, 'error');
+                appendLog(resultId, `  2. 網絡連接問題`, 'error');
+                appendLog(resultId, `  3. API Key 無效`, 'error');
+                appendLog(resultId, `\n建議解決方案:`, 'info');
+                appendLog(resultId, `  • 使用後端服務代理請求`, 'info');
+                appendLog(resultId, `  • 喺本地運行網頁 (file:// 或 localhost)`, 'info');
+                appendLog(resultId, `  • 安裝瀏覽器 CORS 插件 (僅限開發)`, 'info');
+            }
+        }
+
+        // ========== 測試所選 Proxy ==========
+        async function testSelectedProxy() {
+            const resultId = 'selected-proxy-result';
+            const proxySelect = document.getElementById('proxySelect');
+            const selectedValue = proxySelect.value;
+            
+            showResult(resultId, '⏳ 測試中...', 'loading');
+            
+            if (selectedValue === 'direct') {
+                // 直接請求
+                try {
+                    const startTime = Date.now();
+                    
+                    const response = await fetch(OLLAMA_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${OLLAMA_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: OLLAMA_MODEL,
+                            prompt: '用一句廣東話打招呼',
+                            system: '你係一個友好嘅 AI 助手。用廣東話回覆。',
+                            stream: false
+                        })
+                    });
+                    
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    const output = `✅ 直接請求成功！(CORS 可能被允許)
 
 ⏱️  耗時：${duration}ms
 📊 HTTP 狀態：${response.status}
 
 📝 AI 回應:
 ${data.response || data.text || '(無回應內容)'}`;
-                
-                showResult(resultId, result, 'success');
-                
-            } catch (error) {
-                const output = `❌ 預期嘅 CORS 錯誤！
+                    
+                    showResult(resultId, output, 'success');
+                    
+                } catch (error) {
+                    const output = `❌ 直接請求失敗 (預期 CORS 錯誤)
 
 錯誤類型：${error.name}
 錯誤訊息：${error.message}
 
-呢個係正常嘅，因為瀏覽器會阻止跨域請求。
-所以要使用 CORS Proxy (測試 1)。`;
+呢個係正常嘅，因為瀏覽器會阻止跨域請求。`;
+                    
+                    showResult(resultId, output, 'error');
+                }
+            } else {
+                // 使用 Proxy
+                const result = await testProxy('所選 Proxy', selectedValue);
                 
-                showResult(resultId, output, 'error');
+                if (result.success) {
+                    const output = `✅ Proxy 請求成功！
+
+⏱️  耗時：${result.duration}ms
+📊 HTTP 狀態：${result.status}
+🤖 Model: ${OLLAMA_MODEL}
+
+📝 AI 回應:
+${result.result}`;
+                    
+                    showResult(resultId, output, 'success');
+                } else {
+                    const output = `❌ Proxy 請求失敗！
+
+錯誤類型：${result.error}
+
+請嘗試其他 Proxy 服務。`;
+                    
+                    showResult(resultId, output, 'error');
+                }
             }
         }
 
-        // ========== 測試 3: 完整對話 ==========
+        // ========== 測試對話 ==========
         async function testConversation() {
             const resultId = 'conversation-result';
             document.getElementById(resultId).innerHTML = '';
             document.getElementById(resultId).style.display = 'block';
             
             appendLog(resultId, '開始對話測試...', 'info');
+            
+            // 首先測試所有 Proxy 搵出工作中嘅
+            appendLog(resultId, '正在尋找工作中嘅 Proxy...', 'info');
+            
+            let workingProxy = null;
+            
+            for (const proxy of PROXIES) {
+                const result = await testProxy(proxy.name, proxy.url);
+                
+                if (result.success) {
+                    workingProxy = proxy;
+                    appendLog(resultId, `✅ 找到工作中嘅 Proxy: ${proxy.name}`, 'success');
+                    break;
+                }
+            }
+            
+            if (!workingProxy) {
+                appendLog(resultId, '❌ 搵唔到工作中嘅 Proxy，無法進行對話測試', 'error');
+                return;
+            }
             
             const questions = [
                 'AI 會取代人類工作嗎？',
@@ -354,9 +487,9 @@ ${data.response || data.text || '(無回應內容)'}`;
                 appendLog(resultId, `❓ 問題 ${i + 1}/${questions.length}: ${question}`, 'info');
                 
                 try {
-                    const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+                    const fullUrl = workingProxy.url + encodeURIComponent(OLLAMA_API_URL);
                     
-                    const response = await fetch(proxyUrl, {
+                    const response = await fetch(fullUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -384,7 +517,6 @@ ${data.response || data.text || '(無回應內容)'}`;
                     appendLog(resultId, `❌ 錯誤：${error.message}`, 'error');
                 }
                 
-                // 等待 1 秒
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
@@ -395,7 +527,7 @@ ${data.response || data.text || '(無回應內容)'}`;
         console.log('Ollama API 測試頁面已載入');
         console.log('API URL:', OLLAMA_API_URL);
         console.log('Model:', OLLAMA_MODEL);
-        console.log('CORS Proxy:', CORS_PROXY);
+        console.log('Available Proxies:', PROXIES.map(p => p.name).join(', '));
     </script>
 </body>
 </html>
