@@ -66,41 +66,63 @@ app.post('/api/generate', async (req, res) => {
             hasSystem: !!system
         });
         
-        // 請求 Ollama API
-        const response = await fetch(OLLAMA_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OLLAMA_API_KEY}`
-            },
-            body: JSON.stringify({
-                model,
-                prompt,
-                system: system || '',
-                stream
-            })
-        });
+        // 設置 30 秒超時
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
         
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Ollama API 錯誤 (${response.status}):`, errorText);
-            
-            return res.status(response.status).json({
-                error: `Ollama API Error: ${response.status}`,
-                details: errorText
+        try {
+            // 請求 Ollama API
+            const response = await fetch(OLLAMA_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OLLAMA_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model,
+                    prompt,
+                    system: system || '',
+                    stream
+                }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Ollama API 錯誤 (${response.status}):`, errorText);
+                
+                return res.status(response.status).json({
+                    error: `Ollama API Error: ${response.status}`,
+                    details: errorText
+                });
+            }
+            
+            const data = await response.json();
+            
+            console.log(`[${new Date().toISOString()}] 請求成功`);
+            
+            res.json({
+                success: true,
+                response: data.response || data.text || '',
+                model,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                console.error('Ollama API 請求超時 (30 秒)');
+                return res.status(504).json({
+                    error: 'Gateway Timeout',
+                    message: 'Ollama API 請求超時 (超過 30 秒)，請稍後再試。'
+                });
+            }
+            
+            throw error;
         }
-        
-        const data = await response.json();
-        
-        console.log(`[${new Date().toISOString()}] 請求成功`);
-        
-        res.json({
-            success: true,
-            response: data.response || data.text || '',
-            model,
-            timestamp: new Date().toISOString()
-        });
         
     } catch (error) {
         console.error('伺服器錯誤:', error);

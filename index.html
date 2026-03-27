@@ -878,6 +878,10 @@
             }
 
             async function callOllama(systemPrompt, userMessage) {
+                // 設置 15 秒超時
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
                 try {
                     const response = await fetch(BACKEND_API_URL, {
                         method: 'POST',
@@ -889,8 +893,11 @@
                             system: systemPrompt,
                             model: 'qwen3.5:cloud',
                             stream: false
-                        })
+                        }),
+                        signal: controller.signal
                     });
+
+                    clearTimeout(timeoutId);
 
                     if (!response.ok) {
                         throw new Error(`API Error: ${response.status}`);
@@ -899,7 +906,13 @@
                     const data = await response.json();
                     return data.response || '抱歉，我而家有啲問題，請再試一次。';
                 } catch (error) {
+                    clearTimeout(timeoutId);
                     console.error('Backend API Error:', error);
+                    
+                    // 友好錯誤訊息
+                    if (error.name === 'AbortError') {
+                        return '⏱️ 請求超時 (超過 15 秒)，請檢查網絡連接或稍後再試。';
+                    }
                     return `錯誤：${error.message}`;
                 }
             }
