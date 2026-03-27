@@ -1,8 +1,8 @@
 /**
- * Ollama Bridge API
+ * Ollama Bridge API (串流版本)
  * 
  * 作為前端同 Ollama API 之間嘅橋樑
- * 解決 CORS 問題，同時保護 API Key
+ * 支持串流回應，讓用戶即時見到部分內容
  */
 
 const express = require('express');
@@ -19,7 +19,7 @@ const OLLAMA_API_URL = 'https://ollama.com/api/generate';
 
 // 中間件
 app.use(cors({
-    origin: '*', // 允許所有來源 (GitHub Pages)
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -31,7 +31,8 @@ app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        service: 'ollama-bridge-api'
+        service: 'ollama-bridge-api',
+        streaming: true
     });
 });
 
@@ -39,7 +40,7 @@ app.get('/health', (req, res) => {
 app.get('/api/info', (req, res) => {
     res.json({
         name: 'Ollama Bridge API',
-        version: '1.0.0',
+        version: '4.0 (Streaming)',
         model: OLLAMA_MODEL,
         endpoint: OLLAMA_API_URL
     });
@@ -94,13 +95,13 @@ app.post('/api/generate', async (req, res) => {
                 const errorText = await response.text();
                 console.error(`Ollama API 錯誤 (${response.status}):`, errorText);
                 
-                if (!stream) {
-                    return res.status(response.status).json({
-                        error: `Ollama API Error: ${response.status}`,
-                        details: errorText
-                    });
+                if (stream) {
+                    return res.status(response.status).send('Error');
                 }
-                return res.status(response.status).send('Error');
+                return res.status(response.status).json({
+                    error: `Ollama API Error: ${response.status}`,
+                    details: errorText
+                });
             }
             
             // 串流模式
@@ -108,23 +109,29 @@ app.post('/api/generate', async (req, res) => {
                 console.log(`[${new Date().toISOString()}] 開始串流`);
                 
                 // 設置 SSE headers
-                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                res.setHeader('Transfer-Encoding', 'chunked');
+                res.setHeader('Content-Type', 'text/event-stream');
+                res.setHeader('Cache-Control', 'no-cache');
+                res.setHeader('Connection', 'keep-alive');
                 
                 // 直接轉發 Ollama 嘅串流
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value);
-                    res.write(chunk);
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value);
+                        // 轉發原始數據到前端
+                        res.write(chunk);
+                    }
+                    res.end();
+                    console.log(`[${new Date().toISOString()}] 串流完成`);
+                } catch (error) {
+                    console.error('串流錯誤:', error);
+                    res.end();
                 }
-                
-                res.end();
-                console.log(`[${new Date().toISOString()}] 串流完成`);
                 return;
             }
             
@@ -146,13 +153,13 @@ app.post('/api/generate', async (req, res) => {
             if (error.name === 'AbortError') {
                 console.error('Ollama API 請求超時 (40 秒)');
                 
-                if (!stream) {
-                    return res.status(504).json({
-                        error: 'Gateway Timeout',
-                        message: 'Ollama API 請求超時 (超過 40 秒)，請稍後再試。'
-                    });
+                if (stream) {
+                    return res.status(504).send('Timeout');
                 }
-                return res.status(504).send('Timeout');
+                return res.status(504).json({
+                    error: 'Gateway Timeout',
+                    message: 'Ollama API 請求超時 (超過 40 秒)，請稍後再試。'
+                });
             }
             
             throw error;
@@ -172,86 +179,6 @@ app.post('/api/generate', async (req, res) => {
     }
 });
 
-/**
- * POST /api/chat
- * 
- * 對話測試接口 (連續問多個問題)
- */
-app.post('/api/chat', async (req, res) => {
-    try {
-        const { messages = [], system = '' } = req.body;
-        
-        if (!messages || messages.length === 0) {
-            return res.status(400).json({
-                error: 'Missing required field: messages'
-            });
-        }
-        
-        const results = [];
-        
-        for (const message of messages) {
-            const response = await fetch(OLLAMA_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OLLAMA_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: OLLAMA_MODEL,
-                    prompt: message,
-                    system,
-                    stream: false
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Ollama API Error: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            results.push({
-                prompt: message,
-                response: data.response || data.text || ''
-            });
-            
-            // 等待 500ms 先問下一個問題
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-        
-        res.json({
-            success: true,
-            results,
-            timestamp: new Date().toISOString()
-        });
-        
-    } catch (error) {
-        console.error('對話錯誤:', error);
-        
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: error.message
-        });
-    }
-});
-
-// 404 Handler
-app.use((req, res) => {
-    res.status(404).json({
-        error: 'Not Found',
-        path: req.path
-    });
-});
-
-// Error Handler
-app.use((err, req, res, next) => {
-    console.error('未處理嘅錯誤:', err);
-    
-    res.status(500).json({
-        error: 'Internal Server Error',
-        message: err.message
-    });
-});
-
 // 啟動服務器
 app.listen(PORT, () => {
     console.log(`
@@ -260,6 +187,7 @@ app.listen(PORT, () => {
 ╠════════════════════════════════════════════╣
 ║  端口：${PORT}                                
 ║  Model: ${OLLAMA_MODEL}                      
+║  串流：✅ 已啟用                             
 ║  端點：http://localhost:${PORT}/api/generate  
 ╚════════════════════════════════════════════╝
     `);
