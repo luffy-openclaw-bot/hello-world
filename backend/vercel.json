@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "name": "ollama-bridge-api",
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js"
+    }
+  ],
+  "env": {
+    "OLLAMA_API_KEY": "24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh",
+    "OLLAMA_MODEL": "qwen3.5:cloud"
+  }
+}
