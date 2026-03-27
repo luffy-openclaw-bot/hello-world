@@ -21,10 +21,18 @@ const OLLAMA_API_URL = 'https://ollama.com/api/generate';
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(express.json());
+
+// 明確處理 OPTIONS preflight 請求
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.sendStatus(200);
+});
 
 // Health Check
 app.get('/health', (req, res) => {
