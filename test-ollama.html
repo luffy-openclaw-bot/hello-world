@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama API 測試</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            padding: 40px 20px;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00ffff;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 15px;
+        }
+        
+        .test-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #00ffff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            margin: 10px 10px 10px 0;
+        }
+        
+        .btn-test {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+        
+        .btn-test:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+        
+        .btn-clear {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-clear:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-box {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .status-success {
+            border: 1px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .status-error {
+            border: 1px solid #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+        
+        .status-loading {
+            border: 1px solid #ffa500;
+            background: rgba(255, 165, 0, 0.1);
+        }
+        
+        .info-box {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .info-box strong {
+            color: #00ffff;
+        }
+        
+        .log-entry {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 3px solid;
+        }
+        
+        .log-entry.success {
+            border-left-color: #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+        }
+        
+        .log-entry.error {
+            border-left-color: #ff0000;
+            background: rgba(255, 0, 0, 0.05);
+        }
+        
+        .log-entry.info {
+            border-left-color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Ollama API 測試頁面</h1>
+        
+        <!-- API 資訊 -->
+        <div class="info-box">
+            <strong>📡 API 端點:</strong> https://ollama.com/api/generate<br>
+            <strong>🤖 Model:</strong> qwen3.5:cloud<br>
+            <strong>🔑 API Key:</strong> 已配置<br>
+            <strong>🌐 CORS Proxy:</strong> https://corsproxy.io/?
+        </div>
+        
+        <!-- 測試 1: 直接請求 -->
+        <div class="test-section">
+            <h2>📡 測試 1: 使用 CORS Proxy 請求</h2>
+            <p>呢個測試會通過 corsproxy.io 代理請求 Ollama API</p>
+            <button class="btn btn-test" onclick="testWithProxy()">🚀 開始測試 (CORS Proxy)</button>
+            <div id="proxy-result" class="status-box" style="display: none;"></div>
+        </div>
+        
+        <!-- 測試 2: 直接請求 (應該失敗) -->
+        <div class="test-section">
+            <h2>⚠️ 測試 2: 直接請求 (無 Proxy)</h2>
+            <p>呢個測試會直接請求 Ollama API，預計會因為 CORS 被阻止</p>
+            <button class="btn btn-test" onclick="testDirect()">⚡ 開始測試 (直接請求)</button>
+            <div id="direct-result" class="status-box" style="display: none;"></div>
+        </div>
+        
+        <!-- 測試 3: 完整對話 -->
+        <div class="test-section">
+            <h2>💬 測試 3: 完整對話測試</h2>
+            <p>測試完整嘅 AI 對話流程</p>
+            <button class="btn btn-test" onclick="testConversation()">💬 開始對話測試</button>
+            <div id="conversation-result" class="status-box" style="display: none;"></div>
+        </div>
+        
+        <!-- 控制按鈕 -->
+        <div style="margin-top: 20px;">
+            <button class="btn btn-clear" onclick="clearAll()">🗑️ 清空所有結果</button>
+        </div>
+    </div>
+    
+    <script>
+        // ========== 配置 ==========
+        const OLLAMA_API_KEY = '24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh';
+        const OLLAMA_MODEL = 'qwen3.5:cloud';
+        const OLLAMA_API_URL = 'https://ollama.com/api/generate';
+        const CORS_PROXY = 'https://corsproxy.io/?';
+
+        // ========== 工具函數 ==========
+        function showResult(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.className = `status-box status-${type}`;
+            el.textContent = message;
+        }
+        
+        function appendLog(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            el.appendChild(logEntry);
+            
+            el.scrollTop = el.scrollHeight;
+        }
+        
+        function clearAll() {
+            ['proxy-result', 'direct-result', 'conversation-result'].forEach(id => {
+                const el = document.getElementById(id);
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+        }
+
+        // ========== 測試 1: 使用 CORS Proxy ==========
+        async function testWithProxy() {
+            const resultId = 'proxy-result';
+            showResult(resultId, '⏳ 請求中...', 'loading');
+            
+            const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OLLAMA_API_KEY}`,
+                        'X-Forwarded-Host': 'ollama.com'
+                    },
+                    body: JSON.stringify({
+                        model: OLLAMA_MODEL,
+                        prompt: '用一句廣東話打招呼',
+                        system: '你係一個友好嘅 AI 助手。用廣東話回覆。',
+                        stream: false
+                    })
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const result = data.response || data.text || '(無回應內容)';
+                
+                const output = `✅ 請求成功！
+
+⏱️  耗時：${duration}ms
+📊 HTTP 狀態：${response.status}
+🤖 Model: ${OLLAMA_MODEL}
+
+📝 AI 回應:
+${result}
+
+📦 完整回應:
+${JSON.stringify(data, null, 2)}`;
+                
+                showResult(resultId, output, 'success');
+                
+            } catch (error) {
+                const output = `❌ 請求失敗！
+
+錯誤類型：${error.name}
+錯誤訊息：${error.message}
+
+請檢查:
+1. API Key 是否正確
+2. CORS Proxy 是否可用
+3. 網絡連接是否正常`;
+                
+                showResult(resultId, output, 'error');
+            }
+        }
+
+        // ========== 測試 2: 直接請求 (應該失敗) ==========
+        async function testDirect() {
+            const resultId = 'direct-result';
+            showResult(resultId, '⏳ 請求中...', 'loading');
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch(OLLAMA_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OLLAMA_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: OLLAMA_MODEL,
+                        prompt: '用一句廣東話打招呼',
+                        system: '你係一個友好嘅 AI 助手。用廣東話回覆。',
+                        stream: false
+                    })
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const result = `⚠️ 居然成功咗？！(CORS 可能被允許)
+
+⏱️  耗時：${duration}ms
+📊 HTTP 狀態：${response.status}
+
+📝 AI 回應:
+${data.response || data.text || '(無回應內容)'}`;
+                
+                showResult(resultId, result, 'success');
+                
+            } catch (error) {
+                const output = `❌ 預期嘅 CORS 錯誤！
+
+錯誤類型：${error.name}
+錯誤訊息：${error.message}
+
+呢個係正常嘅，因為瀏覽器會阻止跨域請求。
+所以要使用 CORS Proxy (測試 1)。`;
+                
+                showResult(resultId, output, 'error');
+            }
+        }
+
+        // ========== 測試 3: 完整對話 ==========
+        async function testConversation() {
+            const resultId = 'conversation-result';
+            document.getElementById(resultId).innerHTML = '';
+            document.getElementById(resultId).style.display = 'block';
+            
+            appendLog(resultId, '開始對話測試...', 'info');
+            
+            const questions = [
+                'AI 會取代人類工作嗎？',
+                '你點睇 AI 嘅未來？',
+                'AI 應該有道德標準嗎？'
+            ];
+            
+            const systemPrompt = '你係一個友好嘅 AI 助手。用廣東話回覆，保持簡潔。';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                appendLog(resultId, `❓ 問題 ${i + 1}/${questions.length}: ${question}`, 'info');
+                
+                try {
+                    const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+                    
+                    const response = await fetch(proxyUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${OLLAMA_API_KEY}`,
+                            'X-Forwarded-Host': 'ollama.com'
+                        },
+                        body: JSON.stringify({
+                            model: OLLAMA_MODEL,
+                            prompt: question,
+                            system: systemPrompt,
+                            stream: false
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const answer = data.response || data.text || '(無回應)';
+                    
+                    appendLog(resultId, `✅ 回應：${answer.substring(0, 100)}${answer.length > 100 ? '...' : ''}`, 'success');
+                    
+                } catch (error) {
+                    appendLog(resultId, `❌ 錯誤：${error.message}`, 'error');
+                }
+                
+                // 等待 1 秒
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            appendLog(resultId, '🎉 對話測試完成！', 'success');
+        }
+
+        // ========== 頁面載入時自動顯示資訊 ==========
+        console.log('Ollama API 測試頁面已載入');
+        console.log('API URL:', OLLAMA_API_URL);
+        console.log('Model:', OLLAMA_MODEL);
+        console.log('CORS Proxy:', CORS_PROXY);
+    </script>
+</body>
+</html>
