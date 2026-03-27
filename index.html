@@ -759,18 +759,15 @@
 
             // ========== Show Page ==========
             function showPage(pageNum) {
-                // Hide all pages
                 pages.forEach(page => {
                     page.classList.remove('active');
                 });
                 
-                // Show selected page
                 const targetPage = document.getElementById('page' + pageNum);
                 if (targetPage) {
                     targetPage.classList.add('active');
                 }
                 
-                // Update menu active state
                 menuLinks.forEach((link, index) => {
                     if (index + 1 === pageNum) {
                         link.classList.add('active');
@@ -779,14 +776,12 @@
                     }
                 });
                 
-                // Close sidebar on mobile
                 if (window.innerWidth < 768) {
                     toggleSidebar();
                 }
             }
 
             // ========== Event Listeners ==========
-            // Hamburger button
             if (hamburgerBtn) {
                 hamburgerBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -794,7 +789,6 @@
                 });
             }
 
-            // Menu links
             menuLinks.forEach((link, index) => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -808,6 +802,9 @@
             // ========== AI Agent Chat ==========
             const OLLAMA_API_KEY = '24eb99cd231348d28cab9f2f6c5fe656.y3hVb_bR0H8eNh4IUKmX9sSh';
             const OLLAMA_MODEL = 'qwen3.5:cloud';
+            // 使用 CORS Proxy 繞過跨域限制
+            const CORS_PROXY = 'https://corsproxy.io/?';
+            const OLLAMA_API_URL = 'https://ollama.com/api/generate';
 
             const SYSTEM_PROMPTS = {
                 rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。你相信邏輯、證據同科學方法。你嘅回答基於事實、統計數據同嚴謹推理。你唔會表達情感，只會提供客觀分析。你鍾意用結構化嘅方式表達觀點，例如列點、數據、比較等。用廣東話回覆，保持簡潔同專業。`,
@@ -842,7 +839,6 @@
                 
                 chatMessages.appendChild(messageDiv);
                 
-                // Auto scroll to bottom
                 const chatArea = document.getElementById('chatArea');
                 chatArea.scrollTop = chatArea.scrollHeight;
             }
@@ -875,12 +871,15 @@
             }
 
             async function callOllama(systemPrompt, userMessage) {
+                const proxyUrl = CORS_PROXY + encodeURIComponent(OLLAMA_API_URL);
+                
                 try {
-                    const response = await fetch('https://ollama.com/api/generate', {
+                    const response = await fetch(proxyUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${OLLAMA_API_KEY}`
+                            'Authorization': `Bearer ${OLLAMA_API_KEY}`,
+                            'X-Forwarded-Host': 'ollama.com'
                         },
                         body: JSON.stringify({
                             model: OLLAMA_MODEL,
@@ -913,14 +912,10 @@
                 const topicText = TOPICS[topic];
 
                 isConversationRunning = true;
-                
-                // Clear previous chat
                 clearChat();
 
-                // Add initial message
                 addMessage('rational', `我哋今日討論嘅話題係：「${topicText}」讓我哋開始分析。`);
 
-                // Simulate conversation (6 rounds)
                 const conversationRounds = [
                     {
                         agent: 'creative',
@@ -948,7 +943,6 @@
                     }
                 ];
 
-                // Execute conversation
                 for (const round of conversationRounds) {
                     if (!isConversationRunning) break;
 
@@ -962,7 +956,6 @@
                     removeTypingIndicator(agentType);
                     addMessage(agentType, response);
 
-                    // Wait between messages
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
@@ -1000,7 +993,6 @@
                 }
             }
 
-            // Initialize when DOM is ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     createStars();
