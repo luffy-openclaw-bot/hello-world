@@ -868,9 +868,17 @@
                 const color = agentType === 'rational' ? '#00ffff' : '#ff00ff';
                 
                 typingDiv.innerHTML = `
-                    <div class="typing-dot" style="background: ${color}"></div>
-                    <div class="typing-dot" style="background: ${color}"></div>
-                    <div class="typing-dot" style="background: ${color}"></div>
+                    <div class="message-header">
+                        ${agentType === 'rational' ? '🧊 Logic-7' : '🔥 Muse-9'}
+                    </div>
+                    <div class="message-content" style="color: ${color}; font-size: 0.9rem;">
+                        💭 思考中...
+                    </div>
+                    <div class="typing-dots" style="display: flex; gap: 5px; margin-top: 8px;">
+                        <div class="typing-dot" style="background: ${color}; animation: typing 1.4s infinite;"></div>
+                        <div class="typing-dot" style="background: ${color}; animation: typing 1.4s infinite 0.2s;"></div>
+                        <div class="typing-dot" style="background: ${color}; animation: typing 1.4s infinite 0.4s;"></div>
+                    </div>
                 `;
                 
                 chatMessages.appendChild(typingDiv);
@@ -994,10 +1002,14 @@
                         const elapsed = Math.round((Date.now() - startTime) / 1000);
                         const typingEl = document.getElementById(`typing-${agentType}`);
                         if (typingEl) {
-                            const dots = '.'.repeat((elapsed % 3) + 1);
-                            typingEl.querySelector('.message-content').textContent = `思考中${dots} (${elapsed}秒)`;
-                            typingEl.querySelector('.message-content').style.color = '#00ffff';
-                            typingEl.querySelector('.message-content').style.fontSize = '0.9rem';
+                            const contentEl = typingEl.querySelector('.message-content');
+                            if (contentEl) {
+                                const agentName = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+                                const color = agentType === 'rational' ? '#00ffff' : '#ff00ff';
+                                contentEl.textContent = `💭 ${agentName} 思考中... (${elapsed}秒)`;
+                                contentEl.style.color = color;
+                                contentEl.style.fontSize = '0.9rem';
+                            }
                         }
                     }, 1000);
 
