@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>串流測試 - Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #00ffff; margin-bottom: 20px; }
+        .test-section {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #ff00ff;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        button {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        button:hover { transform: scale(1.05); }
+        .output {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+        .log {
+            background: #0d0d0d;
+            border-left: 3px solid #00ffff;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .success { border-left-color: #00ff00; color: #00ff00; }
+        .error { border-left-color: #ff0000; color: #ff0000; }
+        .stream-chunk {
+            color: #00ffff;
+            animation: flash 0.3s ease;
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .raw-json {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        .progress {
+            color: #ff00ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 串流測試 Demo</h1>
+        
+        <!-- 測試 1: 直接測試後端 API -->
+        <div class="test-section">
+            <h2>📡 測試 1: 後端 API 串流</h2>
+            <p>直接調用 Ngrok Tunnel 後端 API，展示串流響應</p>
+            <button onclick="testBackendStream()">測試串流</button>
+            <button onclick="testBackendNonStream()">測試非串流</button>
+            <div class="output" id="backend-output">等待測試...</div>
+            <div class="log" id="backend-log"></div>
+        </div>
+        
+        <!-- 測試 2: JSON 解析演示 -->
+        <div class="test-section">
+            <h2>🔧 測試 2: JSON Lines 解析</h2>
+            <p>模擬 Ollama API 返回嘅 JSON Lines 格式</p>
+            <button onclick="testJsonParse()">測試 JSON 解析</button>
+            <div class="output" id="json-output">等待測試...</div>
+            <div class="raw-json" id="json-raw"></div>
+        </div>
+        
+        <!-- 測試 3: 完整流程 -->
+        <div class="test-section">
+            <h2>🎯 測試 3: 完整串流流程</h2>
+            <p>模擬完整嘅串流處理過程</p>
+            <button onclick="testFullStream()">開始完整測試</button>
+            <div class="output" id="full-output">等待測試...</div>
+            <div class="progress" id="full-progress"></div>
+        </div>
+    </div>
+    
+    <script>
+        const BACKEND_URL = 'https://7f83-183-178-60-204.ngrok-free.app/api/generate';
+        
+        // ========== 測試 1: 後端 API 串流 ==========
+        async function testBackendStream() {
+            const outputEl = document.getElementById('backend-output');
+            const logEl = document.getElementById('backend-log');
+            
+            outputEl.innerHTML = '<span class="progress">🔄 請求中...</span>';
+            logEl.innerHTML = '';
+            
+            const startTime = Date.now();
+            
+            try {
+                logEl.innerHTML += `<div>[${getTime()}] 發送請求到 ${BACKEND_URL}</div>`;
+                
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: '用 20 字打招呼',
+                        system: '快速回應',
+                        model: 'qwen3.5:cloud',
+                        stream: true
+                    })
+                });
+                
+                logEl.innerHTML += `<div class="success">[${getTime()}] ✅ 響應狀態：${response.status}</div>`;
+                logEl.innerHTML += `<div>[${getTime()}] Content-Type: ${response.headers.get('content-type')}</div>`;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                outputEl.innerHTML = '<span class="progress">📡 接收串流中...</span>\n\n';
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+                let buffer = '';
+                let chunkCount = 0;
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    buffer += chunk;
+                    
+                    logEl.innerHTML += `<div class="stream-chunk">[${getTime()}] 📦 收到 Chunk #${++chunkCount}: ${chunk.substring(0, 50)}...</div>`;
+                    
+                    // 解析 JSON Lines
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        if (line.trim()) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.response) {
+                                    fullText += data.response;
+                                    outputEl.innerHTML = `<span class="progress">📝 完整回應：</span>\n${fullText}`;
+                                    logEl.innerHTML += `<div class="success">[${getTime()}] ✅ 解析成功：${data.response.substring(0, 20)}...</div>`;
+                                }
+                            } catch (e) {
+                                logEl.innerHTML += `<div class="error">[${getTime()}] ❌ JSON 解析錯誤：${e.message}</div>`;
+                            }
+                        }
+                    }
+                }
+                
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+                logEl.innerHTML += `<div class="success">[${getTime()}] 🎉 完成！總耗時：${elapsed}秒</div>`;
+                
+            } catch (error) {
+                outputEl.innerHTML = `<span class="error">❌ 錯誤：${error.message}</span>`;
+                logEl.innerHTML += `<div class="error">[${getTime()}] ❌ ${error.message}</div>`;
+            }
+        }
+        
+        async function testBackendNonStream() {
+            const outputEl = document.getElementById('backend-output');
+            const logEl = document.getElementById('backend-log');
+            
+            outputEl.innerHTML = '<span class="progress">🔄 請求中...</span>';
+            logEl.innerHTML = '';
+            
+            const startTime = Date.now();
+            
+            try {
+                logEl.innerHTML += `<div>[${getTime()}] 發送非串流請求</div>`;
+                
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: '用 20 字打招呼',
+                        system: '快速回應',
+                        model: 'qwen3.5:cloud',
+                        stream: false
+                    })
+                });
+                
+                const data = await response.json();
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+                
+                outputEl.innerHTML = `📝 完整回應：\n${data.response || '無回應'}`;
+                logEl.innerHTML = `<div class="success">[${getTime()}] ✅ 完成！總耗時：${elapsed}秒</div>`;
+                
+            } catch (error) {
+                outputEl.innerHTML = `<span class="error">❌ 錯誤：${error.message}</span>`;
+                logEl.innerHTML += `<div class="error">[${getTime()}] ❌ ${error.message}</div>`;
+            }
+        }
+        
+        // ========== 測試 2: JSON Lines 解析 ==========
+        function testJsonParse() {
+            const outputEl = document.getElementById('json-output');
+            const rawEl = document.getElementById('json-raw');
+            
+            // 模擬 Ollama API 返回嘅 JSON Lines
+            const mockOllamaResponse = `{"response":"你","done":false}
+{"response":"好，","done":false}
+{"response":"我","done":false}
+{"response":"係","done":false}
+{"response":" Logic-7","done":false}
+{"response":"。","done":true}`;
+            
+            rawEl.innerHTML = `<strong>原始 JSON Lines：</strong>\n${mockOllamaResponse}`;
+            outputEl.innerHTML = '<span class="progress">🔧 解析中...</span>';
+            
+            setTimeout(() => {
+                const lines = mockOllamaResponse.split('\n');
+                let fullText = '';
+                let html = '<strong>解析過程：</strong>\n\n';
+                
+                lines.forEach((line, i) => {
+                    try {
+                        const data = JSON.parse(line);
+                        fullText += data.response;
+                        html += `<div>[${i+1}] JSON: ${line.substring(0, 30)}... → response: "${data.response}"</div>`;
+                    } catch (e) {
+                        html += `<div class="error">[${i+1}] 解析錯誤：${e.message}</div>`;
+                    }
+                });
+                
+                html += `\n<strong>📝 最終結果：</strong> ${fullText}`;
+                outputEl.innerHTML = html;
+            }, 500);
+        }
+        
+        // ========== 測試 3: 完整流程 ==========
+        async function testFullStream() {
+            const outputEl = document.getElementById('full-output');
+            const progressEl = document.getElementById('full-progress');
+            
+            outputEl.innerHTML = '';
+            progressEl.innerHTML = '⏱️ 0.0 秒 - 準備中...';
+            
+            const startTime = Date.now();
+            const updateProgress = () => {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                progressEl.innerHTML = `⏱️ ${elapsed}秒 - 處理中...`;
+            };
+            
+            const progressInterval = setInterval(updateProgress, 100);
+            
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: 'AI 未來發展係點？用 30 字以內',
+                        system: '【快速回應模式】直接講結論，唔使解釋，30 字以內',
+                        model: 'qwen3.5:cloud',
+                        stream: true
+                    })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+                let buffer = '';
+                
+                outputEl.innerHTML = '<span class="progress">📡 接收串流中...</span>\n\n';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    buffer += chunk;
+                    
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        if (line.trim()) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.response) {
+                                    fullText += data.response;
+                                    outputEl.innerHTML = `<strong>🔥 即時顯示：</strong>\n${fullText}<span class="stream-chunk">▊</span>`;
+                                }
+                            } catch (e) {
+                                // 忽略解析錯誤
+                            }
+                        }
+                    }
+                }
+                
+                clearInterval(progressInterval);
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+                progressEl.innerHTML = `✅ ${elapsed}秒 - 完成！`;
+                outputEl.innerHTML = `<strong>✅ 完整回應：</strong>\n${fullText}`;
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                outputEl.innerHTML = `<span class="error">❌ 錯誤：${error.message}</span>`;
+                progressEl.innerHTML = '❌ 失敗';
+            }
+        }
+        
+        function getTime() {
+            return new Date().toLocaleTimeString('zh-HK', { hour12: false });
+        }
+    </script>
+</body>
+</html>
