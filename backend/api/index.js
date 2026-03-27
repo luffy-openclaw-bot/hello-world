@@ -48,7 +48,7 @@ app.get('/api/info', (req, res) => {
 /**
  * POST /api/generate
  * 
- * 代理請求到 Ollama API
+ * 代理請求到 Ollama API (支持串流)
  */
 app.post('/api/generate', async (req, res) => {
     try {
@@ -63,12 +63,13 @@ app.post('/api/generate', async (req, res) => {
         console.log(`[${new Date().toISOString()}] 收到請求:`, {
             model,
             promptLength: prompt.length,
-            hasSystem: !!system
+            hasSystem: !!system,
+            stream
         });
         
-        // 設置 30 秒超時
+        // 設置 40 秒超時
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const timeoutId = setTimeout(() => controller.abort(), 40000);
         
         try {
             // 請求 Ollama API
@@ -82,7 +83,7 @@ app.post('/api/generate', async (req, res) => {
                     model,
                     prompt,
                     system: system || '',
-                    stream
+                    stream: stream  // 傳遞串流標誌
                 }),
                 signal: controller.signal
             });
@@ -93,12 +94,41 @@ app.post('/api/generate', async (req, res) => {
                 const errorText = await response.text();
                 console.error(`Ollama API 錯誤 (${response.status}):`, errorText);
                 
-                return res.status(response.status).json({
-                    error: `Ollama API Error: ${response.status}`,
-                    details: errorText
-                });
+                if (!stream) {
+                    return res.status(response.status).json({
+                        error: `Ollama API Error: ${response.status}`,
+                        details: errorText
+                    });
+                }
+                return res.status(response.status).send('Error');
             }
             
+            // 串流模式
+            if (stream) {
+                console.log(`[${new Date().toISOString()}] 開始串流`);
+                
+                // 設置 SSE headers
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.setHeader('Transfer-Encoding', 'chunked');
+                
+                // 直接轉發 Ollama 嘅串流
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    res.write(chunk);
+                }
+                
+                res.end();
+                console.log(`[${new Date().toISOString()}] 串流完成`);
+                return;
+            }
+            
+            // 非串流模式
             const data = await response.json();
             
             console.log(`[${new Date().toISOString()}] 請求成功`);
@@ -114,11 +144,15 @@ app.post('/api/generate', async (req, res) => {
             clearTimeout(timeoutId);
             
             if (error.name === 'AbortError') {
-                console.error('Ollama API 請求超時 (30 秒)');
-                return res.status(504).json({
-                    error: 'Gateway Timeout',
-                    message: 'Ollama API 請求超時 (超過 30 秒)，請稍後再試。'
-                });
+                console.error('Ollama API 請求超時 (40 秒)');
+                
+                if (!stream) {
+                    return res.status(504).json({
+                        error: 'Gateway Timeout',
+                        message: 'Ollama API 請求超時 (超過 40 秒)，請稍後再試。'
+                    });
+                }
+                return res.status(504).send('Timeout');
             }
             
             throw error;
@@ -127,10 +161,14 @@ app.post('/api/generate', async (req, res) => {
     } catch (error) {
         console.error('伺服器錯誤:', error);
         
-        res.status(500).json({
-            error: 'Internal Server Error',
-            message: error.message
-        });
+        if (!req.body.stream) {
+            res.status(500).json({
+                error: 'Internal Server Error',
+                message: error.message
+            });
+        } else {
+            res.status(500).send('Error');
+        }
     }
 });
 
