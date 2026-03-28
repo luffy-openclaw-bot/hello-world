@@ -747,7 +747,44 @@
         function updateMessageDiv(messageDiv, agentType, displayData) {
             const avatar = agentType === 'rational' ? '🧊' : '🔥';
             const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
-            messageDiv.innerHTML = buildMessageHTML(agentType, avatar, name, displayData);
+            
+            // 分開更新思考區域和回應區域
+            let thoughtEl = messageDiv.querySelector('.thought-process');
+            let conclusionEl = messageDiv.querySelector('.conclusion-box');
+            
+            // 更新思考區域
+            if (displayData.hasThought && displayData.thought) {
+                if (!thoughtEl) {
+                    // 創建思考區域
+                    thoughtEl = document.createElement('div');
+                    thoughtEl.className = `thought-process ${agentType === 'creative' ? 'creative' : ''}`;
+                    thoughtEl.innerHTML = `
+                        <strong>💭 思考過程：</strong>
+                        <div class="thought-content"></div>
+                    `;
+                    // 插入到 header 之後
+                    const headerEl = messageDiv.querySelector('.message-header');
+                    if (headerEl) {
+                        headerEl.after(thoughtEl);
+                    }
+                }
+                thoughtEl.querySelector('.thought-content').textContent = displayData.thought;
+            }
+            
+            // 更新回應區域
+            if (displayData.hasConclusion && displayData.conclusion) {
+                if (!conclusionEl) {
+                    // 創建回應區域
+                    conclusionEl = document.createElement('div');
+                    conclusionEl.className = `conclusion-box ${agentType === 'creative' ? 'creative' : ''}`;
+                    conclusionEl.innerHTML = `
+                        <strong>✅ ${agentType === 'rational' ? '結論' : '回應'}：</strong>
+                        <span></span>
+                    `;
+                    messageDiv.appendChild(conclusionEl);
+                }
+                conclusionEl.querySelector('span').textContent = displayData.conclusion;
+            }
         }
         
         function buildMessageHTML(agentType, avatar, name, displayData) {
