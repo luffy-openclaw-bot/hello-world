@@ -451,7 +451,7 @@
             console.log('[addMessage] 原始內容:', content);
             
             // 嘗試解析 💭 思考 和 ✅ 結論 (支持半形同全形冒號)
-            const thoughtMatch = content.match(/💭\s*(思考 | 靈感)\s*[:：]\s*([\s\S]*?)(?=✅|$)/);
+            const thoughtMatch = content.match(/💭\s*(思考 | 靈感)\s*[:：]\s*([\s\S]*?)(?=✅)/);
             const conclusionMatch = content.match(/✅\s*(結論 | 回應)\s*[:：]\s*([\s\S]*?)$/);
             
             console.log('[addMessage] 思考匹配:', thoughtMatch);
@@ -460,27 +460,23 @@
             if (thoughtMatch && thoughtMatch[2]) {
                 const thoughtContent = thoughtMatch[2].trim();
                 thoughtSection = `
-                    <div class="thought-process" style="
-                        background: rgba(255, 255, 255, 0.05);
-                        border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
-                        padding: 10px 15px;
-                        margin: 10px 0;
-                        border-radius: 0 6px 6px 0;
-                        font-size: 0.85rem;
-                        color: #aaa;
-                    ">
-                        <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                    <div class="thought-process ${agentType === 'creative' ? 'creative' : ''}">
+                        <strong>
                             💭 思考過程：
                         </strong>
-                        <div style="white-space: pre-line; line-height: 1.6;">
+                        <div class="thought-content">
                             ${thoughtContent}
                         </div>
                     </div>
                 `;
             }
             
+            // 只有匹配到 ✅ 先顯示結論，否則顯示原始內容
             if (conclusionMatch && conclusionMatch[2]) {
                 conclusionSection = conclusionMatch[2].trim();
+            } else {
+                // 無匹配到 ✅，唔顯示結論區域
+                conclusionSection = '';
             }
             
             messageDiv.innerHTML = `
@@ -488,21 +484,16 @@
                     ${avatar} ${name}
                 </div>
                 ${thoughtSection}
-                <div class="message-content" style="
-                    background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
-                    border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
-                    padding: 12px 15px;
-                    margin: 10px 0;
-                    border-radius: 0 6px 6px 0;
-                    font-size: 0.95rem;
-                    color: #e0e0e0;
-                    line-height: 1.6;
-                ">
-                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                ${conclusionSection ? `
+                <div class="conclusion-box ${agentType === 'creative' ? 'creative' : ''}">
+                    <strong>
                         ✅ ${agentType === 'rational' ? '結論' : '回應'}：
                     </strong>
-                    ${conclusionSection}
+                    <span>
+                        ${conclusionSection}
+                    </span>
                 </div>
+                ` : ''}
             `;
             
             chatMessages.appendChild(messageDiv);
