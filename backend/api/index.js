@@ -146,13 +146,36 @@ app.post('/api/generate', async (req, res) => {
             // 非串流模式
             const data = await response.json();
             
-            console.log(`[${new Date().toISOString()}] 請求成功`);
+            console.log(`[${new Date().toISOString()}] 請求成功`, {
+                hasResponse: !!data.response,
+                hasThinking: !!data.thinking,
+                responseLength: data.response?.length || 0,
+                thinkingLength: data.thinking?.length || 0
+            });
+            
+            // 合併 thinking 同 response (如果存在)
+            let finalResponse = '';
+            if (data.thinking && data.response) {
+                // 有思考過程 + 結論
+                finalResponse = `💭 思考：\n${data.thinking}\n\n✅ 結論：\n${data.response}`;
+            } else if (data.response) {
+                finalResponse = data.response;
+            } else if (data.text) {
+                finalResponse = data.text;
+            } else if (data.thinking) {
+                // 只有思考過程
+                finalResponse = data.thinking;
+            }
             
             res.json({
                 success: true,
-                response: data.response || data.text || '',
+                response: finalResponse,
                 model,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                raw: {
+                    hasThinking: !!data.thinking,
+                    hasResponse: !!data.response
+                }
             });
             
         } catch (error) {
