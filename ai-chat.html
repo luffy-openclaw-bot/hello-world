@@ -206,6 +206,46 @@
             box-shadow: none;
         }
         
+        /* Conclusion Highlight */
+        .conclusion-box {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 128, 255, 0.1));
+            border: 2px solid #00ffff;
+            border-left: 4px solid #00ffff;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            color: #fff;
+            line-height: 1.7;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            animation: conclusionGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .conclusion-box.creative {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.15), rgba(255, 128, 0, 0.1));
+            border-color: #ff00ff;
+            border-left-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+        }
+        
+        @keyframes conclusionGlow {
+            from {
+                box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            }
+        }
+        
+        @keyframes conclusionGlowCreative {
+            from {
+                box-shadow: 0 0 15px rgba(255, 0, 255, 0.2);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+            }
+        }
+        
         /* Back Button */
         .back-btn {
             display: inline-block;
@@ -679,20 +719,15 @@
             ` : '';
             
             const conclusionSection = displayData.hasConclusion && displayData.conclusion ? `
-                <div class="message-content" style="
-                    background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
-                    border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
-                    padding: 12px 15px;
-                    margin: 10px 0;
-                    border-radius: 0 6px 6px 0;
-                    font-size: 0.95rem;
-                    color: #e0e0e0;
-                    line-height: 1.6;
+                <div class="conclusion-box ${agentType === 'creative' ? 'creative' : ''}" style="
+                    animation-name: ${agentType === 'rational' ? 'conclusionGlow' : 'conclusionGlowCreative'};
                 ">
-                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px; font-size: 1.1rem;">
                         ✅ ${agentType === 'rational' ? '結論' : '回應'}：
                     </strong>
-                    ${displayData.conclusion}
+                    <span style="font-weight: 500;">
+                        ${displayData.conclusion}
+                    </span>
                 </div>
             ` : '';
             
