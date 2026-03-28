@@ -879,11 +879,16 @@
                 let thoughtSection = '';
                 let conclusionSection = content;
                 
-                // 嘗試解析 💭 思考 和 ✅ 結論
-                const thoughtMatch = content.match(/💭 (思考 | 靈感)：([\s\S]*?)(?=✅|$)/);
-                const conclusionMatch = content.match(/✅ (結論 | 回應)：([\s\S]*?)$/);
+                console.log('[addMessage] 原始內容:', content);
                 
-                if (thoughtMatch) {
+                // 嘗試解析 💭 思考 和 ✅ 結論 (更寬鬆嘅 regex)
+                const thoughtMatch = content.match(/💭\s*(思考 | 靈感)\s*:\s*([\s\S]*?)(?=✅|$)/);
+                const conclusionMatch = content.match(/✅\s*(結論 | 回應)\s*:\s*([\s\S]*?)$/);
+                
+                console.log('[addMessage] 思考匹配:', thoughtMatch);
+                console.log('[addMessage] 結論匹配:', conclusionMatch);
+                
+                if (thoughtMatch && thoughtMatch[2]) {
                     const thoughtContent = thoughtMatch[2].trim();
                     thoughtSection = `
                         <div class="thought-process" style="
@@ -893,7 +898,7 @@
                             margin: 10px 0;
                             border-radius: 0 6px 6px 0;
                             font-size: 0.85rem;
-                            color: #888;
+                            color: #aaa;
                         ">
                             <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
                                 💭 思考過程：
@@ -905,8 +910,8 @@
                     `;
                 }
                 
-                if (conclusionMatch) {
-                    conclusionSection = conclusionMatch[1].trim();
+                if (conclusionMatch && conclusionMatch[2]) {
+                    conclusionSection = conclusionMatch[2].trim();
                 }
                 
                 messageDiv.innerHTML = `
