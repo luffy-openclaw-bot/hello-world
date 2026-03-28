@@ -179,6 +179,33 @@
             cursor: not-allowed;
         }
         
+        .stop-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .stop-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
+        
+        .stop-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         /* Back Button */
         .back-btn {
             display: inline-block;
@@ -248,6 +275,10 @@
                 <button class="start-btn" id="startBtn" onclick="startConversation()" disabled>
                     🚀 開始對話
                 </button>
+                
+                <button class="stop-btn" id="stopBtn" onclick="stopConversation()">
+                    ⏹️ 停止對話
+                </button>
             </div>
         </div>
     </div>
@@ -302,6 +333,9 @@
         // ========== UI Functions ==========
         const topicSelect = document.getElementById('topicSelect');
         const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        let currentController = null;
         
         topicSelect.addEventListener('change', () => {
             startBtn.disabled = !topicSelect.value;
@@ -422,6 +456,9 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000);
             
+            // 保存 controller 以便外部可以中止
+            currentController = controller;
+            
             try {
                 const response = await fetch(BACKEND_API_URL, {
                     method: 'POST',
@@ -514,6 +551,25 @@
         }
         
         // ========== Conversation Logic ==========
+        function stopConversation() {
+            if (currentController) {
+                currentController.abort();
+                console.log('⏹️ 已停止對話');
+                
+                // 更新 UI
+                startBtn.disabled = false;
+                stopBtn.style.display = 'none';
+                
+                // 添加系統消息
+                const chatMessages = document.getElementById('chatMessages');
+                const systemMsg = document.createElement('div');
+                systemMsg.style.cssText = 'text-align: center; color: #ff4444; padding: 10px; font-size: 0.9rem;';
+                systemMsg.textContent = '⏹️ 對話已停止';
+                chatMessages.appendChild(systemMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+        
         async function startConversation() {
             const topic = topicSelect.value;
             if (!topic) return;
@@ -523,6 +579,7 @@
             chatMessages.innerHTML = '';
             
             startBtn.disabled = true;
+            stopBtn.style.display = 'block';
             
             const agents = ['rational', 'creative'];
             
@@ -579,6 +636,8 @@
             }
             
             startBtn.disabled = false;
+            stopBtn.style.display = 'none';
+            currentController = null;
         }
         
         // ========== Helper Functions ==========
