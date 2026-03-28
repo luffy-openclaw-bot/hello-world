@@ -942,6 +942,73 @@
                 chatArea.scrollTop = chatArea.scrollHeight;
             }
 
+            // 創建訊息 DIV
+            function createMessageDiv(agentType, displayData) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${agentType}`;
+                
+                const avatar = agentType === 'rational' ? '🧊' : '🔥';
+                const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+                
+                messageDiv.innerHTML = buildMessageHTML(agentType, avatar, name, displayData);
+                return messageDiv;
+            }
+            
+            // 更新訊息 DIV
+            function updateMessageDiv(messageDiv, agentType, displayData) {
+                const avatar = agentType === 'rational' ? '🧊' : '🔥';
+                const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+                messageDiv.innerHTML = buildMessageHTML(agentType, avatar, name, displayData);
+            }
+            
+            // 構建訊息 HTML
+            function buildMessageHTML(agentType, avatar, name, displayData) {
+                const thoughtSection = displayData.hasThought && displayData.thought ? `
+                    <div class="thought-process" style="
+                        background: rgba(255, 255, 255, 0.05);
+                        border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                        padding: 10px 15px;
+                        margin: 10px 0;
+                        border-radius: 0 6px 6px 0;
+                        font-size: 0.85rem;
+                        color: #aaa;
+                    ">
+                        <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                            💭 思考過程：
+                        </strong>
+                        <div style="white-space: pre-line; line-height: 1.6;">
+                            ${displayData.thought}
+                        </div>
+                    </div>
+                ` : '';
+                
+                const conclusionSection = displayData.hasConclusion && displayData.conclusion ? `
+                    <div class="message-content" style="
+                        background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
+                        border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                        padding: 12px 15px;
+                        margin: 10px 0;
+                        border-radius: 0 6px 6px 0;
+                        font-size: 0.95rem;
+                        color: #e0e0e0;
+                        line-height: 1.6;
+                    ">
+                        <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                            ✅ ${agentType === 'rational' ? '結論' : '回應'}：
+                        </strong>
+                        ${displayData.conclusion}
+                    </div>
+                ` : '';
+                
+                return `
+                    <div class="message-header">
+                        ${avatar} ${name}
+                    </div>
+                    ${thoughtSection}
+                    ${conclusionSection}
+                `;
+            }
+            
             function addTypingIndicator(agentType) {
                 const chatMessages = document.getElementById('chatMessages');
                 const typingDiv = document.createElement('div');
@@ -1007,6 +1074,8 @@
                         const decoder = new TextDecoder();
                         let fullText = '';
                         let buffer = '';
+                        let lastThoughtLength = 0;
+                        let lastConclusionLength = 0;
                         
                         while (true) {
                             const { done, value } = await reader.read();
@@ -1025,7 +1094,21 @@
                                         const data = JSON.parse(line);
                                         if (data.response) {
                                             fullText += data.response;
-                                            onChunk(fullText);
+                                            
+                                            // 解析思考過程同結論
+                                            const thoughtMatch = fullText.match(/💭\s*(思考 | 靈感)\s*:\s*([\s\S]*?)(?=✅|$)/);
+                                            const conclusionMatch = fullText.match(/✅\s*(結論 | 回應)\s*:\s*([\s\S]*?)$/);
+                                            
+                                            // 準備顯示內容
+                                            const displayData = {
+                                                fullText: fullText,
+                                                thought: thoughtMatch && thoughtMatch[2] ? thoughtMatch[2].trim() : '',
+                                                conclusion: conclusionMatch && conclusionMatch[2] ? conclusionMatch[2].trim() : '',
+                                                hasThought: !!(thoughtMatch && thoughtMatch[2]),
+                                                hasConclusion: !!(conclusionMatch && conclusionMatch[2])
+                                            };
+                                            
+                                            onChunk(displayData);
                                         }
                                     } catch (e) {
                                         console.warn('JSON parse error:', e);
@@ -1116,28 +1199,42 @@
                     const startTime = Date.now();
                     addTypingIndicator(agentType);
                     
-                    // 使用串流模式，即時顯示內容
-                    let currentText = '';
-                    const response = await callOllama(systemPrompt, prompt, (chunk) => {
-                        currentText = chunk;
-                        // 更新 UI：移除打字指示，顯示實際內容
+                    // 使用串流模式，即時顯示思考過程同結論
+                    let displayData = { fullText: '', thought: '', conclusion: '', hasThought: false, hasConclusion: false };
+                    let messageDiv = null;
+                    
+                    const response = await callOllama(systemPrompt, prompt, (data) => {
+                        displayData = data;
+                        
+                        // 如果已有思考過程，更新或創建訊息
                         const typingEl = document.getElementById(`typing-${agentType}`);
-                        if (typingEl) {
+                        
+                        if (displayData.hasThought && !messageDiv) {
+                            // 思考過程出現咗，移除打字指示，創建正式訊息
+                            removeTypingIndicator(agentType);
+                            messageDiv = createMessageDiv(agentType, displayData);
+                            document.getElementById('chatMessages').appendChild(messageDiv);
+                        } else if (messageDiv) {
+                            // 更新現有訊息
+                            updateMessageDiv(messageDiv, agentType, displayData);
+                        } else if (typingEl) {
+                            // 未出現思考過程，更新打字指示
                             const contentEl = typingEl.querySelector('.message-content');
                             if (contentEl) {
-                                contentEl.textContent = chunk;
-                                contentEl.style.color = '#e0e0e0';
-                                contentEl.style.fontSize = '0.95rem';
+                                contentEl.textContent = displayData.fullText || '💭 思考中...';
                             }
-                            // 移除打字動畫
-                            const dotsEl = typingEl.querySelector('.typing-dots');
-                            if (dotsEl) dotsEl.style.display = 'none';
                         }
+                        
+                        // 滾動到底部
+                        const chatArea = document.getElementById('chatArea');
+                        chatArea.scrollTop = chatArea.scrollHeight;
                     });
                     
-                    // 移除打字指示，添加正式訊息
+                    // 確保最終訊息正確顯示
                     removeTypingIndicator(agentType);
-                    addMessage(agentType, currentText || response);
+                    if (!messageDiv) {
+                        addMessage(agentType, response);
+                    }
 
                     // 更新聊天歷史
                     chatHistory.push(`${agentName}: ${response.substring(0, 100)}${response.length > 100 ? '...' : ''}`);
