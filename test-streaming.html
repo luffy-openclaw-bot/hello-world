@@ -81,6 +81,29 @@
     <div class="container">
         <h1>🚀 串流測試 Demo</h1>
         
+        <!-- Console Log Area -->
+        <div class="test-section" id="console-section" style="display: none;">
+            <h2>🖥️ Console Log</h2>
+            <button onclick="clearConsoleLog()" style="background: linear-gradient(135deg, #f00, #a00);">Clear Log</button>
+            <div class="output" id="console-log" style="max-height: 300px; overflow-y: auto; font-size: 0.8rem;"></div>
+        </div>
+        
+        <button onclick="toggleConsoleLog()" style="
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0f0, #0a0);
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            font-size: 0.7rem;
+            font-weight: bold;
+        ">Console</button>
+        
         <!-- 測試 1: 直接測試後端 API -->
         <div class="test-section">
             <h2>📡 測試 1: 後端 API 串流</h2>
@@ -111,7 +134,81 @@
     </div>
     
     <script>
-        const BACKEND_URL = 'https://7f83-183-178-60-204.ngrok-free.app/api/generate';
+        // 使用最新 Cloudflare Tunnel URL
+        const BACKEND_URL = 'https://translator-integration-submit-featured.trycloudflare.com/api/generate';
+        
+        // ========== Console Log ==========
+        const consoleLogMessages = [];
+        
+        function logToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString('zh-HK', {hour12: false});
+            const colors = {
+                log: '#0f0',
+                error: '#f00',
+                warn: '#ff0',
+                info: '#0ff'
+            };
+            const prefix = {
+                log: '',
+                error: '❌ ',
+                warn: '⚠️ ',
+                info: 'ℹ️ '
+            };
+            
+            consoleLogMessages.push({
+                message: `[${timestamp}] ${prefix[type]}${message}`,
+                color: colors[type] || colors.log
+            });
+            
+            // 只保留最後 100 條
+            if (consoleLogMessages.length > 100) {
+                consoleLogMessages.shift();
+            }
+            
+            updateConsoleLog();
+        }
+        
+        function updateConsoleLog() {
+            const consoleEl = document.getElementById('console-log');
+            if (consoleEl) {
+                consoleEl.innerHTML = consoleLogMessages.map(msg => 
+                    `<div style="color: ${msg.color}; border-left: 2px solid ${msg.color}; padding-left: 8px; margin: 4px 0;">${msg.message}</div>`
+                ).join('');
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+        
+        function toggleConsoleLog() {
+            const section = document.getElementById('console-section');
+            if (section) {
+                section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+        
+        function clearConsoleLog() {
+            consoleLogMessages.length = 0;
+            updateConsoleLog();
+        }
+        
+        // 覆蓋原生 console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            logToConsole(args.join(' '), 'log');
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            logToConsole(args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            logToConsole(args.join(' '), 'warn');
+            originalWarn.apply(console, args);
+        };
         
         // ========== 測試 1: 後端 API 串流 ==========
         async function testBackendStream() {
