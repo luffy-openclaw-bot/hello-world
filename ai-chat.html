@@ -206,6 +206,22 @@
             box-shadow: none;
         }
         
+        /* Thought Process - Limited Height */
+        .thought-process {
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+        
+        .thought-process::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .thought-process::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+        
         /* Conclusion Highlight */
         .conclusion-box {
             background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 128, 255, 0.1));
@@ -706,13 +722,12 @@
                     padding: 10px 15px;
                     margin: 10px 0;
                     border-radius: 0 6px 6px 0;
-                    font-size: 0.85rem;
                     color: #aaa;
                 ">
-                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px; font-size: 0.8rem;">
                         💭 思考過程：
                     </strong>
-                    <div style="white-space: pre-line; line-height: 1.6;">
+                    <div style="white-space: pre-line; line-height: 1.5;">
                         ${displayData.thought}
                     </div>
                 </div>
