@@ -571,6 +571,29 @@
         <span></span>
     </button>
     
+    <!-- Console Toggle Button -->
+    <button onclick="toggleConsole()" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #0f0, #0a0);
+        border: 2px solid #0f0;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        transition: all 0.3s ease;
+    " title="Toggle Console Log">
+        <span style="color: #000; font-size: 1.2rem; font-weight: bold;">&lt;/&gt;</span>
+    </button>
+    
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -747,6 +770,34 @@
 
             <!-- Controls -->
             <div class="chat-controls">
+            
+            <!-- Console Log Area (Debug) -->
+            <div id="console-log" style="
+                background: #0d0d0d;
+                border-top: 2px solid #333;
+                padding: 15px;
+                margin-top: 20px;
+                max-height: 200px;
+                overflow-y: auto;
+                font-family: 'Courier New', monospace;
+                font-size: 0.8rem;
+                color: #0f0;
+                display: none;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>🖥️ Console Log</strong>
+                    <button onclick="toggleConsole()" style="
+                        background: #333;
+                        color: #fff;
+                        border: none;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 0.75rem;
+                    ">Clear</button>
+                </div>
+                <div id="console-messages" style="white-space: pre-line;"></div>
+            </div>
                 <button class="chat-btn start" id="startBtn">🚀 開始對話</button>
                 <button class="chat-btn clear" id="clearBtn">🗑️ 清空對話</button>
             </div>
@@ -767,6 +818,81 @@
             const sidebar = document.getElementById('sidebar');
             const menuLinks = document.querySelectorAll('.menu-link');
             const pages = document.querySelectorAll('.page');
+
+            // ========== Console Log Interceptor ==========
+            const consoleMessages = [];
+            const originalConsoleLog = console.log;
+            const originalConsoleError = console.error;
+            const originalConsoleWarn = console.warn;
+            
+            console.log = function(...args) {
+                const message = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                consoleMessages.push({
+                    type: 'log',
+                    message: `[${new Date().toLocaleTimeString('zh-HK', {hour12:false})}] ${message}`,
+                    color: '#0f0'
+                });
+                updateConsoleDisplay();
+                originalConsoleLog.apply(console, args);
+            };
+            
+            console.error = function(...args) {
+                const message = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                consoleMessages.push({
+                    type: 'error',
+                    message: `[${new Date().toLocaleTimeString('zh-HK', {hour12:false})}] ❌ ${message}`,
+                    color: '#f00'
+                });
+                updateConsoleDisplay();
+                originalConsoleError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                const message = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                consoleMessages.push({
+                    type: 'warn',
+                    message: `[${new Date().toLocaleTimeString('zh-HK', {hour12:false})}] ⚠️ ${message}`,
+                    color: '#ff0'
+                });
+                updateConsoleDisplay();
+                originalConsoleWarn.apply(console, args);
+            };
+            
+            function updateConsoleDisplay() {
+                const consoleEl = document.getElementById('console-messages');
+                if (consoleEl) {
+                    const recentMessages = consoleMessages.slice(-50);
+                    consoleEl.innerHTML = recentMessages.map(msg => 
+                        `<div style="color: ${msg.color}; border-left: 2px solid ${msg.color}; padding-left: 8px; margin: 4px 0;">${escapeHtml(msg.message)}</div>`
+                    ).join('');
+                    const logContainer = document.getElementById('console-log');
+                    if (logContainer) logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            window.toggleConsole = function() {
+                const consoleEl = document.getElementById('console-log');
+                if (consoleEl) {
+                    consoleEl.style.display = consoleEl.style.display === 'none' ? 'block' : 'none';
+                }
+            };
+            
+            window.clearConsole = function() {
+                consoleMessages.length = 0;
+                updateConsoleDisplay();
+            };
 
             // ========== Toggle Sidebar ==========
             function toggleSidebar() {
