@@ -935,6 +935,12 @@
 
             menuLinks.forEach((link, index) => {
                 link.addEventListener('click', function(e) {
+                    // 如果連結係 ai-chat.html，允許跳轉
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#' && href !== 'javascript:void(0)') {
+                        // 允許默認跳轉行為
+                        return;
+                    }
                     e.preventDefault();
                     const pageNum = this.getAttribute('data-page');
                     if (pageNum) {
