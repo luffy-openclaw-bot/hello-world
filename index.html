@@ -1328,15 +1328,25 @@
                     // 使用串流模式，即時顯示思考過程同結論
                     let displayData = { fullText: '', thought: '', conclusion: '', hasThought: false, hasConclusion: false };
                     let messageDiv = null;
+                    let updateCount = 0;
                     
                     const response = await callOllama(systemPrompt, prompt, (data) => {
                         displayData = data;
+                        updateCount++;
+                        
+                        console.log(`[串流更新 #${updateCount}]`, {
+                            hasThought: displayData.hasThought,
+                            hasConclusion: displayData.hasConclusion,
+                            thoughtLength: displayData.thought?.length || 0,
+                            conclusionLength: displayData.conclusion?.length || 0
+                        });
                         
                         // 如果已有思考過程，更新或創建訊息
                         const typingEl = document.getElementById(`typing-${agentType}`);
                         
                         if (displayData.hasThought && !messageDiv) {
                             // 思考過程出現咗，移除打字指示，創建正式訊息
+                            console.log('[串流] 創建訊息 DIV');
                             removeTypingIndicator(agentType);
                             messageDiv = createMessageDiv(agentType, displayData);
                             document.getElementById('chatMessages').appendChild(messageDiv);
@@ -1356,9 +1366,12 @@
                         chatArea.scrollTop = chatArea.scrollHeight;
                     });
                     
+                    console.log(`[串流完成] 總更新次數：${updateCount}`);
+                    
                     // 確保最終訊息正確顯示
                     removeTypingIndicator(agentType);
                     if (!messageDiv) {
+                        console.log('[串流] 使用 fallback 顯示訊息');
                         addMessage(agentType, response);
                     }
 
