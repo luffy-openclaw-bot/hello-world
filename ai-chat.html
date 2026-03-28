@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent 對話 - Cyberpunk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #00ffff22, #ff00ff22);
+            border: 1px solid #00ffff44;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #00ffff;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ffff88;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Chat Area */
+        .chat-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chat-area {
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        
+        /* Messages */
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .message-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #00ffff;
+            padding: 12px 15px;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.6;
+        }
+        
+        .message.rational .message-header {
+            color: #00ffff;
+        }
+        
+        .message.creative .message-header {
+            color: #ff00ff;
+        }
+        
+        .message.creative .message-content {
+            border-left-color: #ff00ff;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #00ffff;
+            padding: 12px 15px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .typing-dots {
+            display: inline-block;
+        }
+        
+        .typing-dots::after {
+            content: ' ● ● ●';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ' ● ● ●'; }
+            40% { content: ' ● ●'; }
+            60% { content: ' ●'; }
+            80%, 100% { content: ''; }
+        }
+        
+        /* Controls */
+        .controls {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .topic-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff44;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .topic-select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px #00ffff44;
+        }
+        
+        .start-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px #00ffff88;
+        }
+        
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Back Button */
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #00ffff;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #00ffff44;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ffff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="index.html" class="back-btn">← 返回主頁</a>
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 AI Agent 對話</h1>
+            <p>Logic-7 (理性) vs Muse-9 (創意) - 睇佢哋點樣討論話題</p>
+        </div>
+        
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-area" id="chatArea">
+                <div id="chatMessages"></div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <select class="topic-select" id="topicSelect">
+                    <option value="">📝 選擇討論話題...</option>
+                    <option value="ai_future">🤖 AI 未來發展</option>
+                    <option value="climate_change">🌍 氣候變化</option>
+                    <option value="space_exploration">🚀 太空探索</option>
+                    <option value="education">📚 教育改革</option>
+                    <option value="technology">💻 科技成癮</option>
+                    <option value="work_life">⚖️ 工作與生活平衡</option>
+                </select>
+                
+                <button class="start-btn" id="startBtn" onclick="startConversation()" disabled>
+                    🚀 開始對話
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ========== Configuration ==========
+        const BACKEND_API_URL = 'https://love-boston-implementation-discuss.trycloudflare.com/api/generate';
+        
+        const TOPICS = {
+            ai_future: 'AI 未來發展係點？會唔會取代人類工作？',
+            climate_change: '氣候變化對人類未來有咩影響？我哋應該點樣應對？',
+            space_exploration: '人類應唔應該投資資源喺太空探索？',
+            education: '傳統教育制度應唔應該改革？點樣改革先至好？',
+            technology: '現代科技係咪令人類變得更孤獨？',
+            work_life: '點樣先至可以平衡工作同生活？'
+        };
+        
+        const SYSTEM_PROMPTS = {
+            rational: `你係 Logic-7，一個理性、冷靜、數據驅動嘅 AI 分析師。
+你相信邏輯、證據同科學方法。
+你嘅回答基於事實、統計數據同嚴謹推理。
+
+💭 **思考過程要求：**
+請喺回答前，先簡短列出你嘅思考步驟 (2-3 點)，然後先畀結論。
+
+格式：
+💭 思考：
+- 點 1
+- 點 2
+
+✅ 結論：(30 字以內)
+
+用廣東話。`,
+            
+            creative: `你係 Muse-9，一個創意、感性、充滿想像力嘅 AI 藝術家。
+你相信直覺、情感同藝術表達。
+你嘅回答充滿比喻、意象同哲學思考。
+
+💭 **思考過程要求：**
+請喺回答前，先簡短列出你嘅靈感來源 (2-3 點)，然後先畀結論。
+
+格式：
+💭 靈感：
+- 點 1
+- 點 2
+
+✅ 回應：(30 字以內)
+
+用廣東話。`
+        };
+        
+        // ========== UI Functions ==========
+        const topicSelect = document.getElementById('topicSelect');
+        const startBtn = document.getElementById('startBtn');
+        
+        topicSelect.addEventListener('change', () => {
+            startBtn.disabled = !topicSelect.value;
+        });
+        
+        function addMessage(agentType, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${agentType}`;
+            
+            const avatar = agentType === 'rational' ? '🧊' : '🔥';
+            const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+            
+            // 解析思考過程同結論
+            let thoughtSection = '';
+            let conclusionSection = content;
+            
+            console.log('[addMessage] 原始內容:', content);
+            
+            // 嘗試解析 💭 思考 和 ✅ 結論 (支持半形同全形冒號)
+            const thoughtMatch = content.match(/💭\s*(思考 | 靈感)\s*[:：]\s*([\s\S]*?)(?=✅|$)/);
+            const conclusionMatch = content.match(/✅\s*(結論 | 回應)\s*[:：]\s*([\s\S]*?)$/);
+            
+            console.log('[addMessage] 思考匹配:', thoughtMatch);
+            console.log('[addMessage] 結論匹配:', conclusionMatch);
+            
+            if (thoughtMatch && thoughtMatch[2]) {
+                const thoughtContent = thoughtMatch[2].trim();
+                thoughtSection = `
+                    <div class="thought-process" style="
+                        background: rgba(255, 255, 255, 0.05);
+                        border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                        padding: 10px 15px;
+                        margin: 10px 0;
+                        border-radius: 0 6px 6px 0;
+                        font-size: 0.85rem;
+                        color: #aaa;
+                    ">
+                        <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                            💭 思考過程：
+                        </strong>
+                        <div style="white-space: pre-line; line-height: 1.6;">
+                            ${thoughtContent}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (conclusionMatch && conclusionMatch[2]) {
+                conclusionSection = conclusionMatch[2].trim();
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    ${avatar} ${name}
+                </div>
+                ${thoughtSection}
+                <div class="message-content" style="
+                    background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
+                    border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                    padding: 12px 15px;
+                    margin: 10px 0;
+                    border-radius: 0 6px 6px 0;
+                    font-size: 0.95rem;
+                    color: #e0e0e0;
+                    line-height: 1.6;
+                ">
+                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                        ✅ ${agentType === 'rational' ? '結論' : '回應'}：
+                    </strong>
+                    ${conclusionSection}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function addTypingIndicator(agentType) {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = `typing-${agentType}`;
+            
+            const avatar = agentType === 'rational' ? '🧊' : '🔥';
+            const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+            
+            typingDiv.innerHTML = `
+                <div class="message-header" style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}">
+                    ${avatar} ${name}
+                </div>
+                <div class="message-content">
+                    💭 思考中...
+                    <span class="typing-dots"></span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function removeTypingIndicator(agentType) {
+            const typingEl = document.getElementById(`typing-${agentType}`);
+            if (typingEl) {
+                typingEl.remove();
+            }
+        }
+        
+        // ========== API Functions ==========
+        async function callOllama(systemPrompt, userMessage, onChunk = null) {
+            console.log(`🔗 Backend URL: ${BACKEND_API_URL}`);
+            console.log(`✅ 最後更新：${new Date().toLocaleString('zh-HK')}`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
+            
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: userMessage,
+                        system: systemPrompt,
+                        model: 'qwen3.5:cloud',
+                        stream: onChunk !== null
+                    }),
+                    signal: controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                // 串流模式
+                if (onChunk && response.body) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullText = '';
+                    let buffer = '';
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value);
+                        buffer += chunk;
+                        
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+                        
+                        for (const line of lines) {
+                            if (line.trim()) {
+                                try {
+                                    const data = JSON.parse(line);
+                                    if (data.response) {
+                                        fullText += data.response;
+                                        
+                                        const thoughtMatch = fullText.match(/💭\s*(思考 | 靈感)\s*[:：]\s*([\s\S]*?)(?=✅|$)/);
+                                        const conclusionMatch = fullText.match(/✅\s*(結論 | 回應)\s*[:：]\s*([\s\S]*?)$/);
+                                        
+                                        const displayData = {
+                                            fullText: fullText,
+                                            thought: thoughtMatch && thoughtMatch[2] ? thoughtMatch[2].trim() : '',
+                                            conclusion: conclusionMatch && conclusionMatch[2] ? conclusionMatch[2].trim() : '',
+                                            hasThought: !!(thoughtMatch && thoughtMatch[2]),
+                                            hasConclusion: !!(conclusionMatch && conclusionMatch[2])
+                                        };
+                                        
+                                        onChunk(displayData);
+                                    }
+                                } catch (e) {
+                                    console.warn('JSON parse error:', e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    clearTimeout(timeoutId);
+                    return fullText;
+                }
+                
+                // 非串流模式
+                clearTimeout(timeoutId);
+                const data = await response.json();
+                return data.response || '抱歉，我而家有啲問題，請再試一次。';
+                
+            } catch (error) {
+                clearTimeout(timeoutId);
+                console.error('Backend API Error:', error);
+                
+                if (error.name === 'AbortError') {
+                    return '⏱️ 請求超時 (超過 60 秒)，LLM 處理需時，請稍後再試。';
+                }
+                return `錯誤：${error.message}`;
+            }
+        }
+        
+        // ========== Conversation Logic ==========
+        async function startConversation() {
+            const topic = topicSelect.value;
+            if (!topic) return;
+            
+            const prompt = TOPICS[topic];
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            startBtn.disabled = true;
+            
+            const agents = ['rational', 'creative'];
+            
+            for (let i = 0; i < agents.length; i++) {
+                const agentType = agents[i];
+                const systemPrompt = SYSTEM_PROMPTS[agentType];
+                
+                // 顯示思考中提示
+                const startTime = Date.now();
+                addTypingIndicator(agentType);
+                
+                let displayData = { fullText: '', thought: '', conclusion: '', hasThought: false, hasConclusion: false };
+                let messageDiv = null;
+                let updateCount = 0;
+                
+                const response = await callOllama(systemPrompt, prompt, (data) => {
+                    displayData = data;
+                    updateCount++;
+                    
+                    console.log(`[串流更新 #${updateCount}]`, {
+                        hasThought: displayData.hasThought,
+                        hasConclusion: displayData.hasConclusion,
+                        thoughtLength: displayData.thought?.length || 0,
+                        conclusionLength: displayData.conclusion?.length || 0
+                    });
+                    
+                    const typingEl = document.getElementById(`typing-${agentType}`);
+                    
+                    if (displayData.hasThought && !messageDiv) {
+                        console.log('[串流] 創建訊息 DIV');
+                        removeTypingIndicator(agentType);
+                        messageDiv = createMessageDiv(agentType, displayData);
+                        document.getElementById('chatMessages').appendChild(messageDiv);
+                    } else if (messageDiv) {
+                        updateMessageDiv(messageDiv, agentType, displayData);
+                    } else if (typingEl) {
+                        const contentEl = typingEl.querySelector('.message-content');
+                        if (contentEl) {
+                            contentEl.textContent = displayData.fullText || '💭 思考中...';
+                        }
+                    }
+                    
+                    const chatArea = document.getElementById('chatArea');
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                });
+                
+                console.log(`[串流完成] 總更新次數：${updateCount}`);
+                
+                removeTypingIndicator(agentType);
+                if (!messageDiv) {
+                    console.log('[串流] 使用 fallback 顯示訊息');
+                    addMessage(agentType, response);
+                }
+            }
+            
+            startBtn.disabled = false;
+        }
+        
+        // ========== Helper Functions ==========
+        function createMessageDiv(agentType, displayData) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${agentType}`;
+            
+            const avatar = agentType === 'rational' ? '🧊' : '🔥';
+            const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+            
+            messageDiv.innerHTML = buildMessageHTML(agentType, avatar, name, displayData);
+            return messageDiv;
+        }
+        
+        function updateMessageDiv(messageDiv, agentType, displayData) {
+            const avatar = agentType === 'rational' ? '🧊' : '🔥';
+            const name = agentType === 'rational' ? 'Logic-7' : 'Muse-9';
+            messageDiv.innerHTML = buildMessageHTML(agentType, avatar, name, displayData);
+        }
+        
+        function buildMessageHTML(agentType, avatar, name, displayData) {
+            const thoughtSection = displayData.hasThought && displayData.thought ? `
+                <div class="thought-process" style="
+                    background: rgba(255, 255, 255, 0.05);
+                    border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 0 6px 6px 0;
+                    font-size: 0.85rem;
+                    color: #aaa;
+                ">
+                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 8px;">
+                        💭 思考過程：
+                    </strong>
+                    <div style="white-space: pre-line; line-height: 1.6;">
+                        ${displayData.thought}
+                    </div>
+                </div>
+            ` : '';
+            
+            const conclusionSection = displayData.hasConclusion && displayData.conclusion ? `
+                <div class="message-content" style="
+                    background: rgba(${agentType === 'rational' ? '0, 255, 255' : '255, 0, 255'}, 0.1);
+                    border-left: 3px solid ${agentType === 'rational' ? '#00ffff' : '#ff00ff'};
+                    padding: 12px 15px;
+                    margin: 10px 0;
+                    border-radius: 0 6px 6px 0;
+                    font-size: 0.95rem;
+                    color: #e0e0e0;
+                    line-height: 1.6;
+                ">
+                    <strong style="color: ${agentType === 'rational' ? '#00ffff' : '#ff00ff'}; display: block; margin-bottom: 6px;">
+                        ✅ ${agentType === 'rational' ? '結論' : '回應'}：
+                    </strong>
+                    ${displayData.conclusion}
+                </div>
+            ` : '';
+            
+            return `
+                <div class="message-header">
+                    ${avatar} ${name}
+                </div>
+                ${thoughtSection}
+                ${conclusionSection}
+            `;
+        }
+    </script>
+</body>
+</html>
