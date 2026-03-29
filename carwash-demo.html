@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>智能洗車屋 - Smart Car Wash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0066CC;
+        }
+        
+        /* Button Styles */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00CC66 0%, #00FF88 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #FF9900 0%, #FFAA33 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #FF3333 0%, #FF5555 100%);
+            color: white;
+        }
+        
+        /* Service Cards */
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .service-card.selected {
+            border-color: #0066CC;
+            background: #f0f7ff;
+        }
+        
+        .service-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .service-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .service-card .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0066CC;
+        }
+        
+        .service-card .price span {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+        }
+        
+        /* Token Package Cards */
+        .token-card {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .token-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .token-card.selected {
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .token-card h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .token-card .tokens {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .token-card .price {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .token-card .original-price {
+            text-decoration: line-through;
+            opacity: 0.7;
+            font-size: 16px;
+        }
+        
+        .token-card .save-badge {
+            background: #FF3333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        /* Machine Status */
+        .machine-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .machine-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .machine-info p {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .machine-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-in-use {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-maintenance {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #0066CC 0%, #0099FF 100%);
+            height: 20px;
+            transition: width 1s linear;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Timer */
+        .timer-display {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            color: #0066CC;
+            margin: 20px 0;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        /* Booking Card */
+        .booking-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #0066CC;
+        }
+        
+        .booking-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .booking-card .booking-detail {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .booking-card .booking-detail strong {
+            color: #333;
+        }
+        
+        /* Page Navigation */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-text {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #0066CC;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        /* User Info Bar */
+        .user-info-bar {
+            background: #f5f5f5;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-tokens {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF9900;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" id="backBtn" style="display: none;">←</button>
+            <h1 id="pageTitle">智能洗車屋</h1>
+            <p id="pageSubtitle">Smart Car Wash Station</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Sign Up Page -->
+            <div id="signupPage" class="page">
+                <div class="form-group">
+                    <label>手機號碼</label>
+                    <input type="tel" id="signupPhone" placeholder="+852 XXXXXXXX" maxlength="12">
+                </div>
+                
+                <div class="form-group">
+                    <label>驗證碼</label>
+                    <input type="text" id="signupOtp" placeholder="6 位數字驗證碼" maxlength="6">
+                    <button class="btn btn-secondary" id="sendOtpBtn" style="margin-top: 10px; padding: 12px;">
+                        📱 發送驗證碼
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>密碼</label>
+                    <input type="password" id="signupPassword" placeholder="最少 8 位，包含字母和數字">
+                </div>
+                
+                <div class="form-group">
+                    <label>確認密碼</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="再次輸入密碼">
+                </div>
+                
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="signupName" placeholder="您的姓名">
+                </div>
+                
+                <div class="form-group">
+                    <label>電子郵件</label>
+                    <input type="email" id="signupEmail" placeholder="your@email.com">
+                </div>
+                
+                <button class="btn btn-primary" id="signupBtn">
+                    🚀 立即註冊
+                </button>
+                
+                <button class="btn btn-secondary" onclick="navigateTo('loginPage')">
+                    已有賬戶？登入
+                </button>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="feature-icon">⏱️</div>
+                        <div class="feature-text">24/7 服務</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💳</div>
+                        <div class="feature-text">多種支付</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎫</div>
+                        <div class="feature-text">優惠套票</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📍</div>
+                        <div class="feature-text">多站點選擇</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Login Page -->
+            <div id="loginPage" class="page">
+                <div class="form-group">
+                    <label>手機號碼/電子郵件</label>
+                    <input type="text" id="loginPhone" placeholder="手機號碼或 Email">
+                </div>
+                
+                <div class="form-group">
+                    <label>密碼</label>
+                    <input type="password" id="loginPassword" placeholder="您的密碼">
+                </div>
+                
+                <button class="btn btn-primary" id="loginBtn">
+                    🔐 登入
+                </button>
+                
+                <button class="btn btn-secondary" onclick="navigateTo('signupPage')">
+                    沒有賬戶？註冊
+                </button>
+            </div>
+            
+            <!-- Landing Page (Branding) -->
+            <div id="landingPage" class="page active">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <!-- Logo / Brand -->
+                    <div style="font-size: 80px; margin-bottom: 20px;">🚿</div>
+                    <h1 style="font-size: 32px; font-weight: 700; color: #0066CC; margin-bottom: 10px;">
+                        智能洗車屋
+                    </h1>
+                    <p style="font-size: 16px; color: #666; margin-bottom: 30px;">
+                        Smart Car Wash Station
+                    </p>
+                    
+                    <!-- Tagline -->
+                    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); padding: 30px; border-radius: 16px; margin-bottom: 40px;">
+                        <p style="font-size: 18px; color: #333; margin-bottom: 15px; font-weight: 500;">
+                            24/7 自助洗車 · 方便快捷 · 優質服務
+                        </p>
+                        <p style="font-size: 14px; color: #666;">
+                            無需預約 · 即時使用 · 多種套餐選擇
+                        </p>
+                    </div>
+                    
+                    <!-- CTA Buttons -->
+                    <button class="btn btn-primary" onclick="navigateTo('loginPage')" style="margin-bottom: 15px; font-size: 18px; padding: 18px;">
+                        🔐 登入賬戶
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="navigateTo('signupPage')" style="font-size: 18px; padding: 18px; margin-bottom: 15px;">
+                        🚀 註冊新賬戶
+                    </button>
+                    
+                    <button class="btn btn-warning" onclick="guestLogin()" style="font-size: 16px; padding: 16px;">
+                        👤 訪客登入 (付更高費用)
+                    </button>
+                    
+                    <!-- Guest Warning -->
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 13px; color: #856404;">
+                        ⚠️ <strong>訪客提示：</strong>訪客用戶需支付更高費用，註冊會員可享優惠價格！
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="features" style="margin-top: 50px;">
+                        <div class="feature-item">
+                            <div class="feature-icon">⏱️</div>
+                            <div class="feature-text">24/7<br>全天候服務</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💳</div>
+                            <div class="feature-text">多種<br>支付方式</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🎫</div>
+                            <div class="feature-text">優惠<br>套票計劃</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📍</div>
+                            <div class="feature-text">多站點<br>選擇</div>
+                        </div>
+                    </div>
+                    
+                    <!-- How It Works -->
+                    <div style="margin-top: 50px; text-align: left;">
+                        <h3 style="font-size: 20px; color: #333; margin-bottom: 20px; text-align: center;">
+                            如何使用？
+                        </h3>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #0066CC; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                                <div>
+                                    <strong style="color: #333;">註冊/登入賬戶</strong>
+                                    <p style="color: #666; font-size: 14px; margin: 0;">簡單步驟，快速開始</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #0066CC; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                                <div>
+                                    <strong style="color: #333;">購買飛票套票</strong>
+                                    <p style="color: #666; font-size: 14px; margin: 0;">優惠價格，慳得更多</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #0066CC; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
+                                <div>
+                                    <strong style="color: #333;">選擇洗車服務</strong>
+                                    <p style="color: #666; font-size: 14px; margin: 0;">快洗/標準/精洗</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="background: #0066CC; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">4</div>
+                                <div>
+                                    <strong style="color: #333;">啟動洗車機</strong>
+                                    <p style="color: #666; font-size: 14px; margin: 0;">即時開始，進度可見</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer Info -->
+                    <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e0e0e0;">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 10px;">
+                            📍 現已服務：中環 · 銅鑼灣 · 尖沙咀 · 旺角
+                        </p>
+                        <p style="color: #999; font-size: 12px;">
+                            📞 客戶服務：+852 1234 5678
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Page (After Login) -->
+            <div id="dashboardPage" class="page">
+                <!-- Guest Warning Banner -->
+                <div id="guestWarning" style="display: none; background: linear-gradient(135deg, #FF9900 0%, #FFAA33 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                    <strong>⚠️ 訪客價格提示：</strong> 您正在以訪客身份消費，價格較高。<button onclick="navigateTo('signupPage')" style="background: white; color: #FF9900; border: none; padding: 8px 16px; border-radius: 4px; margin-left: 10px; font-weight: 600; cursor: pointer;">🚀 立即註冊享優惠</button>
+                </div>
+                
+                <h2 style="margin-bottom: 15px; font-size: 20px;">選擇洗車服務</h2>
+                
+                <div class="service-card" onclick="selectService(this, 'quick', 39, 10)">
+                    <h3>⚡ 快洗套餐</h3>
+                    <p>高壓沖洗 + 泡沫清潔</p>
+                    <div class="price" id="price-quick">$39 <span>/ 10 分鐘</span></div>
+                    <div class="guest-price" id="guest-price-quick" style="display: none; color: #FF9900; font-size: 14px; margin-top: 5px;">訪客價：$59</div>
+                </div>
+                
+                <div class="service-card" onclick="selectService(this, 'standard', 69, 20)">
+                    <h3>✨ 標準套餐</h3>
+                    <p>高壓沖洗 + 泡沫 + 打蠟 + 吸塵</p>
+                    <div class="price" id="price-standard">$69 <span>/ 20 分鐘</span></div>
+                    <div class="guest-price" id="guest-price-standard" style="display: none; color: #FF9900; font-size: 14px; margin-top: 5px;">訪客價：$99</div>
+                </div>
+                
+                <div class="service-card" onclick="selectService(this, 'premium', 129, 40)">
+                    <h3>👑 精洗套餐</h3>
+                    <p>全套服務 + 內籠清潔 + 消毒</p>
+                    <div class="price" id="price-premium">$129 <span>/ 40 分鐘</span></div>
+                    <div class="guest-price" id="guest-price-premium" style="display: none; color: #FF9900; font-size: 14px; margin-top: 5px;">訪客價：$169</div>
+                </div>
+                
+                <!-- CTA for Guest Registration -->
+                <div id="guestCTA" style="display: none; background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center;">
+                    <h3 style="margin-bottom: 10px;">💡 註冊會員享優惠！</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px;">註冊後可享會員價格，最高慳 $40/次！</p>
+                    <button onclick="navigateTo('signupPage')" style="background: white; color: #0066CC; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer;">🚀 立即註冊</button>
+                </div>
+                
+                <button class="btn btn-primary" id="startMachineBtn" style="margin-top: 20px;" disabled onclick="navigateTo('scanPage')">
+                    🚗 啟動洗車機
+                </button>
+            </div>
+            
+            <!-- Payment Page (Stripe Simulation) -->
+            <div id="paymentPage" class="page">
+                <div style="padding: 20px;">
+                    <h2 style="font-size: 22px; margin-bottom: 10px;">💳 付款詳情</h2>
+                    <p style="color: #666; margin-bottom: 20px;">安全加密的 Stripe 支付</p>
+                    
+                    <!-- Order Summary -->
+                    <div id="orderSummary" style="background: #f5f7fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 10px; color: #333;">📋 訂單摘要</h4>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #666;">套票</span>
+                            <span id="summaryPackage" style="color: #333; font-weight: 600;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #666;">飛票數量</span>
+                            <span id="summaryTokens" style="color: #333; font-weight: 600;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #666;">原價</span>
+                            <span id="summaryOriginal" style="color: #999; text-decoration: line-through;">-</span>
+                        </div>
+                        <div style="border-top: 2px solid #e0e0e0; margin-top: 10px; padding-top: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #333; font-weight: 700;">總計</span>
+                                <span id="summaryTotal" style="color: #0066CC; font-weight: 700; font-size: 18px;">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stripe Card Form -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        <!-- Stripe Logo -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <span style="font-size: 24px; font-weight: 700; color: #635BFF;">💳 stripe</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>電郵地址</label>
+                            <input type="email" id="stripeEmail" placeholder="your@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>信用卡號碼</label>
+                            <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" maxlength="19">
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>有效日期</label>
+                                <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>CVC</label>
+                                <input type="text" id="cardCvc" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>持卡人姓名</label>
+                            <input type="text" id="cardName" placeholder="姓名 (拼音)">
+                        </div>
+                        
+                        <!-- Card Icons -->
+                        <div style="display: flex; gap: 10px; margin-top: 15px; font-size: 32px;">
+                            <span>💳</span>
+                            <span>🏦</span>
+                            <span>💰</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Notice -->
+                    <div style="background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">🔒</span>
+                        <div>
+                            <p style="color: #0066CC; font-weight: 600; margin: 0; font-size: 14px;">安全支付</p>
+                            <p style="color: #666; font-size: 12px; margin: 0;">您的付款資料已加密處理</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Pay Button -->
+                    <button class="btn btn-primary" id="payNowBtn" onclick="processStripePayment()" style="font-size: 18px; padding: 18px;">
+                        💳 立即支付 <span id="payAmount">$-</span>
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="navigateTo('tokensPage')" style="width: 100%;">
+                        ← 返回
+                    </button>
+                    
+                    <!-- Test Card Info -->
+                    <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 13px; color: #856404;">
+                        <strong>🧪 Demo 測試卡：</strong><br>
+                        卡號：4242 4242 4242 4242<br>
+                        日期：任意未來日期<br>
+                        CVC：任意 3 位數字
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Processing Page -->
+            <div id="processingPage" class="page">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="font-size: 22px; margin-bottom: 10px;">⏳ 處理付款中</h2>
+                    <p style="color: #666; margin-bottom: 40px;">請稍候，正在連接 Stripe 支付網關...</p>
+                    
+                    <!-- Processing Animation -->
+                    <div style="margin-bottom: 40px;">
+                        <!-- Stripe-like Spinner -->
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #635BFF 0%, #00D4FF 100%); border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; margin: 0 auto 20px;"></div>
+                        
+                        <style>
+                            @keyframes pulse {
+                                0%, 100% { transform: scale(1); opacity: 1; }
+                                50% { transform: scale(1.1); opacity: 0.8; }
+                            }
+                        </style>
+                        
+                        <!-- Processing Steps -->
+                        <div style="text-align: left; max-width: 300px; margin: 0 auto;">
+                            <div id="processStep1" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="processIcon1" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">驗證卡片資料...</span>
+                            </div>
+                            <div id="processStep2" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="processIcon2" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">連接銀行...</span>
+                            </div>
+                            <div id="processStep3" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="processIcon3" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">處理付款...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Message -->
+                    <div id="processingStatus" style="background: #f0f7ff; padding: 15px; border-radius: 8px;">
+                        <p style="color: #0066CC; font-size: 14px; margin: 0;">🔄 處理中...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Result Page -->
+            <div id="resultPage" class="page">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <!-- Success Icon -->
+                    <div id="successIcon" style="font-size: 80px; margin-bottom: 20px; display: none;">✅</div>
+                    <div id="failureIcon" style="font-size: 80px; margin-bottom: 20px; display: none;">❌</div>
+                    
+                    <!-- Success Message -->
+                    <div id="successMessage" style="display: none;">
+                        <h2 style="font-size: 22px; color: #00CC66; margin-bottom: 10px;">🎉 付款成功！</h2>
+                        <p style="color: #666; margin-bottom: 30px;">您的飛票已存入賬戶</p>
+                        
+                        <div style="background: #d4edda; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                            <div style="font-size: 32px; font-weight: 700; color: #155724; margin-bottom: 10px;">
+                                +<span id="successTokens">0</span> 張飛票
+                            </div>
+                            <div style="color: #155724; font-size: 14px;">
+                                金額：<span id="successAmount">$0</span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f5f7fa; padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                            <h4 style="margin-bottom: 10px; color: #333;">📧 確認電郵</h4>
+                            <p style="color: #666; font-size: 14px; margin: 0;">
+                                確認電郵已發送至：<br>
+                                <strong id="confirmationEmail" style="color: #0066CC;">-</strong>
+                            </p>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="navigateTo('dashboardPage'); updateNav(0);" style="font-size: 16px; padding: 16px;">
+                            🏠 返回首頁
+                        </button>
+                    </div>
+                    
+                    <!-- Failure Message -->
+                    <div id="failureMessage" style="display: none;">
+                        <h2 style="font-size: 22px; color: #FF3333; margin-bottom: 10px;">❌ 付款失敗</h2>
+                        <p style="color: #666; margin-bottom: 30px;" id="failureReason">請檢查卡片資料後重試</p>
+                        
+                        <button class="btn btn-secondary" onclick="navigateTo('paymentPage')" style="font-size: 16px; padding: 16px; margin-bottom: 15px; width: 100%;">
+                            ↩️ 重新付款
+                        </button>
+                        
+                        <button class="btn btn-primary" onclick="navigateTo('dashboardPage'); updateNav(0);" style="font-size: 16px; padding: 16px; width: 100%;">
+                            🏠 返回首頁
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Token Packages Page -->
+            <div id="tokensPage" class="page">
+                <h2 style="margin-bottom: 15px; font-size: 20px;">購買飛票套票</h2>
+                
+                <div class="token-card" onclick="selectToken(this, 'starter', 5, 180, 20)">
+                    <h3>🎫 體驗套票</h3>
+                    <div class="tokens">5 張飛票</div>
+                    <div class="price">$180</div>
+                    <div class="original-price">原價 $195</div>
+                    <div class="save-badge">慳 $15</div>
+                </div>
+                
+                <div class="token-card" onclick="selectToken(this, 'regular', 10, 340, 50)">
+                    <h3>🎫 標準套票</h3>
+                    <div class="tokens">10 張飛票</div>
+                    <div class="price">$340</div>
+                    <div class="original-price">原價 $390</div>
+                    <div class="save-badge">慳 $50</div>
+                </div>
+                
+                <div class="token-card" onclick="selectToken(this, 'premium', 20, 600, 180)">
+                    <h3>🎫 尊貴套票</h3>
+                    <div class="tokens">20 張飛票</div>
+                    <div class="price">$600</div>
+                    <div class="original-price">原價 $780</div>
+                    <div class="save-badge">慳 $180</div>
+                </div>
+                
+                <div class="token-card" onclick="selectToken(this, 'unlimited', 999, 999, 999)">
+                    <h3>♾️ 無限月票</h3>
+                    <div class="tokens">30 日無限次</div>
+                    <div class="price">$999</div>
+                    <div class="original-price">原價 $1,500</div>
+                    <div class="save-badge">慳 $501</div>
+                </div>
+                
+                <button class="btn btn-primary" id="buyTokensBtn" style="margin-top: 20px;" disabled onclick="processPayment()">
+                    💳 立即購買
+                </button>
+            </div>
+            
+            <!-- Machine Status Page -->
+            <div id="machinesPage" class="page">
+                <h2 style="margin-bottom: 15px; font-size: 20px;">洗車機狀態</h2>
+                
+                <div class="machine-card">
+                    <div class="machine-info">
+                        <h4>🚿 洗車機 #1</h4>
+                        <p>高壓水泵 + 泡沫系統</p>
+                    </div>
+                    <span class="machine-status status-available">可用</span>
+                </div>
+                
+                <div class="machine-card">
+                    <div class="machine-info">
+                        <h4>🚿 洗車機 #2</h4>
+                        <p>高壓水泵 + 打蠟系統</p>
+                    </div>
+                    <span class="machine-status status-in-use">使用中</span>
+                </div>
+                
+                <div class="machine-card">
+                    <div class="machine-info">
+                        <h4>🚿 洗車機 #3</h4>
+                        <p>全套服務 + 內籠清潔</p>
+                    </div>
+                    <span class="machine-status status-available">可用</span>
+                </div>
+                
+                <div class="machine-card">
+                    <div class="machine-info">
+                        <h4>🚿 洗車機 #4</h4>
+                        <p>快速洗車專用</p>
+                    </div>
+                    <span class="machine-status status-maintenance">維護中</span>
+                </div>
+            </div>
+            
+            <!-- QR Code Scan Page -->
+            <div id="scanPage" class="page">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="font-size: 22px; margin-bottom: 10px;">📷 掃描洗車機 QR Code</h2>
+                    <p style="color: #666; margin-bottom: 30px;">請將手機對準洗車機上的 QR Code</p>
+                    
+                    <!-- QR Code Scanner Simulation -->
+                    <div style="background: #000; border-radius: 16px; padding: 40px 20px; margin-bottom: 30px; position: relative; overflow: hidden;">
+                        <!-- Scanner Frame -->
+                        <div style="border: 3px solid #00ff00; border-radius: 12px; height: 250px; position: relative; background: rgba(0, 255, 0, 0.1);">
+                            <!-- Scanning Line -->
+                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #00ff00; box-shadow: 0 0 10px #00ff00; animation: scan 2s linear infinite;"></div>
+                            
+                            <!-- QR Code Placeholder -->
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 80px;">🔳</div>
+                        </div>
+                        
+                        <style>
+                            @keyframes scan {
+                                0% { top: 0; }
+                                50% { top: calc(100% - 3px); }
+                                100% { top: 0; }
+                            }
+                        </style>
+                    </div>
+                    
+                    <!-- Instructions -->
+                    <div style="background: #f5f7fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: left;">
+                        <h4 style="margin-bottom: 10px; color: #333;">📋 掃描步驟：</h4>
+                        <ol style="color: #666; font-size: 14px; padding-left: 20px; margin: 0;">
+                            <li style="margin-bottom: 8px;">找到洗車機上的 QR Code</li>
+                            <li style="margin-bottom: 8px;">將手機對準 QR Code</li>
+                            <li style="margin-bottom: 8px;">保持距離約 15-20cm</li>
+                            <li>等待自動識別</li>
+                        </ol>
+                    </div>
+                    
+                    <!-- Manual Input -->
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">無法掃描？</p>
+                        <input type="text" placeholder="輸入洗車機編號 (例如：MACHINE-001)" style="width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
+                        <button class="btn btn-secondary" onclick="simulateScan()" style="width: 100%;">
+                            🔢 手動輸入
+                        </button>
+                    </div>
+                    
+                    <!-- Auto Scan Button -->
+                    <button class="btn btn-primary" onclick="simulateScan()" style="font-size: 18px; padding: 18px;">
+                        📸 模擬掃描成功
+                    </button>
+                    
+                    <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                        💡 Demo 模式：點擊按鈕模擬掃描成功
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Loading/Activating Page -->
+            <div id="loadingPage" class="page">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="font-size: 22px; margin-bottom: 10px;">🔌 啟動洗車機中</h2>
+                    <p style="color: #666; margin-bottom: 40px;">請稍候，正在遠程激活設備...</p>
+                    
+                    <!-- Loading Animation -->
+                    <div style="margin-bottom: 40px;">
+                        <!-- Spinner -->
+                        <div style="width: 80px; height: 80px; border: 6px solid #f0f0f0; border-top: 6px solid #0066CC; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                        
+                        <style>
+                            @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
+                        </style>
+                        
+                        <!-- Progress Steps -->
+                        <div style="text-align: left; max-width: 300px; margin: 0 auto;">
+                            <div id="step1" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="icon1" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">連接洗車機...</span>
+                            </div>
+                            <div id="step2" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="icon2" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">驗證用戶身份...</span>
+                            </div>
+                            <div id="step3" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="icon3" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">檢查設備狀態...</span>
+                            </div>
+                            <div id="step4" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+                                <span id="icon4" style="font-size: 20px;">⏳</span>
+                                <span style="color: #666; font-size: 14px;">啟動洗車系統...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Message -->
+                    <div id="loadingStatus" style="background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="color: #0066CC; font-size: 14px; margin: 0;">🔄 處理中...</p>
+                    </div>
+                    
+                    <!-- Cancel Button -->
+                    <button class="btn btn-secondary" onclick="cancelActivation()" style="width: 100%;">
+                        ❌ 取消啟動
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Active Machine Page -->
+            <div id="machinePage" class="page">
+                <div class="status-badge badge-active">🟢 進行中</div>
+                
+                <h2 style="text-align: center; margin-bottom: 10px;">✨ 標準套餐</h2>
+                <p style="text-align: center; color: #666;">洗車機 #1</p>
+                
+                <div class="timer-display" id="timerDisplay">20:00</div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressText">0%</span> 完成
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <div class="booking-detail" style="margin-bottom: 15px;">
+                        <strong>📋 服務內容：</strong><br>
+                        • 高壓沖洗<br>
+                        • 泡沫清潔<br>
+                        • 打蠟保護<br>
+                        • 強力吸塵
+                    </div>
+                    
+                    <button class="btn btn-danger" onclick="stopMachine()">
+                        ⏹️ 停止洗車
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Booking History Page -->
+            <div id="bookingsPage" class="page">
+                <h2 style="margin-bottom: 15px; font-size: 20px;">預約記錄</h2>
+                
+                <div class="booking-card">
+                    <span class="status-badge badge-completed">✅ 已完成</span>
+                    <h4>✨ 標準套餐</h4>
+                    <div class="booking-detail"><strong>日期：</strong>2026-03-28 14:30</div>
+                    <div class="booking-detail"><strong>站點：</strong>中環站 #1</div>
+                    <div class="booking-detail"><strong>金額：</strong>$69 (1 飛票)</div>
+                </div>
+                
+                <div class="booking-card">
+                    <span class="status-badge badge-active">🟢 進行中</span>
+                    <h4>⚡ 快洗套餐</h4>
+                    <div class="booking-detail"><strong>日期：</strong>2026-03-29 09:15</div>
+                    <div class="booking-detail"><strong>站點：</strong>中環站 #3</div>
+                    <div class="booking-detail"><strong>金額：</strong>$39 (1 飛票)</div>
+                </div>
+                
+                <div class="booking-card">
+                    <span class="status-badge badge-pending">⏳ 待使用</span>
+                    <h4>👑 精洗套餐</h4>
+                    <div class="booking-detail"><strong>日期：</strong>2026-03-30 10:00</div>
+                    <div class="booking-detail"><strong>站點：</strong>中環站 #2</div>
+                    <div class="booking-detail"><strong>金額：</strong>$129 (1 飛票)</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            © 2026 智能洗車屋 Smart Car Wash<br>
+            24/7 客戶服務熱線：+852 1234 5678
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav" id="bottomNav" style="display: none;">
+            <div class="nav-item active" onclick="navigateTo('dashboardPage'); updateNav(0);">
+                <span class="nav-icon">🏠</span>
+                首頁
+            </div>
+            <div class="nav-item" onclick="navigateTo('tokensPage'); updateNav(1);">
+                <span class="nav-icon">🎫</span>
+                飛票
+            </div>
+            <div class="nav-item" onclick="navigateTo('machinesPage'); updateNav(2);">
+                <span class="nav-icon">🚿</span>
+                機器
+            </div>
+            <div class="nav-item" onclick="navigateTo('bookingsPage'); updateNav(3);">
+                <span class="nav-icon">📋</span>
+                記錄
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let currentUser = null;
+        let isGuest = false;
+        let selectedService = null;
+        let selectedToken = null;
+        let machineTimer = null;
+        let machineProgress = 0;
+        let machineDuration = 0;
+        
+        // Guest pricing (higher than member)
+        const GUEST_PRICES = {
+            quick: { member: 39, guest: 59 },
+            standard: { member: 69, guest: 99 },
+            premium: { member: 129, guest: 169 }
+        };
+        
+        // Navigation
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            
+            const titles = {
+                landingPage: { title: '', subtitle: '', hideHeader: true },
+                signupPage: { title: '註冊賬戶', subtitle: '創建您的會員賬戶', hideHeader: false },
+                loginPage: { title: '登入', subtitle: '歡迎回來', hideHeader: false },
+                dashboardPage: { title: '智能洗車屋', subtitle: '選擇洗車服務', hideHeader: false },
+                tokensPage: { title: '購買飛票', subtitle: '優惠套票', hideHeader: false },
+                paymentPage: { title: '付款詳情', subtitle: 'Stripe 安全支付', hideHeader: false },
+                processingPage: { title: '處理中', subtitle: '正在連接 Stripe', hideHeader: false },
+                resultPage: { title: '付款結果', subtitle: '', hideHeader: false },
+                machinesPage: { title: '機器狀態', subtitle: '查看可用洗車機', hideHeader: false },
+                scanPage: { title: '掃描 QR Code', subtitle: '對準洗車機上的 QR Code', hideHeader: false },
+                loadingPage: { title: '啟動中', subtitle: '遠程激活設備', hideHeader: false },
+                machinePage: { title: '洗車中', subtitle: '進行中', hideHeader: false },
+                bookingsPage: { title: '預約記錄', subtitle: '歷史記錄', hideHeader: false }
+            };
+            
+            const config = titles[pageId];
+            
+            // Hide header for landing page
+            if (config.hideHeader) {
+                document.querySelector('.header').style.display = 'none';
+            } else {
+                document.querySelector('.header').style.display = 'block';
+                document.getElementById('pageTitle').textContent = config.title;
+                document.getElementById('pageSubtitle').textContent = config.subtitle;
+            }
+            
+            document.getElementById('backBtn').style.display = 
+                (pageId === 'signupPage' || pageId === 'loginPage' || pageId === 'landingPage') ? 'none' : 'block';
+            
+            // Show bottom nav only for authenticated pages
+            const showNav = (pageId === 'dashboardPage' || pageId === 'tokensPage' || pageId === 'machinesPage' || pageId === 'bookingsPage');
+            document.getElementById('bottomNav').style.display = showNav ? 'flex' : 'none';
+        }
+        
+        function updateNav(index) {
+            document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+        
+        // Guest Login
+        function guestLogin() {
+            isGuest = true;
+            currentUser = { name: '訪客用戶', email: null, phone: null, tokens: 0, isGuest: true };
+            updateUserDisplay();
+            
+            // Show guest warning modal
+            if (confirm('👤 訪客登入\n\n訪客用戶需支付更高費用：\n• 快洗：$59 (會員 $39)\n• 標準：$99 (會員 $69)\n• 精洗：$169 (會員 $129)\n\n註冊會員可享優惠價格！\n\n確定以訪客身份繼續？')) {
+                navigateTo('dashboardPage');
+            } else {
+                isGuest = false;
+                currentUser = null;
+            }
+        }
+        
+        // Send OTP
+        document.getElementById('sendOtpBtn').addEventListener('click', function() {
+            const phone = document.getElementById('signupPhone').value;
+            
+            if (!phone || phone.length < 8) {
+                alert('請輸入正確的手機號碼');
+                return;
+            }
+            
+            this.textContent = '⏳ 發送中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.textContent = '✅ 驗證碼已發送';
+                document.getElementById('signupOtp').value = '123456';
+                alert('【演示模式】驗證碼：123456');
+            }, 1500);
+        });
+        
+        // Sign Up
+        document.getElementById('signupBtn').addEventListener('click', function() {
+            const phone = document.getElementById('signupPhone').value;
+            const otp = document.getElementById('signupOtp').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            
+            if (!phone || phone.length < 8) { alert('請輸入正確的手機號碼'); return; }
+            if (!otp || otp.length !== 6) { alert('請輸入 6 位驗證碼'); return; }
+            if (!password || password.length < 8) { alert('密碼最少需要 8 位'); return; }
+            if (password !== confirmPassword) { alert('兩次輸入的密碼不一致'); return; }
+            if (!name) { alert('請輸入姓名'); return; }
+            
+            this.textContent = '⏳ 註冊中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                currentUser = { name, email, phone, tokens: 5 };
+                updateUserDisplay();
+                navigateTo('dashboardPage');
+                this.textContent = '🚀 立即註冊';
+                this.disabled = false;
+            }, 2000);
+        });
+        
+        // Login
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!phone || !password) { alert('請輸入手機號碼/Email 和密碼'); return; }
+            
+            this.textContent = '⏳ 登入中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                currentUser = { name: '陳大文', email: phone, phone, tokens: 5 };
+                updateUserDisplay();
+                navigateTo('dashboardPage');
+                this.textContent = '🔐 登入';
+                this.disabled = false;
+            }, 1500);
+        });
+        
+        function updateUserDisplay() {
+            if (currentUser) {
+                // Show guest warning and pricing if guest
+                if (currentUser.isGuest) {
+                    document.getElementById('guestWarning').style.display = 'block';
+                    document.getElementById('guestCTA').style.display = 'block';
+                    
+                    // Show guest prices
+                    document.getElementById('guest-price-quick').style.display = 'block';
+                    document.getElementById('guest-price-standard').style.display = 'block';
+                    document.getElementById('guest-price-premium').style.display = 'block';
+                } else {
+                    document.getElementById('guestWarning').style.display = 'none';
+                    document.getElementById('guestCTA').style.display = 'none';
+                    
+                    document.getElementById('guest-price-quick').style.display = 'none';
+                    document.getElementById('guest-price-standard').style.display = 'none';
+                    document.getElementById('guest-price-premium').style.display = 'none';
+                }
+            }
+        }
+        
+        // Select Service
+        function selectService(card, type, memberPrice, duration) {
+            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            // Calculate price based on user type
+            const price = (currentUser && currentUser.isGuest) ? GUEST_PRICES[type].guest : memberPrice;
+            
+            selectedService = { type, memberPrice, guestPrice: GUEST_PRICES[type].guest, price, duration };
+            document.getElementById('startMachineBtn').disabled = false;
+        }
+        
+        // Select Token
+        function selectToken(card, type, tokens, price, save) {
+            document.querySelectorAll('.token-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedToken = { type, tokens, price, save };
+            document.getElementById('buyTokensBtn').disabled = false;
+        }
+        
+        // Navigate to Payment Page
+        document.getElementById('buyTokensBtn').addEventListener('click', function() {
+            if (!selectedToken) { alert('請先選擇套票'); return; }
+            
+            // Update order summary
+            const originalPrice = selectedToken.tokens * 39; // Assume $39 per token regular price
+            document.getElementById('summaryPackage').textContent = selectedToken.type === 'starter' ? '體驗套票' : 
+                                                                  selectedToken.type === 'regular' ? '標準套票' :
+                                                                  selectedToken.type === 'premium' ? '尊貴套票' : '無限月票';
+            document.getElementById('summaryTokens').textContent = selectedToken.tokens === 999 ? '無限次' : selectedToken.tokens + ' 張';
+            document.getElementById('summaryOriginal').textContent = '$' + originalPrice;
+            document.getElementById('summaryTotal').textContent = '$' + selectedToken.price;
+            document.getElementById('payAmount').textContent = '$' + selectedToken.price;
+            
+            navigateTo('paymentPage');
+        });
+        
+        // Process Stripe Payment
+        function processStripePayment() {
+            const email = document.getElementById('stripeEmail').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvc = document.getElementById('cardCvc').value;
+            const cardName = document.getElementById('cardName').value;
+            
+            // Validation
+            if (!email || !email.includes('@')) { alert('請輸入正確的電郵地址'); return; }
+            if (!cardNumber || cardNumber.length < 16) { alert('請輸入正確的信用卡號碼'); return; }
+            if (!cardExpiry) { alert('請輸入有效日期'); return; }
+            if (!cardCvc || cardCvc.length < 3) { alert('請輸入正確的 CVC'); return; }
+            if (!cardName) { alert('請輸入持卡人姓名'); return; }
+            
+            // Navigate to processing page
+            navigateTo('processingPage');
+            
+            // Simulate Stripe payment flow
+            const steps = [
+                { id: 'processStep1', icon: 'processIcon1', text: '驗證卡片資料...', status: '🔒 驗證卡片資料...' },
+                { id: 'processStep2', icon: 'processIcon2', text: '連接銀行...', status: '🏦 連接銀行...' },
+                { id: 'processStep3', icon: 'processIcon3', text: '處理付款...', status: '💰 處理付款...' }
+            ];
+            
+            let currentStep = 0;
+            
+            const processInterval = setInterval(() => {
+                if (currentStep >= steps.length) {
+                    clearInterval(processInterval);
+                    
+                    // Payment complete (90% success rate for demo)
+                    const success = Math.random() > 0.1;
+                    
+                    if (success) {
+                        // Success
+                        document.getElementById('processingStatus').innerHTML = '<p style="color: #00CC66; font-size: 14px; margin: 0;">✅ 付款成功！</p>';
+                        
+                        setTimeout(() => {
+                            // Update user tokens
+                            if (currentUser) {
+                                currentUser.tokens += selectedToken.tokens;
+                                updateUserDisplay();
+                            }
+                            
+                            // Show success page
+                            document.getElementById('successIcon').style.display = 'block';
+                            document.getElementById('failureIcon').style.display = 'none';
+                            document.getElementById('successMessage').style.display = 'block';
+                            document.getElementById('failureMessage').style.display = 'none';
+                            document.getElementById('successTokens').textContent = selectedToken.tokens === 999 ? '∞' : selectedToken.tokens;
+                            document.getElementById('successAmount').textContent = '$' + selectedToken.price;
+                            document.getElementById('confirmationEmail').textContent = email;
+                            
+                            navigateTo('resultPage');
+                        }, 1000);
+                    } else {
+                        // Failure
+                        document.getElementById('processingStatus').innerHTML = '<p style="color: #FF3333; font-size: 14px; margin: 0;">❌ 付款失敗</p>';
+                        
+                        setTimeout(() => {
+                            document.getElementById('successIcon').style.display = 'none';
+                            document.getElementById('failureIcon').style.display = 'block';
+                            document.getElementById('successMessage').style.display = 'none';
+                            document.getElementById('failureMessage').style.display = 'block';
+                            document.getElementById('failureReason').textContent = '銀行拒絕交易，請使用其他卡片或聯絡銀行';
+                            
+                            navigateTo('resultPage');
+                        }, 1000);
+                    }
+                    return;
+                }
+                
+                // Update current step
+                const step = steps[currentStep];
+                document.getElementById(step.id).style.opacity = '1';
+                document.getElementById(step.icon).textContent = '✅';
+                document.getElementById('processingStatus').innerHTML = `<p style="color: #0066CC; font-size: 14px; margin: 0;">${step.status}</p>`;
+                
+                currentStep++;
+            }, 1000); // 1 second per step
+        }
+        
+        // Start Machine
+        function startMachine() {
+            if (!selectedService) { alert('請先選擇服務'); return; }
+            
+            machineDuration = selectedService.duration;
+            machineProgress = 0;
+            
+            let timeLeft = machineDuration * 60;
+            
+            machineTimer = setInterval(() => {
+                timeLeft--;
+                machineProgress = ((machineDuration * 60 - timeLeft) / (machineDuration * 60)) * 100;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('progressBar').style.width = machineProgress + '%';
+                document.getElementById('progressText').textContent = Math.round(machineProgress) + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(machineTimer);
+                    alert('✅ 洗車完成！');
+                    navigateTo('homePage');
+                    updateNav(0);
+                }
+            }, 1000); // Demo: 1 second = 1 second (for real demo, use 100 for faster)
+        }
+        
+        // Stop Machine
+        function stopMachine() {
+            if (confirm('確定要停止洗車嗎？')) {
+                clearInterval(machineTimer);
+                alert('⏹️ 洗車已停止');
+                navigateTo('homePage');
+                updateNav(0);
+            }
+        }
+        
+        // Simulate QR Scan
+        function simulateScan() {
+            navigateTo('loadingPage');
+            
+            // Simulate activation steps
+            const steps = [
+                { id: 'step1', icon: 'icon1', text: '連接洗車機...', status: '🔄 連接洗車機...' },
+                { id: 'step2', icon: 'icon2', text: '驗證用戶身份...', status: '🔐 驗證用戶身份...' },
+                { id: 'step3', icon: 'icon3', text: '檢查設備狀態...', status: '🔧 檢查設備狀態...' },
+                { id: 'step4', icon: 'icon4', text: '啟動洗車系統...', status: '⚡ 啟動洗車系統...' }
+            ];
+            
+            let currentStep = 0;
+            
+            const activateInterval = setInterval(() => {
+                if (currentStep >= steps.length) {
+                    clearInterval(activateInterval);
+                    
+                    // Activation complete
+                    document.getElementById('loadingStatus').innerHTML = '<p style="color: #00CC66; font-size: 14px; margin: 0;">✅ 啟動成功！</p>';
+                    
+                    // Navigate to machine page after delay
+                    setTimeout(() => {
+                        navigateTo('machinePage');
+                        startMachine();
+                    }, 1000);
+                    return;
+                }
+                
+                // Update current step
+                const step = steps[currentStep];
+                document.getElementById(step.id).style.opacity = '1';
+                document.getElementById(step.icon).textContent = '✅';
+                document.getElementById('loadingStatus').innerHTML = `<p style="color: #0066CC; font-size: 14px; margin: 0;">${step.status}</p>`;
+                
+                currentStep++;
+            }, 800); // 800ms per step
+        }
+        
+        // Cancel Activation
+        function cancelActivation() {
+            if (confirm('確定要取消啟動洗車機嗎？')) {
+                navigateTo('dashboardPage');
+                updateNav(0);
+            }
+        }
+        
+        // Auto-start machine when entering machine page
+        const observer = new MutationObserver(() => {
+            if (document.getElementById('machinePage').classList.contains('active')) {
+                startMachine();
+            }
+        });
+        
+        observer.observe(document.querySelector('#machinePage'), { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>
