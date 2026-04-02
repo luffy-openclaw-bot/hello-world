@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📍 GPS 打卡系統 - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- 🔐 登入頁面 -->
+    <div id="loginPage" class="page active">
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+            <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">📍 GPS 打卡系統</h1>
+                    <p class="text-gray-600 mt-2">Smart Checkin System</p>
+                </div>
+
+                <div id="loginError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4"></div>
+
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">郵箱</label>
+                        <input type="email" id="email" value="admin@gps-checkin.com"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                            placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">密碼</label>
+                        <input type="password" id="password" value="admin123"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                            placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" id="loginBtn"
+                        class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 transition">
+                        登入
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center text-sm text-gray-600">
+                    <p class="font-bold">Demo 測試賬戶：</p>
+                    <p class="font-mono text-xs mt-1">admin@gps-checkin.com / admin123</p>
+                    <p class="font-mono text-xs">employee@gps-checkin.com / employee123</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📍 員工打卡頁面 -->
+    <div id="checkinPage" class="page">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">📍 GPS 打卡</h1>
+                <button onclick="logout()" class="text-gray-600 hover:text-gray-900">登出</button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 px-4">
+            <!-- 用戶信息 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-2">歡迎，<span id="userName">陳大文</span></h2>
+                <p class="text-gray-600"><span id="userEmail">employee@gps-checkin.com</span></p>
+            </div>
+
+            <!-- GPS 位置 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">📍 當前位置</h3>
+                <div id="locationInfo">
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                        <span>獲取 GPS 位置中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 打卡按鈕 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">打卡操作</h3>
+                
+                <div id="checkinMessage" class="hidden p-4 rounded mb-4"></div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="doCheckin('checkin')" id="checkinBtn"
+                        class="bg-green-600 text-white py-4 px-6 rounded-lg font-bold hover:bg-green-700 transition disabled:opacity-50">
+                        🌅 上班打卡
+                    </button>
+                    
+                    <button onclick="doCheckin('checkout')" id="checkoutBtn"
+                        class="bg-blue-600 text-white py-4 px-6 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50">
+                        🌆 下班打卡
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 📊 管理員 Dashboard -->
+    <div id="dashboardPage" class="page">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold">📊 管理員 Dashboard</h1>
+                <button onclick="logout()" class="text-gray-600 hover:text-gray-900">登出</button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 px-4">
+            <!-- 統計卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm">總員工數</h3>
+                    <p class="text-3xl font-bold text-blue-600">12</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm">已打卡</h3>
+                    <p class="text-3xl font-bold text-green-600">10</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm">早走</h3>
+                    <p class="text-3xl font-bold text-orange-600">1</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-600 text-sm">缺席</h3>
+                    <p class="text-3xl font-bold text-red-600">1</p>
+                </div>
+            </div>
+
+            <!-- 地圖 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-bold mb-4">📍 員工位置</h3>
+                <div class="bg-gradient-to-br from-blue-50 to-green-50 h-96 rounded flex items-center justify-center border-2 border-dashed border-gray-300">
+                    <div class="text-center">
+                        <p class="text-6xl mb-4">🗺️</p>
+                        <p class="text-gray-500">地圖組件 (Leaflet.js)</p>
+                        <p class="text-xs text-gray-400 mt-2">生產環境會顯示真實地圖</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日打卡記錄 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-bold mb-4">今日打卡記錄</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-2">姓名</th>
+                                <th class="text-left py-2">上班時間</th>
+                                <th class="text-left py-2">下班時間</th>
+                                <th class="text-left py-2">狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="py-2">陳大文</td>
+                                <td class="py-2">09:00:00</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">正常</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">李小明</td>
+                                <td class="py-2">09:15:00</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">正常</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">張三</td>
+                                <td class="py-2">08:55:00</td>
+                                <td class="py-2">17:30:00</td>
+                                <td class="py-2"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-sm">早走</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">李四</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-sm">缺席</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 📋 報表頁面 -->
+    <div id="reportsPage" class="page">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold">📋 報表系統</h1>
+                <div class="space-x-2">
+                    <button onclick="showPage('dashboardPage')" class="text-gray-600 hover:text-gray-900">返回 Dashboard</button>
+                    <button onclick="logout()" class="text-gray-600 hover:text-gray-900">登出</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 px-4">
+            <!-- 篩選條件 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-bold mb-4">篩選條件</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">開始日期</label>
+                        <input type="date" value="2026-04-01"
+                            class="w-full px-3 py-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">結束日期</label>
+                        <input type="date" value="2026-04-30"
+                            class="w-full px-3 py-2 border rounded">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="alert('報表導出功能（Mock）\\n\\nCSV 文件已下載')"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                            📊 導出 CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 報表 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-bold mb-4">打卡記錄</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b bg-gray-50">
+                                <th class="text-left py-2">日期</th>
+                                <th class="text-left py-2">姓名</th>
+                                <th class="text-left py-2">上班</th>
+                                <th class="text-left py-2">下班</th>
+                                <th class="text-left py-2">工時</th>
+                                <th class="text-left py-2">狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="py-2">2026-04-01</td>
+                                <td class="py-2">陳大文</td>
+                                <td class="py-2">09:00</td>
+                                <td class="py-2">18:00</td>
+                                <td class="py-2">9 小時</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">正常</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">2026-04-01</td>
+                                <td class="py-2">李小明</td>
+                                <td class="py-2">09:15</td>
+                                <td class="py-2">18:05</td>
+                                <td class="py-2">8.8 小時</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">正常</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">2026-04-01</td>
+                                <td class="py-2">張三</td>
+                                <td class="py-2">08:55</td>
+                                <td class="py-2">17:30</td>
+                                <td class="py-2">8.6 小時</td>
+                                <td class="py-2"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-sm">早走</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // === Dummy Data ===
+        const dummyData = {
+            users: {
+                'admin@gps-checkin.com': { name: '管理員', role: 'admin' },
+                'employee@gps-checkin.com': { name: '陳大文', role: 'employee' }
+            },
+            checkins: [
+                { id: 1, user: '陳大文', date: '2026-04-01', checkin: '09:00:00', checkout: '18:00:00', status: '正常' },
+                { id: 2, user: '李小明', date: '2026-04-01', checkin: '09:15:00', checkout: '18:05:00', status: '正常' },
+                { id: 3, user: '張三', date: '2026-04-01', checkin: '08:55:00', checkout: '17:30:00', status: '早走' },
+                { id: 4, user: '李四', date: '2026-04-01', checkin: '-', checkout: '-', status: '缺席' }
+            ]
+        };
+
+        let currentUser = null;
+        let currentLocation = null;
+
+        // === 頁面導航 ===
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // === 登入 ===
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            // Mock 登入
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登入中...';
+            
+            setTimeout(() => {
+                if (dummyData.users[email]) {
+                    currentUser = dummyData.users[email];
+                    currentUser.email = email;
+                    
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    
+                    if (currentUser.role === 'admin') {
+                        showPage('dashboardPage');
+                    } else {
+                        showPage('checkinPage');
+                        getLocation();
+                    }
+                    
+                    document.getElementById('userName').textContent = currentUser.name;
+                    document.getElementById('userEmail').textContent = currentUser.email;
+                    
+                    errorDiv.classList.add('hidden');
+                } else {
+                    errorDiv.textContent = '郵箱或密碼錯誤';
+                    errorDiv.classList.remove('hidden');
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登入';
+            }, 500);
+        });
+
+        // === 登出 ===
+        function logout() {
+            localStorage.removeItem('user');
+            currentUser = null;
+            showPage('loginPage');
+            document.getElementById('email').value = 'admin@gps-checkin.com';
+            document.getElementById('password').value = 'admin123';
+        }
+
+        // === 獲取 GPS 位置 ===
+        function getLocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        
+                        document.getElementById('locationInfo').innerHTML = `
+                            <div class="space-y-2">
+                                <p class="text-gray-700">
+                                    <span class="font-bold">緯度：</span>${currentLocation.latitude.toFixed(6)}
+                                </p>
+                                <p class="text-gray-700">
+                                    <span class="font-bold">經度：</span>${currentLocation.longitude.toFixed(6)}
+                                </p>
+                                <p class="text-green-600 font-bold">✅ GPS 定位成功</p>
+                            </div>
+                        `;
+                        
+                        document.getElementById('checkinBtn').disabled = false;
+                        document.getElementById('checkoutBtn').disabled = false;
+                    },
+                    (error) => {
+                        // Mock 位置（如果 GPS 失敗）
+                        currentLocation = {
+                            latitude: 22.3193 + (Math.random() - 0.5) * 0.01,
+                            longitude: 114.1694 + (Math.random() - 0.5) * 0.01
+                        };
+                        
+                        document.getElementById('locationInfo').innerHTML = `
+                            <div class="space-y-2">
+                                <p class="text-gray-700">
+                                    <span class="font-bold">緯度：</span>${currentLocation.latitude.toFixed(6)}
+                                </p>
+                                <p class="text-gray-700">
+                                    <span class="font-bold">經度：</span>${currentLocation.longitude.toFixed(6)}
+                                </p>
+                                <p class="text-orange-600 font-bold">⚠️ 使用模擬位置</p>
+                            </div>
+                        `;
+                        
+                        document.getElementById('checkinBtn').disabled = false;
+                        document.getElementById('checkoutBtn').disabled = false;
+                    }
+                );
+            } else {
+                document.getElementById('locationInfo').innerHTML = `
+                    <p class="text-red-600">❌ 瀏覽器不支持 GPS</p>
+                `;
+            }
+        }
+
+        // === 打卡 ===
+        function doCheckin(type) {
+            if (!currentLocation) {
+                showMessage('請等待 GPS 定位完成', 'error');
+                return;
+            }
+            
+            const btn = type === 'checkin' ? document.getElementById('checkinBtn') : document.getElementById('checkoutBtn');
+            btn.disabled = true;
+            btn.textContent = '處理中...';
+            
+            // Mock API 調用
+            setTimeout(() => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('zh-HK');
+                
+                showMessage(`✅ ${type === 'checkin' ? '上班' : '下班'}打卡成功！\\n時間：${timeStr}`, 'success');
+                
+                btn.disabled = false;
+                btn.textContent = type === 'checkin' ? '🌅 上班打卡' : '🌆 下班打卡';
+            }, 800);
+        }
+
+        // === 顯示消息 ===
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('checkinMessage');
+            msgDiv.textContent = msg.replace('\\n', '\n');
+            msgDiv.className = `p-4 rounded mb-4 ${type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`;
+            msgDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                msgDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // === 初始化 ===
+        window.addEventListener('load', () => {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userEmail').textContent = currentUser.email;
+                
+                if (currentUser.role === 'admin') {
+                    showPage('dashboardPage');
+                } else {
+                    showPage('checkinPage');
+                    getLocation();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
