@@ -502,13 +502,6 @@
     </div>
 
     <script>
-        // 確保頁面加載時初始化
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded');
-            // 確保顯示首頁
-            showPage('caseSelectPage');
-        });
-
         // === Dummy Data ===
         const dummyData = {
             users: {
@@ -725,13 +718,9 @@
                 document.getElementById('userName').textContent = currentUser.name;
                 document.getElementById('userEmail').textContent = currentUser.email;
             }
-        });
-        
-        // 確保頁面加載時顯示首頁
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded');
-            // 確保顯示首頁
+            // 確保頁面加載時顯示首頁
             showPage('caseSelectPage');
+            console.log('Page initialized');
         });
     </script>
 </body>
