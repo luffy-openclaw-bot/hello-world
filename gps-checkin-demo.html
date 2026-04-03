@@ -553,16 +553,23 @@
 
         // === 進入打卡頁面 ===
         function goToCheckin(mode) {
+            console.log('Going to checkin page, mode:', mode);
             showPage('checkinPage');
             
+            const userInfoCard = document.getElementById('userInfoCard');
+            const deviceInfoCard = document.getElementById('deviceInfoCard');
+            const deviceIdSpan = document.getElementById('deviceId');
+            
+            console.log('Elements:', { userInfoCard, deviceInfoCard, deviceIdSpan });
+            
             if (mode === 'nodevice') {
-                document.getElementById('userInfoCard').classList.add('hidden');
-                document.getElementById('deviceInfoCard').classList.remove('hidden');
-                document.getElementById('deviceId').textContent = 'DEV-2026-04-03-001';
+                if (userInfoCard) userInfoCard.classList.add('hidden');
+                if (deviceInfoCard) deviceInfoCard.classList.remove('hidden');
+                if (deviceIdSpan) deviceIdSpan.textContent = 'DEV-2026-04-03-001';
             } else {
-                document.getElementById('userInfoCard').classList.remove('hidden');
-                document.getElementById('deviceInfoCard').classList.add('hidden');
-                document.getElementById('deviceId').textContent = 'WEB-' + Date.now().toString().slice(-6);
+                if (userInfoCard) userInfoCard.classList.remove('hidden');
+                if (deviceInfoCard) deviceInfoCard.classList.add('hidden');
+                if (deviceIdSpan) deviceIdSpan.textContent = 'WEB-' + Date.now().toString().slice(-6);
             }
             
             getLocation();
