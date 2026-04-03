@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GPS 打卡系統 - 東洋風格 Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // 確保頁面加載時初始化
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded');
-            // 確保顯示首頁
-            showPage('caseSelectPage');
-        });
-    </script>
     <style>
         .page { display: none; }
         .page.active { display: block; }
@@ -733,6 +725,13 @@
                 document.getElementById('userName').textContent = currentUser.name;
                 document.getElementById('userEmail').textContent = currentUser.email;
             }
+        });
+        
+        // 確保頁面加載時顯示首頁
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded');
+            // 確保顯示首頁
+            showPage('caseSelectPage');
         });
     </script>
 </body>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+        body { font-family: sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>GPS Demo 測試</h1>
+    
+    <div id="page1" class="page active">
+        <h2>首頁</h2>
+        <button onclick="showPage('page2')">去第二頁</button>
+        <button onclick="showPage('page3')">去第三頁</button>
+    </div>
+    
+    <div id="page2" class="page">
+        <h2>第二頁</h2>
+        <button onclick="showPage('page1')">返回首頁</button>
+    </div>
+    
+    <div id="page3" class="page">
+        <h2>第三頁</h2>
+        <button onclick="showPage('page1')">返回首頁</button>
+    </div>
+    
+    <script>
+        console.log('Script loaded');
+        
+        function showPage(pageId) {
+            console.log('Showing:', pageId);
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        // 確保首頁顯示
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Loaded');
+            showPage('page1');
+        });
+    </script>
+</body>
+</html>
