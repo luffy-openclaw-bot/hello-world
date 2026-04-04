@@ -87,13 +87,17 @@
             <!-- 自拍功能 -->
             <div class="bg-white p-6 rounded shadow border-l-4 border-blue-900 mb-4">
                 <h3 class="font-bold mb-3">📸 自拍驗證</h3>
-                <video id="camera" autoplay playsinline class="w-full rounded mb-3 bg-gray-900" style="max-height: 300px; object-fit: cover;"></video>
+                <!-- 相機視頻 -->
+                <div class="relative w-full bg-gray-900 rounded mb-3" style="max-width: 400px; margin: 0 auto; aspect-ratio: 3/4;">
+                    <video id="camera" autoplay playsinline class="absolute inset-0 w-full h-full object-cover rounded"></video>
+                </div>
                 <canvas id="photoCanvas" class="hidden"></canvas>
-                <p class="text-sm text-gray-600 mb-2">✓ 相機已自動開啟，直接打卡即可</p>
+                <p class="text-sm text-gray-600 mb-2 text-center">✓ 相機已自動開啟，直接打卡即可</p>
+                <!-- 照片預覽 -->
                 <div id="photoPreview" class="hidden mt-3">
-                    <p class="text-sm text-green-700 font-bold mb-2">✓ 已拍照</p>
-                    <div class="relative w-full" style="max-width: 400px; margin: 0 auto;">
-                        <img id="photoImage" class="w-full h-auto rounded border-2 border-green-600" style="object-fit: cover;">
+                    <p class="text-sm text-green-700 font-bold mb-2 text-center">✓ 已拍照</p>
+                    <div class="relative w-full bg-gray-100 rounded" style="max-width: 400px; margin: 0 auto; aspect-ratio: 3/4;">
+                        <img id="photoImage" class="absolute inset-0 w-full h-full object-cover rounded border-2 border-green-600">
                     </div>
                 </div>
             </div>
