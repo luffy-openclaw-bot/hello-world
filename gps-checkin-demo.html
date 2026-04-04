@@ -266,21 +266,27 @@
             // 自動拍照
             var video = document.getElementById('camera');
             var canvas = document.getElementById('photoCanvas');
-            var takePhotoBtn = document.getElementById('takePhotoBtn');
             
-            if (video && canvas && !takePhotoBtn.disabled) {
-                // 相機已開啟，自動拍照
-                var context = canvas.getContext('2d');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                var dataURL = canvas.toDataURL('image/png');
-                var photoImage = document.getElementById('photoImage');
-                photoImage.src = dataURL;
-                document.getElementById('photoPreview').classList.remove('hidden');
-                
-                console.log('Auto photo taken');
+            if (video && canvas) {
+                // 檢查視頻是否已準備好
+                if (video.videoWidth > 0 && video.videoHeight > 0) {
+                    // 相機已開啟，自動拍照
+                    var context = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    var dataURL = canvas.toDataURL('image/png');
+                    var photoImage = document.getElementById('photoImage');
+                    photoImage.src = dataURL;
+                    document.getElementById('photoPreview').classList.remove('hidden');
+                    
+                    console.log('Auto photo taken');
+                } else {
+                    console.log('Camera not ready yet');
+                }
+            } else {
+                console.log('Camera elements not found');
             }
             
             // 顯示成功消息
