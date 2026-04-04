@@ -289,10 +289,33 @@
                 console.log('Camera elements not found');
             }
             
-            // 顯示成功消息
+            // 顯示成功消息（視覺反饋）
             var now = new Date();
             var timeStr = now.toLocaleTimeString('zh-HK');
             var photoTaken = !document.getElementById('photoPreview').classList.contains('hidden');
+            
+            // 創建視覺反饋
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'bg-green-600 text-white text-center py-4 px-6 rounded-lg font-bold mt-4';
+            messageDiv.innerHTML = '✅ 打卡成功！<br>時間：' + timeStr + (photoTaken ? '<br>✓ 已拍照驗證' : '');
+            
+            // 移除舊的消息
+            var oldMessage = document.querySelector('.checkin-success-message');
+            if (oldMessage) oldMessage.remove();
+            
+            messageDiv.classList.add('checkin-success-message');
+            
+            // 添加到打卡按鈕下方
+            var checkinPage = document.getElementById('checkinPage');
+            var buttonsDiv = checkinPage.querySelector('.grid.grid-cols-2');
+            buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv.nextSibling);
+            
+            // 3 秒後移除
+            setTimeout(function() {
+                messageDiv.remove();
+            }, 3000);
+            
+            // 仍然顯示 Alert
             var message = (type === 'checkin' ? '上班' : '下班') + '打卡成功！\n時間：' + timeStr;
             if (photoTaken) {
                 message += '\n✓ 已拍照驗證';
