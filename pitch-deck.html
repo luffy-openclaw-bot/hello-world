@@ -23,7 +23,7 @@
         
         /* A. McKinsey/BCG 諮詢風格 */
         body.theme-mckinsey {
-            background: #1a1a2e;
+            background: #F8F9FA;
             color: #2C3E50;
         }
         body.theme-mckinsey .slide-content {
@@ -318,31 +318,40 @@
             transition: all 0.3s ease;
         }
         
-        /* 風格選擇器 - 只在第一頁顯示 */
-        .style-selector {
+        /* 控制按鈕 - 只在第一頁顯示 */
+        .controls-container {
             position: fixed;
             top: 1rem;
             right: 1rem;
+            display: flex;
+            gap: 0.75rem;
             z-index: 1000;
+        }
+        
+        .control-btn {
             background: rgba(255,255,255,0.95);
-            padding: 0.75rem 1rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             backdrop-filter: blur(10px);
+            border: 2px solid #ddd;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .style-selector select {
-            border: 2px solid #ddd;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+        .control-btn:hover {
+            border-color: #3498DB;
+        }
+        
+        .control-btn select {
+            border: none;
+            background: transparent;
             font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
             outline: none;
-        }
-        
-        .style-selector select:focus {
-            border-color: #3498DB;
         }
         
         @media (max-width: 768px) {
@@ -362,10 +371,11 @@
                 grid-template-columns: 1fr;
             }
             
-            .style-selector {
+            .controls-container {
                 top: auto;
                 bottom: 5rem;
                 right: 1rem;
+                flex-direction: column;
             }
         }
     </style>
@@ -379,31 +389,39 @@
     <!-- Slide Number -->
     <div class="slide-number" id="slideNumber">1 / 17</div>
     
-    <!-- Style Selector (只在第一頁顯示) -->
-    <div class="style-selector" id="styleSelector">
-        <select id="styleSelect" onchange="changeStyle()">
-            <option value="mckinsey">📊 A. McKinsey/BCG 諮詢風格</option>
-            <option value="apple">🍎 B. Apple Keynote 風格</option>
-            <option value="finance">🏦 C. 金融/銀行風格</option>
-            <option value="tech">💻 D. Tech Startup 風格</option>
-        </select>
+    <!-- Controls (Style + Language) - 只在第一頁顯示 -->
+    <div class="controls-container" id="controlsContainer">
+        <div class="control-btn">
+            <select id="styleSelect" onchange="changeStyle()">
+                <option value="mckinsey">📊 McKinsey/BCG</option>
+                <option value="apple">🍎 Apple Keynote</option>
+                <option value="finance">🏦 Finance</option>
+                <option value="tech">💻 Tech Startup</option>
+            </select>
+        </div>
+        <div class="control-btn">
+            <select id="langSelect" onchange="changeLang()">
+                <option value="zh-HK">🇭🇰 繁體中文</option>
+                <option value="en-US">🇺🇸 English</option>
+            </select>
+        </div>
     </div>
     
     <!-- Navigation -->
     <div class="nav-buttons">
-        <button class="nav-btn" id="prevBtn" onclick="prevSlide()" disabled>◀ 上一頁</button>
-        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">下一頁 ▶</button>
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()" disabled>◀ Prev</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next ▶</button>
     </div>
 
     <!-- Slide 1: Title -->
     <div class="slide active" id="slide1">
         <div class="slide-content" style="text-align: center;">
             <div style="font-size: 5rem; margin-bottom: 2rem;">📍</div>
-            <h1 class="slide-title">Internal GPS Check-in Web App</h1>
-            <p class="slide-subtitle">輕量級外勤員工考勤解決方案</p>
+            <h1 class="slide-title" data-zh="Internal GPS Check-in Web App" data-en="Internal GPS Check-in Web App">Internal GPS Check-in Web App</h1>
+            <p class="slide-subtitle" data-zh="輕量級外勤員工考勤解決方案" data-en="Lightweight Attendance Solution for Field Staff">輕量級外勤員工考勤解決方案</p>
             <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f5f5f5;">
-                <p style="color: #666; font-size: 1.1rem;">準備給：<strong>Toyo Security</strong></p>
-                <p style="color: #666; font-size: 1.1rem; margin-top: 0.5rem;">準備者：<strong><a href="http://LOOKFOR.HK" style="color: #3498DB; text-decoration: none;">LOOKFOR.HK</a></strong></p>
+                <p style="color: #666; font-size: 1.1rem;"><span data-zh="準備給：" data-en="Prepared For: ">準備給：</span><strong>Toyo Security</strong></p>
+                <p style="color: #666; font-size: 1.1rem; margin-top: 0.5rem;"><span data-zh="準備者：" data-en="Prepared By: ">準備者：</span><strong><a href="http://LOOKFOR.HK" style="color: #3498DB; text-decoration: none;">LOOKFOR.HK</a></strong></p>
             </div>
         </div>
     </div>
@@ -411,25 +429,25 @@
     <!-- Slide 2: Problem Statement -->
     <div class="slide" id="slide2">
         <div class="slide-content">
-            <h2 class="slide-title">🚨 問題陳述</h2>
-            <p class="slide-subtitle">當前挑戰：外勤員工考勤追蹤人手操作且不可靠</p>
+            <h2 class="slide-title" data-zh="🚨 問題陳述" data-en="🚨 Problem Statement">🚨 問題陳述</h2>
+            <p class="slide-subtitle" data-zh="當前挑戰：外勤員工考勤追蹤人手操作且不可靠" data-en="Current Challenge: Field staff attendance tracking is manual and unreliable">當前挑戰：外勤員工考勤追蹤人手操作且不可靠</p>
             
             <div class="grid-2">
                 <div>
-                    <h3 class="card-title" style="color: #c41230;">痛點</h3>
+                    <h3 class="card-title" style="color: #c41230;" data-zh="痛點" data-en="Pain Points">痛點</h3>
                     <ul class="bullet-list">
-                        <li>無法實時查看員工工作期間位置</li>
-                        <li>難以核實早退或遲到</li>
-                        <li>現有承辦商方案要求最低人數 (10-20 人)</li>
-                        <li>原生 App 開發成本高且難維護</li>
+                        <li data-zh="無法實時查看員工工作期間位置" data-en="No real-time visibility on staff location during work hours">無法實時查看員工工作期間位置</li>
+                        <li data-zh="難以核實早退或遲到" data-en="Difficult to verify early departure or late arrival">難以核實早退或遲到</li>
+                        <li data-zh="現有承辦商方案要求最低人數 (10-20 人)" data-en="Existing contractor solutions require minimum headcount (10-20 pax)">現有承辦商方案要求最低人數 (10-20 人)</li>
+                        <li data-zh="原生 App 開發成本高且難維護" data-en="Native app development is costly and hard to maintain">原生 App 開發成本高且難維護</li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="card-title" style="color: #c41230;">業務影響</h3>
+                    <h3 class="card-title" style="color: #c41230;" data-zh="業務影響" data-en="Business Impact">業務影響</h3>
                     <ul class="bullet-list">
-                        <li>薪資處理效率低下</li>
-                        <li>潛在時間欺詐</li>
-                        <li>管理開支增加</li>
+                        <li data-zh="薪資處理效率低下" data-en="Inefficient payroll processing">薪資處理效率低下</li>
+                        <li data-zh="潛在時間欺詐" data-en="Potential time fraud">潛在時間欺詐</li>
+                        <li data-zh="管理開支增加" data-en="Management overhead">管理開支增加</li>
                     </ul>
                 </div>
             </div>
@@ -439,21 +457,21 @@
     <!-- Slide 3: Solution Overview -->
     <div class="slide" id="slide3">
         <div class="slide-content">
-            <h2 class="slide-title">💡 解決方案概述</h2>
-            <p class="slide-subtitle">網頁版 GPS 打卡系統</p>
+            <h2 class="slide-title" data-zh="💡 解決方案概述" data-en="💡 Solution Overview">💡 解決方案概述</h2>
+            <p class="slide-subtitle" data-zh="網頁版 GPS 打卡系統" data-en="Web-based GPS Check-in System">網頁版 GPS 打卡系統</p>
             
             <div class="card" style="background: #e8f4f8; border-left-color: #c41230; margin-bottom: 2rem;">
                 <p style="font-size: 1.2rem; line-height: 1.8;">
-                    <strong>核心概念：</strong>員工通過手機瀏覽器打卡，<span class="highlight">無需安裝 App</span>
+                    <strong data-zh="核心概念：" data-en="Core Concept: ">核心概念：</strong><span data-zh="員工通過手機瀏覽器打卡，" data-en="Employees clock in/out via mobile browser, ">員工通過手機瀏覽器打卡，</span><span class="highlight" data-zh="無需安裝 App" data-en="no app installation required">無需安裝 App</span>
                 </p>
             </div>
             
-            <h3 class="card-title">主要組件</h3>
+            <h3 class="card-title" data-zh="主要組件" data-en="Key Components">主要組件</h3>
             <ul class="bullet-list">
-                <li>手機友好打卡介面 + GPS + 自拍驗證</li>
-                <li>管理員 Dashboard 實時監控 + 報告生成</li>
-                <li>基本防欺詐機制確保數據完整性 (Optional)</li>
-                <li>單一組織內部系統部署 (非 SaaS)</li>
+                <li data-zh="手機友好打卡介面 + GPS + 自拍驗證" data-en="Mobile-friendly check-in interface with GPS + photo verification">手機友好打卡介面 + GPS + 自拍驗證</li>
+                <li data-zh="管理員 Dashboard 實時監控 + 報告生成" data-en="Admin dashboard for real-time monitoring and report generation">管理員 Dashboard 實時監控 + 報告生成</li>
+                <li data-zh="基本防欺詐機制確保數據完整性 (Optional)" data-en="Basic anti-fraud mechanisms for data integrity (Optional)">基本防欺詐機制確保數據完整性 (Optional)</li>
+                <li data-zh="單一組織內部系統部署 (非 SaaS)" data-en="Single-organization internal system deployment (not SaaS)">單一組織內部系統部署 (非 SaaS)</li>
             </ul>
         </div>
     </div>
@@ -461,32 +479,32 @@
     <!-- Slide 4: Key Benefits -->
     <div class="slide" id="slide4">
         <div class="slide-content">
-            <h2 class="slide-title">✨ 主要優勢</h2>
+            <h2 class="slide-title" data-zh="✨ 主要優勢" data-en="✨ Key Benefits">✨ 主要優勢</h2>
             
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">💰 成本效益</div>
-                    <p>總開發成本約 <span class="highlight">HK$6,000</span><br>無經常性許可費用</p>
+                    <div class="card-title" data-zh="💰 成本效益" data-en="💰 Cost Efficiency">💰 成本效益</div>
+                    <p data-zh="總開發成本約 <span class='highlight'>HK$6,000</span><br>無經常性許可費用" data-en="~<span class='highlight'>HK$6,000</span> total development cost<br>No recurring license fees">總開發成本約 <span class="highlight">HK$6,000</span><br>無經常性許可費用</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">🚀 快速部署</div>
-                    <p><span class="highlight">1-2 週</span> 從啟動到上線</p>
+                    <div class="card-title" data-zh="🚀 快速部署" data-en="🚀 Rapid Deployment">🚀 快速部署</div>
+                    <p data-zh="<span class='highlight'>1-2 週</span> 從啟動到上線" data-en="<span class='highlight'>1-2 weeks</span> from kickoff to launch"><span class="highlight">1-2 週</span> 從啟動到上線</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📱 零安裝</div>
-                    <p>員工通過 URL 訪問<br>無需 App Store 審批</p>
+                    <div class="card-title" data-zh="📱 零安裝" data-en="📱 Zero Installation">📱 零安裝</div>
+                    <p data-zh="員工通過 URL 訪問<br>無需 App Store 審批" data-en="Employees access via URL<br>No App Store approval needed">員工通過 URL 訪問<br>無需 App Store 審批</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">🔧 低維護</div>
-                    <p>網頁版更新<br>無版本碎片化</p>
+                    <div class="card-title" data-zh="🔧 低維護" data-en="🔧 Low Maintenance">🔧 低維護</div>
+                    <p data-zh="網頁版更新<br>無版本碎片化" data-en="Web-based updates<br>No version fragmentation">網頁版更新<br>無版本碎片化</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📈 可擴展</div>
-                    <p>支援最多 <span class="highlight">100 名員工</span><br>5 個管理賬戶</p>
+                    <div class="card-title" data-zh="📈 可擴展" data-en="📈 Scalable Within Scope">📈 可擴展</div>
+                    <p data-zh="支援最多 <span class='highlight'>100 名員工</span><br>5 個管理賬戶" data-en="Supports up to <span class='highlight'>100 employees</span><br>5 admin accounts">支援最多 <span class="highlight">100 名員工</span><br>5 個管理賬戶</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">⚙️ 靈活</div>
-                    <p>易於自定義 UI<br>添加字段或調整規則</p>
+                    <div class="card-title" data-zh="⚙️ 靈活" data-en="⚙️ Flexible">⚙️ 靈活</div>
+                    <p data-zh="易於自定義 UI<br>添加字段或調整規則" data-en="Easy to customize UI<br>Add fields or adjust rules">易於自定義 UI<br>添加字段或調整規則</p>
                 </div>
             </div>
         </div>
@@ -495,25 +513,25 @@
     <!-- Slide 5: How It Works -->
     <div class="slide" id="slide5">
         <div class="slide-content">
-            <h2 class="slide-title">🔄 運作流程</h2>
+            <h2 class="slide-title" data-zh="🔄 運作流程" data-en="🔄 How It Works">🔄 運作流程</h2>
             
             <div class="grid-2">
                 <div>
-                    <h3 class="card-title" style="color: #1a3a5c;">👤 員工旅程</h3>
+                    <h3 class="card-title" style="color: #1a3a5c;" data-zh="👤 員工旅程" data-en="👤 Employee Journey">👤 員工旅程</h3>
                     <ul class="bullet-list">
-                        <li>打開手機瀏覽器，無需登入</li>
-                        <li>授予位置和相機權限 (一次性)</li>
-                        <li>點擊「上班」/「下班」按鈕</li>
-                        <li>拍攝強制照片並提交</li>
-                        <li>查看個人歷史記錄</li>
+                        <li data-zh="打開手機瀏覽器，無需登入" data-en="Open link in mobile browser, no login required">打開手機瀏覽器，無需登入</li>
+                        <li data-zh="授予位置和相機權限 (一次性)" data-en="Grant location and camera permissions (one-time)">授予位置和相機權限 (一次性)</li>
+                        <li data-zh="點擊「上班」/「下班」按鈕" data-en="Tap Check In / Check Out button">點擊「上班」/「下班」按鈕</li>
+                        <li data-zh="拍攝強制照片並提交" data-en="Take mandatory photo, submit record">拍攝強制照片並提交</li>
+                        <li data-zh="查看個人歷史記錄" data-en="View personal history">查看個人歷史記錄</li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="card-title" style="color: #1a3a5c;">👨‍💼 管理員旅程</h3>
+                    <h3 class="card-title" style="color: #1a3a5c;" data-zh="👨‍💼 管理員旅程" data-en="👨‍💼 Admin Journey">👨‍💼 管理員旅程</h3>
                     <ul class="bullet-list">
-                        <li>登入網頁 Dashboard</li>
-                        <li>查看員工位置實時地圖</li>
-                        <li>导出報告用於薪資處理</li>
+                        <li data-zh="登入網頁 Dashboard" data-en="Login to web dashboard">登入網頁 Dashboard</li>
+                        <li data-zh="查看員工位置實時地圖" data-en="View real-time map of staff locations">查看員工位置實時地圖</li>
+                        <li data-zh="导出報告用於薪資處理" data-en="Export reports for payroll processing">导出報告用於薪資處理</li>
                     </ul>
                 </div>
             </div>
@@ -523,32 +541,32 @@
     <!-- Slide 6: Employee Features -->
     <div class="slide" id="slide6">
         <div class="slide-content">
-            <h2 class="slide-title">📱 員工前端功能</h2>
+            <h2 class="slide-title" data-zh="📱 員工前端功能" data-en="📱 Employee Frontend Features">📱 員工前端功能</h2>
             
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">🚀 無需登入</div>
-                    <p>打開瀏覽器直接使用<br>無賬戶管理負擔</p>
+                    <div class="card-title" data-zh="🚀 無需登入" data-en="🚀 No Login Required">🚀 無需登入</div>
+                    <p data-zh="打開瀏覽器直接使用<br>無賬戶管理負擔" data-en="Open browser and use directly<br>No account management burden">打開瀏覽器直接使用<br>無賬戶管理負擔</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📍 GPS 捕捉</div>
-                    <p>瀏覽器地理位置 API<br>顯示坐標和精度</p>
+                    <div class="card-title" data-zh="📍 GPS 捕捉" data-en="📍 GPS Capture">📍 GPS 捕捉</div>
+                    <p data-zh="瀏覽器地理位置 API<br>顯示坐標和精度" data-en="Browser geolocation API<br>Display coordinates and accuracy">瀏覽器地理位置 API<br>顯示坐標和精度</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">👆 打卡操作</div>
-                    <p>清晰的上班/下班按鈕<br>一鍵提交</p>
+                    <div class="card-title" data-zh="👆 打卡操作" data-en="👆 Check-in Action">👆 打卡操作</div>
+                    <p data-zh="清晰的上班/下班按鈕<br>一鍵提交" data-en="Clear Check In/Out buttons<br>One-tap submission">清晰的上班/下班按鈕<br>一鍵提交</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📸 照片驗證</div>
-                    <p>強制相機拍攝<br>防止代打卡</p>
+                    <div class="card-title" data-zh="📸 照片驗證" data-en="📸 Photo Verification">📸 照片驗證</div>
+                    <p data-zh="強制相機拍攝<br>防止代打卡" data-en="Mandatory camera capture<br>Prevent proxy clock-in">強制相機拍攝<br>防止代打卡</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📋 個人歷史</div>
-                    <p>查看打卡記錄<br>時間/位置/照片縮略圖</p>
+                    <div class="card-title" data-zh="📋 個人歷史" data-en="📋 Personal History">📋 個人歷史</div>
+                    <p data-zh="查看打卡記錄<br>時間/位置/照片縮略圖" data-en="View clock-in records<br>Time/Location/Photo thumbnail">查看打卡記錄<br>時間/位置/照片縮略圖</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📴 離線支援</div>
-                    <p>PWA 服務 worker<br>臨時數據緩存</p>
+                    <div class="card-title" data-zh="📴 離線支援" data-en="📴 Offline Support">📴 離線支援</div>
+                    <p data-zh="PWA 服務 worker<br>臨時數據緩存" data-en="PWA service worker<br>Temporary data caching">PWA 服務 worker<br>臨時數據緩存</p>
                 </div>
             </div>
         </div>
@@ -557,14 +575,14 @@
     <!-- Slide 7: Admin Dashboard -->
     <div class="slide" id="slide7">
         <div class="slide-content">
-            <h2 class="slide-title">👨‍💼 管理員 Dashboard 功能</h2>
+            <h2 class="slide-title" data-zh="👨‍💼 管理員 Dashboard 功能" data-en="👨‍💼 Admin Dashboard Features">👨‍💼 管理員 Dashboard 功能</h2>
             
             <ul class="bullet-list">
-                <li><strong>用戶管理：</strong>添加/編輯/停用員工，分配工作地點 + 地理圍欄半徑</li>
-                <li><strong>實時地圖：</strong>可視化今日打卡點，按狀態顏色編碼</li>
-                <li><strong>記錄列表：</strong>可篩選表格視圖，导出 Excel/CSV</li>
-                <li><strong>基本統計：</strong>Dashboard 卡片顯示出勤率/早退數/異常數</li>
-                <li><strong>基於角色的訪問：</strong>管理員 vs 查看者權限</li>
+                <li><strong data-zh="用戶管理：" data-en="User Management: ">用戶管理：</strong><span data-zh="添加/編輯/停用員工，分配工作地點 + 地理圍欄半徑" data-en="Add/edit/deactivate employees, assign work locations with geofence radius">添加/編輯/停用員工，分配工作地點 + 地理圍欄半徑</span></li>
+                <li><strong data-zh="實時地圖：" data-en="Real-time Map: ">實時地圖：</strong><span data-zh="可視化今日打卡點，按狀態顏色編碼" data-en="Visualize today's clock-in points, color-coded by status">可視化今日打卡點，按狀態顏色編碼</span></li>
+                <li><strong data-zh="記錄列表：" data-en="Record List: ">記錄列表：</strong><span data-zh="可篩選表格視圖，导出 Excel/CSV" data-en="Filterable table view, export to Excel/CSV">可篩選表格視圖，导出 Excel/CSV</span></li>
+                <li><strong data-zh="基本統計：" data-en="Basic Statistics: ">基本統計：</strong><span data-zh="Dashboard 卡片顯示出勤率/早退數/異常數" data-en="Dashboard cards showing attendance rate, early departure count, exception count">Dashboard 卡片顯示出勤率/早退數/異常數</span></li>
+                <li><strong data-zh="基於角色的訪問：" data-en="Role-based Access: ">基於角色的訪問：</strong><span data-zh="管理員 vs 查看者權限" data-en="Admin vs viewer permissions">管理員 vs 查看者權限</span></li>
             </ul>
         </div>
     </div>
@@ -572,31 +590,30 @@
     <!-- Slide 8: Anti-Fraud (Optional) -->
     <div class="slide" id="slide8">
         <div class="slide-content">
-            <h2 class="slide-title">🛡️ 防欺詐機制 (基本) <span style="background: #ffc107; color: #000; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem; margin-left: 0.5rem;">Optional Add-on</span></h2>
+            <h2 class="slide-title" data-zh="🛡️ 防欺詐機制 (基本)" data-en="🛡️ Anti-Fraud Mechanisms (Basic)">🛡️ 防欺詐機制 (基本) <span style="background: #ffc107; color: #000; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem; margin-left: 0.5rem;" data-zh="Optional Add-on" data-en="Optional Add-on">Optional Add-on</span></h2>
             
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">📍 GPS 精度檢查</div>
-                    <p>標記精度 >100 米為低置信度</p>
+                    <div class="card-title" data-zh="📍 GPS 精度檢查" data-en="📍 GPS Accuracy Check">📍 GPS 精度檢查</div>
+                    <p data-zh="標記精度 >100 米為低置信度" data-en="Flag records with accuracy >100 meters as low confidence">標記精度 >100 米為低置信度</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📏 距離閾值</div>
-                    <p>超出允許半徑自動標記</p>
+                    <div class="card-title" data-zh="📏 距離閾值" data-en="📏 Distance Threshold">📏 距離閾值</div>
+                    <p data-zh="超出允許半徑自動標記" data-en="Auto-flag if clock-in location exceeds allowed radius">超出允許半徑自動標記</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">⏰ 時間邏輯驗證</div>
-                    <p>檢測不可能序列 (如下班早於上班)</p>
+                    <div class="card-title" data-zh="⏰ 時間邏輯驗證" data-en="⏰ Time Logic Validation">⏰ 時間邏輯驗證</div>
+                    <p data-zh="檢測不可能序列 (如下班早於上班)" data-en="Detect impossible sequences (e.g., check-out before check-in)">檢測不可能序列 (如下班早於上班)</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">📱 設備指紋</div>
-                    <p>記錄 User-Agent + IP + 時區<br>設備突變時警報</p>
+                    <div class="card-title" data-zh="📱 設備指紋" data-en="📱 Device Fingerprint">📱 設備指紋</div>
+                    <p data-zh="記錄 User-Agent + IP + 時區<br>設備突變時警報" data-en="Log User-Agent + IP + timezone<br>Alert on sudden device change">記錄 User-Agent + IP + 時區<br>設備突變時警報</p>
                 </div>
             </div>
             
             <div class="card" style="background: #fff3cd; border-left-color: #ffc107; margin-top: 2rem;">
                 <p style="color: #856404;">
-                    <strong>⚠️ 重要提示：</strong>網頁 App 無法檢測 Root/Jailbreak 設備或虛擬 GPS App；
-                    防欺詐依賴<strong>多因素驗證 + 管理流程</strong>
+                    <strong data-zh="⚠️ 重要提示：" data-en="⚠️ Important Note: ">⚠️ 重要提示：</strong><span data-zh="網頁 App 無法檢測 Root/Jailbreak 設備或虛擬 GPS App；防欺詐依賴" data-en="Web App cannot detect rooted/jailbroken devices or mock GPS apps; fraud prevention relies on ">網頁 App 無法檢測 Root/Jailbreak 設備或虛擬 GPS App；防欺詐依賴</span><strong data-zh="多因素驗證 + 管理流程" data-en="multi-factor validation + management process">多因素驗證 + 管理流程</strong>
                 </p>
             </div>
         </div>
@@ -605,35 +622,35 @@
     <!-- Slide 9: Technical Architecture -->
     <div class="slide" id="slide9">
         <div class="slide-content">
-            <h2 class="slide-title">🏗️ 技術架構</h2>
+            <h2 class="slide-title" data-zh="🏗️ 技術架構" data-en="🏗️ Technical Architecture">🏗️ 技術架構</h2>
             
             <div class="grid-2">
                 <div>
-                    <h3 class="card-title">前端</h3>
+                    <h3 class="card-title" data-zh="前端" data-en="Frontend">前端</h3>
                     <ul class="bullet-list">
                         <li>React/Vue + Vite</li>
-                        <li>Leaflet.js 地圖</li>
-                        <li>PWA 離線支援</li>
+                        <li>Leaflet.js <span data-zh="地圖" data-en="maps">地圖</span></li>
+                        <li>PWA <span data-zh="離線支援" data-en="offline support">離線支援</span></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="card-title">後端</h3>
+                    <h3 class="card-title" data-zh="後端" data-en="Backend">後端</h3>
                     <ul class="bullet-list">
-                        <li>Node.js/Express 或 PHP/Laravel</li>
-                        <li>JWT 認證</li>
+                        <li>Node.js/Express <span data-zh="或" data-en="or">或</span> PHP/Laravel</li>
+                        <li>JWT <span data-zh="認證" data-en="authentication">認證</span></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="card-title">數據庫</h3>
+                    <h3 class="card-title" data-zh="數據庫" data-en="Database">數據庫</h3>
                     <ul class="bullet-list">
                         <li>MySQL/PostgreSQL</li>
-                        <li>或 Supabase/Firebase 免費層</li>
+                        <li><span data-zh="或" data-en="or">或</span> Supabase/Firebase <span data-zh="免費層" data-en="free tier">免費層</span></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="card-title">部署</h3>
+                    <h3 class="card-title" data-zh="部署" data-en="Deployment">部署</h3>
                     <ul class="bullet-list">
-                        <li>部署到現有網站主機</li>
+                        <li data-zh="部署到現有網站主機" data-en="Deploy to current website hosting">部署到現有網站主機</li>
                         <li>Cloudflare DNS/SSL</li>
                     </ul>
                 </div>
@@ -644,15 +661,15 @@
     <!-- Slide 10: System Limitations -->
     <div class="slide" id="slide10">
         <div class="slide-content">
-            <h2 class="slide-title">⚠️ 系統限制和範圍</h2>
+            <h2 class="slide-title" data-zh="⚠️ 系統限制和範圍" data-en="⚠️ System Limitations and Scope">⚠️ 系統限制和範圍</h2>
             
             <ul class="bullet-list">
-                <li><strong>部署：</strong>僅內部使用，單一組織，無第三方服務提供</li>
-                <li><strong>用戶限制：</strong>最多 100 名員工賬戶，5 個管理員賬戶</li>
-                <li><strong>存儲限制：</strong>5GB 圖片文件，1GB 數據庫記錄</li>
-                <li><strong>訪問：</strong>單域名部署，無多租戶，無外部 API 暴露</li>
-                <li><strong>許可：</strong>不可轉讓，無白標或轉售權利</li>
-                <li><strong>維護範圍：</strong>僅錯誤修復，不包含功能擴展</li>
+                <li><strong data-zh="部署：" data-en="Deployment: ">部署：</strong><span data-zh="僅內部使用，單一組織，無第三方服務提供" data-en="Internal use only, single organization, no third-party service provision">僅內部使用，單一組織，無第三方服務提供</span></li>
+                <li><strong data-zh="用戶限制：" data-en="User Limits: ">用戶限制：</strong><span data-zh="最多 100 名員工賬戶，5 個管理員賬戶" data-en="Maximum 100 employee accounts, 5 admin accounts">最多 100 名員工賬戶，5 個管理員賬戶</span></li>
+                <li><strong data-zh="存儲限制：" data-en="Storage Limits: ">存儲限制：</strong><span data-zh="5GB 圖片文件，1GB 數據庫記錄" data-en="5 GB for image files, 1 GB for database records">5GB 圖片文件，1GB 數據庫記錄</span></li>
+                <li><strong data-zh="訪問：" data-en="Access: ">訪問：</strong><span data-zh="單域名部署，無多租戶，無外部 API 暴露" data-en="Single domain deployment, no multi-tenancy, no external API exposure">單域名部署，無多租戶，無外部 API 暴露</span></li>
+                <li><strong data-zh="許可：" data-en="Licensing: ">許可：</strong><span data-zh="不可轉讓，無白標或轉售權利" data-en="Non-transferable, no white-label or resale rights">不可轉讓，無白標或轉售權利</span></li>
+                <li><strong data-zh="維護範圍：" data-en="Maintenance Scope: ">維護範圍：</strong><span data-zh="僅錯誤修復，不包含功能擴展" data-en="Bug fixes only, no feature expansion included">僅錯誤修復，不包含功能擴展</span></li>
             </ul>
         </div>
     </div>
@@ -660,25 +677,25 @@
     <!-- Slide 11: Timeline -->
     <div class="slide" id="slide11">
         <div class="slide-content">
-            <h2 class="slide-title">📅 實施時間表</h2>
-            <p class="slide-subtitle">總時長：<span class="highlight">1-2 週</span></p>
+            <h2 class="slide-title" data-zh="📅 實施時間表" data-en="📅 Implementation Timeline">📅 實施時間表</h2>
+            <p class="slide-subtitle" data-zh="總時長：<span class='highlight'>1-2 週</span>" data-en="Total Duration: <span class='highlight'>1-2 weeks</span>">總時長：<span class="highlight">1-2 週</span></p>
             
             <div style="margin-top: 2rem;">
                 <div class="card" style="margin-bottom: 1rem; border-left-color: #28a745;">
-                    <div class="card-title">第 1-3 天：Kickoff</div>
-                    <p>需求確認 • 開源項目評估 • 環境設置 • 簽署規格</p>
+                    <div class="card-title" data-zh="第 1-3 天：Kickoff" data-en="Day 1-3: Kickoff">第 1-3 天：Kickoff</div>
+                    <p data-zh="需求確認 • 開源項目評估 • 環境設置 • 簽署規格" data-en="Requirement confirmation • Open-source evaluation • Environment setup • Sign spec">需求確認 • 開源項目評估 • 環境設置 • 簽署規格</p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem; border-left-color: #3498DB;">
-                    <div class="card-title">第 4-10 天：Development</div>
-                    <p>核心定制 (UI 品牌 • 地圖配置 • 驗證邏輯) • GPS 功能 • 拍照功能</p>
+                    <div class="card-title" data-zh="第 4-10 天：Development" data-en="Day 4-10: Development">第 4-10 天：Development</div>
+                    <p data-zh="核心定制 (UI 品牌 • 地圖配置 • 驗證邏輯) • GPS 功能 • 拍照功能" data-en="Core customization (UI branding • Map config • Validation logic) • GPS feature • Photo feature">核心定制 (UI 品牌 • 地圖配置 • 驗證邏輯) • GPS 功能 • 拍照功能</p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem; border-left-color: #ffc107;">
-                    <div class="card-title">第 11-12 天：UAT</div>
-                    <p>功能測試 • 手機兼容性測試 • 錯誤修復 • 用戶驗收</p>
+                    <div class="card-title" data-zh="第 11-12 天：UAT" data-en="Day 11-12: UAT">第 11-12 天：UAT</div>
+                    <p data-zh="功能測試 • 手機兼容性測試 • 錯誤修復 • 用戶驗收" data-en="Functional testing • Mobile compatibility • Bug fixes • User acceptance">功能測試 • 手機兼容性測試 • 錯誤修復 • 用戶驗收</p>
                 </div>
                 <div class="card" style="border-left-color: #c41230;">
-                    <div class="card-title">第 13-14 天：Go Live</div>
-                    <p>部署上線 • 管理員培訓 • 文檔移交 • 上線支援</p>
+                    <div class="card-title" data-zh="第 13-14 天：Go Live" data-en="Day 13-14: Go Live">第 13-14 天：Go Live</div>
+                    <p data-zh="部署上線 • 管理員培訓 • 文檔移交 • 上線支援" data-en="Deployment • Admin training • Documentation handover • Go-live support">部署上線 • 管理員培訓 • 文檔移交 • 上線支援</p>
                 </div>
             </div>
         </div>
@@ -687,46 +704,46 @@
     <!-- Slide 12: Payment -->
     <div class="slide" id="slide12">
         <div class="slide-content">
-            <h2 class="slide-title">💳 付款里程碑</h2>
+            <h2 class="slide-title" data-zh="💳 付款里程碑" data-en="💳 Payment Milestones">💳 付款里程碑</h2>
             
             <div style="margin-top: 2rem;">
                 <div class="card" style="margin-bottom: 1rem; border-left-color: #28a745;">
-                    <div class="card-title">啟動付款 (50%)</div>
-                    <p><span class="highlight">HK$3,000</span> - 需求簽核和可行性確認後</p>
+                    <div class="card-title" data-zh="啟動付款 (50%)" data-en="Kickoff Payment (50%)">啟動付款 (50%)</div>
+                    <p><span class="highlight">HK$3,000</span> - <span data-zh="需求簽核和可行性確認後" data-en="upon requirement sign-off and feasibility confirmation">需求簽核和可行性確認後</span></p>
                 </div>
                 <div class="card" style="border-left-color: #c41230;">
-                    <div class="card-title">最終交付 (50%)</div>
-                    <p><span class="highlight">HK$3,000</span> - 成功測試/部署/文檔移交後</p>
+                    <div class="card-title" data-zh="最終交付 (50%)" data-en="Final Delivery (50%)">最終交付 (50%)</div>
+                    <p><span class="highlight">HK$3,000</span> - <span data-zh="成功測試/部署/文檔移交後" data-en="upon successful testing, deployment, and documentation handover">成功測試/部署/文檔移交後</span></p>
                 </div>
             </div>
             
-            <p style="margin-top: 2rem; color: #666;">付款條款：每個里程碑開具發票，7 天付款期</p>
+            <p style="margin-top: 2rem; color: #666;" data-zh="付款條款：每個里程碑開具發票，7 天付款期" data-en="Payment Terms: Invoice issued per milestone, 7-day payment window">付款條款：每個里程碑開具發票，7 天付款期</p>
         </div>
     </div>
 
     <!-- Slide 13: Maintenance -->
     <div class="slide" id="slide13">
         <div class="slide-content">
-            <h2 class="slide-title">🔧 維護和支援</h2>
+            <h2 class="slide-title" data-zh="🔧 維護和支援" data-en="🔧 Maintenance and Support">🔧 維護和支援</h2>
             
             <div class="card" style="background: #e8f4f8; border-left-color: #1a3a5c; margin-bottom: 2rem;">
-                <h3 class="card-title">第一年包含 (HK$6,000 內)</h3>
+                <h3 class="card-title" data-zh="第一年包含 (HK$6,000 內)" data-en="First Year Included (within HK$6,000)">第一年包含 (HK$6,000 內)</h3>
                 <ul class="bullet-list">
-                    <li>每月服務器健康檢查</li>
-                    <li>關鍵錯誤修復 (48 小時響應)</li>
-                    <li>備份驗證確認</li>
-                    <li>小型 UI 更新 (Logo/配色)</li>
+                    <li data-zh="每月服務器健康檢查" data-en="Monthly server health check">每月服務器健康檢查</li>
+                    <li data-zh="關鍵錯誤修復 (48 小時響應)" data-en="Critical bug fixes (48-hour response)">關鍵錯誤修復 (48 小時響應)</li>
+                    <li data-zh="備份驗證確認" data-en="Backup verification confirmation">備份驗證確認</li>
+                    <li data-zh="小型 UI 更新 (Logo/配色)" data-en="Minor UI updates (logo, color scheme)">小型 UI 更新 (Logo/配色)</li>
                 </ul>
             </div>
             
             <div class="grid-2">
                 <div class="card">
-                    <div class="card-title">第二年服務費</div>
-                    <p style="font-size: 1.5rem; color: #c41230;">~HK$2,800/年</p>
+                    <div class="card-title" data-zh="第二年服務費" data-en="Second Year Service Fee">第二年服務費</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~HK$2,800/<span data-zh="年" data-en="year">年</span></p>
                 </div>
                 <div class="card" style="background: #fff3cd;">
-                    <div class="card-title">不包括</div>
-                    <p>新功能開發 • 重大架構變更 • 第三方服務兼容性更新</p>
+                    <div class="card-title" data-zh="不包括" data-en="Excluded">不包括</div>
+                    <p data-zh="新功能開發 • 重大架構變更 • 第三方服務兼容性更新" data-en="New feature development • Major architectural changes • Third-party service compatibility updates">新功能開發 • 重大架構變更 • 第三方服務兼容性更新</p>
                 </div>
             </div>
         </div>
@@ -735,47 +752,47 @@
     <!-- Slide 14: Compliance -->
     <div class="slide" id="slide14">
         <div class="slide-content">
-            <h2 class="slide-title">🔒 合規和數據安全</h2>
+            <h2 class="slide-title" data-zh="🔒 合規和數據安全" data-en="🔒 Compliance and Data Security">🔒 合規和數據安全</h2>
             
             <div class="card" style="background: #fff3cd; border-left-color: #ffc107; margin-bottom: 2rem;">
                 <p style="color: #856404;">
-                    <strong>PDPO 合規責任：</strong>客戶負責提供隱私政策並獲得員工同意
+                    <strong data-zh="⚠️ PDPO 合規責任：" data-en="⚠️ PDPO Compliance Responsibility: ">⚠️ PDPO 合規責任：</strong><span data-zh="客戶負責提供隱私政策並獲得員工同意" data-en="Client to provide privacy policy, obtain employee consent">客戶負責提供隱私政策並獲得員工同意</span>
                 </p>
             </div>
             
-            <h3 class="card-title">系統支援功能</h3>
+            <h3 class="card-title" data-zh="系統支援功能" data-en="System Support Features">系統支援功能</h3>
             <ul class="bullet-list">
-                <li>登入頁隱私政策連結</li>
-                <li>位置/照片捕捉時清晰同意提示</li>
-                <li>數據导出和刪除功能 (員工訪問請求)</li>
-                <li>敏感數據 (照片) 與一般記錄分離存儲</li>
+                <li data-zh="登入頁隱私政策連結" data-en="Privacy policy link on login page">登入頁隱私政策連結</li>
+                <li data-zh="位置/照片捕捉時清晰同意提示" data-en="Clear consent prompt during location/photo capture">位置/照片捕捉時清晰同意提示</li>
+                <li data-zh="數據导出和刪除功能 (員工訪問請求)" data-en="Data export and deletion capability for employee access requests">數據导出和刪除功能 (員工訪問請求)</li>
+                <li data-zh="敏感數據 (照片) 與一般記錄分離存儲" data-en="Separation of sensitive data (photos) from general records in database design">敏感數據 (照片) 與一般記錄分離存儲</li>
             </ul>
             
-            <h3 class="card-title" style="margin-top: 1.5rem;">安全措施</h3>
-            <p>HTTPS • 加密密碼 • JWT Tokens • 輸入驗證 • 定期依賴更新</p>
+            <h3 class="card-title" style="margin-top: 1.5rem;" data-zh="安全措施" data-en="Security Measures">安全措施</h3>
+            <p data-zh="HTTPS • 加密密碼 • JWT Tokens • 輸入驗證 • 定期依賴更新" data-en="HTTPS • Encrypted passwords • JWT tokens • Input validation • Regular dependency updates">HTTPS • 加密密碼 • JWT Tokens • 輸入驗證 • 定期依賴更新</p>
         </div>
     </div>
 
     <!-- Slide 15: Comparison -->
     <div class="slide" id="slide15">
         <div class="slide-content">
-            <h2 class="slide-title">⚖️ 比較：自建 vs 購買 vs SaaS</h2>
+            <h2 class="slide-title" data-zh="⚖️ 比較：自建 vs 購買 vs SaaS" data-en="⚖️ Comparison: Build vs Buy vs SaaS">⚖️ 比較：自建 vs 購買 vs SaaS</h2>
             
             <div style="margin-top: 2rem;">
                 <div class="card" style="margin-bottom: 1rem; background: #e8f4f8; border-left-color: #28a745;">
-                    <div class="card-title">選項 A：定制 Web App (本提案) ✅ 推薦</div>
-                    <p><strong>優點：</strong>最低成本 • 完全控制 • 無經常性許可 • 快速部署</p>
-                    <p><strong>缺點：</strong>有限防欺詐 • 網頁平台限制 • 客戶管理合規</p>
+                    <div class="card-title" data-zh="選項 A：定制 Web App (本提案) ✅ 推薦" data-en="Option A: Custom Web App (This Proposal) ✅ Recommended">選項 A：定制 Web App (本提案) ✅ 推薦</div>
+                    <p><strong data-zh="優點：" data-en="Pros: ">優點：</strong><span data-zh="最低成本 • 完全控制 • 無經常性許可 • 快速部署" data-en="Lowest cost • Full control • No recurring license • Fast deployment">最低成本 • 完全控制 • 無經常性許可 • 快速部署</span></p>
+                    <p><strong data-zh="缺點：" data-en="Cons: ">缺點：</strong><span data-zh="有限防欺詐 • 網頁平台限制 • 客戶管理合規" data-en="Limited anti-fraud • Web platform constraints • Client manages compliance">有限防欺詐 • 網頁平台限制 • 客戶管理合規</span></p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">選項 B：商業 SaaS (如 JustLogin, Hubstaff)</div>
-                    <p><strong>優點：</strong>成熟功能 • 強大防欺詐 • 供應商處理合規</p>
-                    <p><strong>缺點：</strong>經常性按用戶費用 • 最低人數限制 • 定制較少</p>
+                    <div class="card-title" data-zh="選項 B：商業 SaaS (如 JustLogin, Hubstaff)" data-en="Option B: Commercial SaaS (e.g., JustLogin, Hubstaff)">選項 B：商業 SaaS (如 JustLogin, Hubstaff)</div>
+                    <p><strong data-zh="優點：" data-en="Pros: ">優點：</strong><span data-zh="成熟功能 • 強大防欺詐 • 供應商處理合規" data-en="Mature features • Strong anti-fraud • Vendor handles compliance">成熟功能 • 強大防欺詐 • 供應商處理合規</span></p>
+                    <p><strong data-zh="缺點：" data-en="Cons: ">缺點：</strong><span data-zh="經常性按用戶費用 • 最低人數限制 • 定制較少" data-en="Recurring per-user fees • Minimum headcount • Less customization">經常性按用戶費用 • 最低人數限制 • 定制較少</span></p>
                 </div>
                 <div class="card">
-                    <div class="card-title">選項 C：原生 App 開發</div>
-                    <p><strong>優點：</strong>最佳防欺詐 • 背景追蹤 • 豐富 UX</p>
-                    <p><strong>缺點：</strong>高開發成本 (<span class="highlight">5-8 倍</span>) • App Store 審批 • 雙平台維護</p>
+                    <div class="card-title" data-zh="選項 C：原生 App 開發" data-en="Option C: Native App Development">選項 C：原生 App 開發</div>
+                    <p><strong data-zh="優點：" data-en="Pros: ">優點：</strong><span data-zh="最佳防欺詐 • 背景追蹤 • 豐富 UX" data-en="Best anti-fraud capability • Background tracking • Richer UX">最佳防欺詐 • 背景追蹤 • 豐富 UX</span></p>
+                    <p><strong data-zh="缺點：" data-en="Cons: ">缺點：</strong><span data-zh="高開發成本 (" data-en="High development cost (">高開發成本 (<span class="highlight">5-8 倍</span>)<span data-zh=" • App Store 審批 • 雙平台維護" data-en=" • App store approval • Dual-platform maintenance"> • App Store 審批 • 雙平台維護</span></p>
                 </div>
             </div>
         </div>
@@ -784,19 +801,19 @@
     <!-- Slide 16: Next Steps -->
     <div class="slide" id="slide16">
         <div class="slide-content">
-            <h2 class="slide-title">🎯 下一步</h2>
+            <h2 class="slide-title" data-zh="🎯 下一步" data-en="🎯 Next Steps">🎯 下一步</h2>
             
-            <h3 class="card-title">立即行動</h3>
+            <h3 class="card-title" data-zh="立即行動" data-en="Immediate Actions">立即行動</h3>
             <ul class="bullet-list">
-                <li>確認項目範圍並簽署規格</li>
-                <li>提供工作地點列表 (名稱/坐標/允許半徑) (Optional)</li>
-                <li>準備員工溝通和同意材料</li>
-                <li>安排服務器/域名配置 (或授權開發商採購)</li>
+                <li data-zh="確認項目範圍並簽署規格" data-en="Confirm project scope and sign off on specification">確認項目範圍並簽署規格</li>
+                <li data-zh="提供工作地點列表 (名稱/坐標/允許半徑) (Optional)" data-en="Provide work location list (name, coordinates, allowed radius) (Optional)">提供工作地點列表 (名稱/坐標/允許半徑) (Optional)</li>
+                <li data-zh="準備員工溝通和同意材料" data-en="Prepare employee communication and consent materials">準備員工溝通和同意材料</li>
+                <li data-zh="安排服務器/域名配置 (或授權開發商採購)" data-en="Arrange server/domain provisioning (or authorize developer to procure)">安排服務器/域名配置 (或授權開發商採購)</li>
             </ul>
             
             <div class="card" style="margin-top: 2rem; background: #e8f4f8;">
-                <div class="card-title">啟動時間表</div>
-                <p>首期付款後 <span class="highlight">3 個工作日內</span> 開始項目</p>
+                <div class="card-title" data-zh="啟動時間表" data-en="Kickoff Timeline">啟動時間表</div>
+                <p data-zh="首期付款後 <span class='highlight'>3 個工作日內</span> 開始項目" data-en="Project starts within <span class='highlight'>3 business days</span> of initial payment">首期付款後 <span class="highlight">3 個工作日內</span> 開始項目</p>
             </div>
         </div>
     </div>
@@ -804,36 +821,46 @@
     <!-- Slide 17: FAQ -->
     <div class="slide" id="slide17">
         <div class="slide-content">
-            <h2 class="slide-title">❓ FAQ 常見問題</h2>
+            <h2 class="slide-title" data-zh="❓ FAQ 常見問題" data-en="❓ FAQ and Common Concerns">❓ FAQ 常見問題</h2>
             
             <div style="margin-top: 1.5rem;">
                 <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">Q: 員工可以虛擬定位嗎？</div>
-                    <p>A: Web App 有基本驗證但無法檢測高級欺騙；建議結合管理檢查 (如隨機照片審查/主管驗證)</p>
+                    <div class="card-title">
+                        <span data-zh="Q: 員工可以虛擬定位嗎？" data-en="Q: Can employees fake their location?">Q: 員工可以虛擬定位嗎？</span>
+                    </div>
+                    <p data-zh="A: Web App 有基本驗證但無法檢測高級欺騙；建議結合管理檢查 (如隨機照片審查/主管驗證)" data-en="A: Web App has basic validation but cannot detect advanced spoofing; we recommend combining with management checks (e.g., random photo review, supervisor verification)">A: Web App 有基本驗證但無法檢測高級欺騙；建議結合管理檢查 (如隨機照片審查/主管驗證)</p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">Q: 員工無信號怎麼辦？</div>
-                    <p>A: PWA 離線支援緩存本地數據，連接恢復時同步；<span class="highlight">但照片上傳可能會丟失</span></p>
+                    <div class="card-title">
+                        <span data-zh="Q: 員工無信號怎麼辦？" data-en="Q: What if an employee has no mobile signal?">Q: 員工無信號怎麼辦？</span>
+                    </div>
+                    <p data-zh="A: PWA 離線支援緩存本地數據，連接恢復時同步；" data-en="A: PWA offline support caches data locally and syncs when connection resumes; ">A: PWA 離線支援緩存本地數據，連接恢復時同步；</p><p class="highlight" data-zh="但照片上傳可能會丟失" data-en="but photo upload may be lost">但照片上傳可能會丟失</p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">Q: 誰擁有源代碼？</div>
-                    <p>A: 客戶獲得內部使用許可；轉售或白標需單獨商業協議</p>
+                    <div class="card-title">
+                        <span data-zh="Q: 誰擁有源代碼？" data-en="Q: Who owns the source code?">Q: 誰擁有源代碼？</span>
+                    </div>
+                    <p data-zh="A: 客戶獲得內部使用許可；轉售或白標需單獨商業協議" data-en="A: Client receives full source code license for internal use; resale or white-label distribution requires separate commercial agreement">A: 客戶獲得內部使用許可；轉售或白標需單獨商業協議</p>
                 </div>
                 <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">Q: 可以後續添加功能嗎？</div>
-                    <p>A: 可以，新功能單獨報價；基礎維護僅涵蓋錯誤修復</p>
+                    <div class="card-title">
+                        <span data-zh="Q: 可以後續添加功能嗎？" data-en="Q: Can we add more features later?">Q: 可以後續添加功能嗎？</span>
+                    </div>
+                    <p data-zh="A: 可以，新功能單獨報價；基礎維護僅涵蓋錯誤修復" data-en="A: Yes, new features can be quoted separately; base maintenance covers bug fixes only">A: 可以，新功能單獨報價；基礎維護僅涵蓋錯誤修復</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">Q: 員工位置 24/7 追蹤嗎？</div>
-                    <p>A: <strong>不</strong>，位置僅在打卡瞬間捕捉；無背景追蹤</p>
+                    <div class="card-title">
+                        <span data-zh="Q: 員工位置 24/7 追蹤嗎？" data-en="Q: Is employee location tracked 24/7?">Q: 員工位置 24/7 追蹤嗎？</span>
+                    </div>
+                    <p><strong data-zh="A: 不" data-en="A: No">A: 不</strong><span data-zh="，位置僅在打卡瞬間捕捉；無背景追蹤" data-en=", location is only captured at the moment of clock-in/out; no background tracking is performed">，位置僅在打卡瞬間捕捉；無背景追蹤</span></p>
                 </div>
             </div>
             
             <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f5f5f5; text-align: center;">
-                <h3 class="card-title" style="margin-bottom: 1rem;">聯絡和問答</h3>
-                <p style="font-size: 1.3rem; margin-bottom: 0.5rem;"><strong>項目聯絡人：</strong>Roger Li</p>
-                <p style="font-size: 1.3rem; margin-bottom: 0.5rem;"><strong>電郵：</strong><a href="mailto:amrogerli@lookfor.hk" style="color: #3498DB;">amrogerli@lookfor.hk</a></p>
-                <p style="font-size: 1.5rem; color: #666; margin-top: 1.5rem;">🎉 歡迎提問！</p>
+                <h3 class="card-title" style="margin-bottom: 1rem;" data-zh="聯絡和問答" data-en="Contact and Q&A">聯絡和問答</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 0.5rem;"><strong data-zh="項目聯絡人：" data-en="Project Contact: ">項目聯絡人：</strong>Roger Li</p>
+                <p style="font-size: 1.3rem; margin-bottom: 0.5rem;"><strong data-zh="電郵：" data-en="Email: ">電郵：</strong><a href="mailto:amrogerli@lookfor.hk" style="color: #3498DB;">amrogerli@lookfor.hk</a></p>
+                <p style="font-size: 1.5rem; color: #666; margin-top: 1.5rem;" data-zh="🎉 歡迎提問！" data-en="🎉 Open Floor: Questions and Discussion">🎉 歡迎提問！</p>
             </div>
         </div>
     </div>
@@ -841,6 +868,7 @@
     <script>
         let currentSlide = 1;
         const totalSlides = 17;
+        let currentLang = 'zh-HK';
 
         function showSlide(n) {
             document.querySelectorAll('.slide').forEach(slide => {
@@ -857,12 +885,12 @@
             document.getElementById('prevBtn').disabled = n === 1;
             document.getElementById('nextBtn').disabled = n === totalSlides;
             
-            // 只在第一頁顯示風格選擇器
-            const styleSelector = document.getElementById('styleSelector');
+            // 只在第一頁顯示控制按鈕
+            const controlsContainer = document.getElementById('controlsContainer');
             if (n === 1) {
-                styleSelector.style.display = 'block';
+                controlsContainer.style.display = 'flex';
             } else {
-                styleSelector.style.display = 'none';
+                controlsContainer.style.display = 'none';
             }
             
             currentSlide = n;
@@ -887,11 +915,42 @@
             localStorage.setItem('pitchDeckStyle', style);
         }
 
-        // Load saved style
+        function changeLang() {
+            currentLang = document.getElementById('langSelect').value;
+            localStorage.setItem('pitchDeckLang', currentLang);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            // 更新所有帶有 data-zh 和 data-en 屬性的元素
+            document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+                if (currentLang === 'zh-HK') {
+                    el.innerHTML = el.getAttribute('data-zh');
+                } else {
+                    el.innerHTML = el.getAttribute('data-en');
+                }
+            });
+            
+            // 更新按鈕文字
+            document.getElementById('prevBtn').innerHTML = currentLang === 'zh-HK' ? '◀ 上一頁' : '◀ Prev';
+            document.getElementById('nextBtn').innerHTML = currentLang === 'zh-HK' ? '下一頁 ▶' : 'Next ▶';
+            
+            // 更新 html lang 屬性
+            document.documentElement.lang = currentLang;
+        }
+
+        // Load saved preferences
         const savedStyle = localStorage.getItem('pitchDeckStyle');
         if (savedStyle) {
             document.body.className = 'theme-' + savedStyle;
             document.getElementById('styleSelect').value = savedStyle;
+        }
+
+        const savedLang = localStorage.getItem('pitchDeckLang');
+        if (savedLang) {
+            currentLang = savedLang;
+            document.getElementById('langSelect').value = savedLang;
+            updateLanguage();
         }
 
         document.addEventListener('keydown', (e) => {
@@ -922,7 +981,7 @@
             }
         }
 
-        // Initialize - show style selector on first page only
+        // Initialize - show controls on first page only
         showSlide(1);
     </script>
 </body>
