@@ -14,10 +14,177 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
         }
+        
+        /* ========== 主題風格定義 ========== */
+        
+        /* A. McKinsey/BCG 諮詢風格 */
+        body.theme-mckinsey {
+            background: #F8F9FA;
+            color: #2C3E50;
+        }
+        body.theme-mckinsey .slide-content {
+            background: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid #E9ECEF;
+        }
+        body.theme-mckinsey .slide-title {
+            color: #2C3E50;
+            border-bottom: 3px solid #3498DB;
+            padding-bottom: 1rem;
+        }
+        body.theme-mckinsey .card {
+            background: #F8F9FA;
+            border-left: 4px solid #3498DB;
+        }
+        body.theme-mckinsey .card-title {
+            color: #2C3E50;
+        }
+        body.theme-mckinsey .highlight {
+            color: #3498DB;
+        }
+        body.theme-mckinsey .nav-btn {
+            background: #3498DB;
+        }
+        body.theme-mckinsey .nav-btn:hover {
+            background: #2980B9;
+        }
+        body.theme-mckinsey .progress-fill {
+            background: #3498DB;
+        }
+        
+        /* B. Apple Keynote 風格 */
+        body.theme-apple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1D1D1F;
+        }
+        body.theme-apple .slide-content {
+            background: #FFFFFF;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 20px;
+        }
+        body.theme-apple .slide-title {
+            color: #1D1D1F;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        body.theme-apple .card {
+            background: #F5F5F7;
+            border-left: 4px solid #007AFF;
+            border-radius: 12px;
+        }
+        body.theme-apple .card-title {
+            color: #1D1D1F;
+        }
+        body.theme-apple .highlight {
+            color: #007AFF;
+        }
+        body.theme-apple .nav-btn {
+            background: #FFFFFF;
+            color: #1D1D1F;
+        }
+        body.theme-apple .nav-btn:hover {
+            background: #F5F5F7;
+        }
+        body.theme-apple .progress-fill {
+            background: #FFFFFF;
+        }
+        
+        /* C. 金融/銀行風格 */
+        body.theme-finance {
+            background: #1a3a5c;
+            color: #FFFFFF;
+        }
+        body.theme-finance .slide-content {
+            background: #2C3E50;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 1px solid #D4AF37;
+        }
+        body.theme-finance .slide-title {
+            color: #D4AF37;
+            border-bottom: 2px solid #D4AF37;
+        }
+        body.theme-finance .card {
+            background: #34495E;
+            border-left: 4px solid #D4AF37;
+        }
+        body.theme-finance .card-title {
+            color: #D4AF37;
+        }
+        body.theme-finance .highlight {
+            color: #D4AF37;
+            font-weight: 700;
+        }
+        body.theme-finance .bullet-list li {
+            color: #ECF0F1;
+        }
+        body.theme-finance .bullet-list li::before {
+            color: #D4AF37;
+        }
+        body.theme-finance .nav-btn {
+            background: #D4AF37;
+            color: #1a3a5c;
+        }
+        body.theme-finance .nav-btn:hover {
+            background: #B8941F;
+        }
+        body.theme-finance .progress-fill {
+            background: #D4AF37;
+        }
+        body.theme-finance .slide-subtitle {
+            color: #BDC3C7;
+        }
+        
+        /* D. Tech Startup 風格 */
+        body.theme-tech {
+            background: #0F0F23;
+            color: #E0E0E0;
+        }
+        body.theme-tech .slide-content {
+            background: #1A1A2E;
+            box-shadow: 0 0 40px rgba(100, 100, 255, 0.1);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+        }
+        body.theme-tech .slide-title {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        body.theme-tech .card {
+            background: #16213E;
+            border-left: 4px solid #667eea;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+        }
+        body.theme-tech .card-title {
+            color: #667eea;
+        }
+        body.theme-tech .highlight {
+            color: #667eea;
+        }
+        body.theme-tech .bullet-list li {
+            color: #B0B0B0;
+        }
+        body.theme-tech .bullet-list li::before {
+            color: #667eea;
+        }
+        body.theme-tech .nav-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        body.theme-tech .nav-btn:hover {
+            opacity: 0.9;
+        }
+        body.theme-tech .progress-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        body.theme-tech .slide-subtitle {
+            color: #808080;
+        }
+        
+        /* ========== 通用樣式 ========== */
         
         .slide {
             display: none;
@@ -41,23 +208,22 @@
         .slide-content {
             max-width: 1200px;
             width: 100%;
-            background: white;
-            border-radius: 20px;
+            border-radius: 8px;
             padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
         }
         
         .slide-title {
             font-size: 2.5rem;
-            font-weight: 800;
-            color: #1a3a5c;
+            font-weight: 700;
             margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
         }
         
         .slide-subtitle {
-            font-size: 1.5rem;
-            color: #666;
+            font-size: 1.3rem;
             margin-bottom: 2rem;
+            transition: all 0.3s ease;
         }
         
         .bullet-list {
@@ -66,18 +232,17 @@
         }
         
         .bullet-list li {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             padding: 0.75rem 0;
             padding-left: 2rem;
             position: relative;
-            color: #333;
+            transition: all 0.3s ease;
         }
         
         .bullet-list li::before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: #c41230;
             font-weight: bold;
         }
         
@@ -91,29 +256,18 @@
         }
         
         .nav-btn {
-            background: #c41230;
-            color: white;
             border: none;
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            font-size: 1.2rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(196, 18, 48, 0.4);
-        }
-        
-        .nav-btn:hover {
-            background: #a00f28;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(196, 18, 48, 0.6);
         }
         
         .nav-btn:disabled {
-            background: #ccc;
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
         
         .progress-bar {
@@ -121,13 +275,13 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 8px;
-            background: rgba(255,255,255,0.3);
+            height: 6px;
+            background: rgba(0,0,0,0.1);
+            z-index: 1000;
         }
         
         .progress-fill {
             height: 100%;
-            background: #c41230;
             transition: width 0.5s ease;
         }
         
@@ -135,14 +289,10 @@
             position: fixed;
             bottom: 2rem;
             left: 2rem;
-            color: white;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 600;
-        }
-        
-        .highlight {
-            color: #c41230;
-            font-weight: 700;
+            z-index: 100;
+            opacity: 0.7;
         }
         
         .grid-2 {
@@ -153,17 +303,43 @@
         }
         
         .card {
-            background: #f5f5f5;
             padding: 1.5rem;
-            border-radius: 12px;
-            border-left: 4px solid #1a3a5c;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
         
         .card-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1a3a5c;
+            font-size: 1.2rem;
+            font-weight: 600;
             margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* 風格選擇器 */
+        .style-selector {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .style-selector select {
+            border: 2px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .style-selector select:focus {
+            border-color: #3498DB;
         }
         
         @media (max-width: 768px) {
@@ -182,10 +358,16 @@
             .grid-2 {
                 grid-template-columns: 1fr;
             }
+            
+            .style-selector {
+                top: auto;
+                bottom: 5rem;
+                right: 1rem;
+            }
         }
     </style>
 </head>
-<body>
+<body class="theme-mckinsey">
     <!-- Progress Bar -->
     <div class="progress-bar">
         <div class="progress-fill" id="progress" style="width: 5%"></div>
@@ -193,6 +375,16 @@
     
     <!-- Slide Number -->
     <div class="slide-number" id="slideNumber">1 / 20</div>
+    
+    <!-- Style Selector -->
+    <div class="style-selector">
+        <select id="styleSelect" onchange="changeStyle()">
+            <option value="mckinsey">📊 A. McKinsey/BCG 諮詢風格</option>
+            <option value="apple">🍎 B. Apple Keynote 風格</option>
+            <option value="finance">🏦 C. 金融/銀行風格</option>
+            <option value="tech">💻 D. Tech Startup 風格</option>
+        </select>
+    </div>
     
     <!-- Navigation -->
     <div class="nav-buttons">
@@ -298,7 +490,7 @@
         </div>
     </div>
 
-    <!-- Slide 5: How It Works - User Flow -->
+    <!-- Slide 5: How It Works -->
     <div class="slide" id="slide5">
         <div class="slide-content">
             <h2 class="slide-title">🔄 運作流程</h2>
@@ -328,7 +520,7 @@
         </div>
     </div>
 
-    <!-- Slide 6: Employee Frontend Features -->
+    <!-- Slide 6: Employee Features -->
     <div class="slide" id="slide6">
         <div class="slide-content">
             <h2 class="slide-title">📱 員工前端功能</h2>
@@ -362,7 +554,7 @@
         </div>
     </div>
 
-    <!-- Slide 7: Admin Dashboard Features -->
+    <!-- Slide 7: Admin Dashboard -->
     <div class="slide" id="slide7">
         <div class="slide-content">
             <h2 class="slide-title">👨‍💼 管理員 Dashboard 功能</h2>
@@ -379,7 +571,7 @@
         </div>
     </div>
 
-    <!-- Slide 8: Anti-Fraud Mechanisms -->
+    <!-- Slide 8: Anti-Fraud -->
     <div class="slide" id="slide8">
         <div class="slide-content">
             <h2 class="slide-title">🛡️ 防欺詐機制 (基本)</h2>
@@ -472,7 +664,7 @@
         </div>
     </div>
 
-    <!-- Slide 11: Implementation Timeline -->
+    <!-- Slide 11: Timeline -->
     <div class="slide" id="slide11">
         <div class="slide-content">
             <h2 class="slide-title">📅 實施時間表</h2>
@@ -499,7 +691,7 @@
         </div>
     </div>
 
-    <!-- Slide 12: Budget Breakdown -->
+    <!-- Slide 12: Budget -->
     <div class="slide" id="slide12">
         <div class="slide-content">
             <h2 class="slide-title">💰 預算細分</h2>
@@ -532,7 +724,7 @@
         </div>
     </div>
 
-    <!-- Slide 13: Payment Milestones -->
+    <!-- Slide 13: Payment -->
     <div class="slide" id="slide13">
         <div class="slide-content">
             <h2 class="slide-title">💳 付款里程碑</h2>
@@ -556,7 +748,7 @@
         </div>
     </div>
 
-    <!-- Slide 14: Maintenance and Support -->
+    <!-- Slide 14: Maintenance -->
     <div class="slide" id="slide14">
         <div class="slide-content">
             <h2 class="slide-title">🔧 維護和支援</h2>
@@ -584,7 +776,7 @@
         </div>
     </div>
 
-    <!-- Slide 15: Compliance and Data Security -->
+    <!-- Slide 15: Compliance -->
     <div class="slide" id="slide15">
         <div class="slide-content">
             <h2 class="slide-title">🔒 合規和數據安全</h2>
@@ -746,28 +938,21 @@
         const totalSlides = 20;
 
         function showSlide(n) {
-            // Hide all slides
             document.querySelectorAll('.slide').forEach(slide => {
                 slide.classList.remove('active');
             });
             
-            // Show current slide
             document.getElementById('slide' + n).classList.add('active');
             
-            // Update progress bar
             const progress = (n / totalSlides) * 100;
             document.getElementById('progress').style.width = progress + '%';
             
-            // Update slide number
             document.getElementById('slideNumber').textContent = n + ' / ' + totalSlides;
             
-            // Update buttons
             document.getElementById('prevBtn').disabled = n === 1;
             document.getElementById('nextBtn').disabled = n === totalSlides;
             
             currentSlide = n;
-            
-            // Scroll to top
             window.scrollTo(0, 0);
         }
 
@@ -783,7 +968,19 @@
             }
         }
 
-        // Keyboard navigation
+        function changeStyle() {
+            const style = document.getElementById('styleSelect').value;
+            document.body.className = 'theme-' + style;
+            localStorage.setItem('pitchDeckStyle', style);
+        }
+
+        // Load saved style
+        const savedStyle = localStorage.getItem('pitchDeckStyle');
+        if (savedStyle) {
+            document.body.className = 'theme-' + savedStyle;
+            document.getElementById('styleSelect').value = savedStyle;
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ') {
                 nextSlide();
@@ -792,7 +989,6 @@
             }
         });
 
-        // Touch navigation
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -813,7 +1009,6 @@
             }
         }
 
-        // Initialize
         showSlide(1);
     </script>
 </body>
