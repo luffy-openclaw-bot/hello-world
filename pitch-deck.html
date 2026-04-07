@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Check-in Web App - Pitch Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .slide {
+            display: none;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a3a5c;
+            margin-bottom: 1.5rem;
+        }
+        
+        .slide-subtitle {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .bullet-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .bullet-list li {
+            font-size: 1.2rem;
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #333;
+        }
+        
+        .bullet-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #c41230;
+            font-weight: bold;
+        }
+        
+        .nav-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background: #c41230;
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(196, 18, 48, 0.4);
+        }
+        
+        .nav-btn:hover {
+            background: #a00f28;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 18, 48, 0.6);
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #c41230;
+            transition: width 0.5s ease;
+        }
+        
+        .slide-number {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .highlight {
+            color: #c41230;
+            font-weight: 700;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #1a3a5c;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a3a5c;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .slide-content {
+                padding: 2rem;
+            }
+            
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            
+            .bullet-list li {
+                font-size: 1rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress" style="width: 5%"></div>
+    </div>
+    
+    <!-- Slide Number -->
+    <div class="slide-number" id="slideNumber">1 / 20</div>
+    
+    <!-- Navigation -->
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()" disabled>◀ 上一頁</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">下一頁 ▶</button>
+    </div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide active" id="slide1">
+        <div class="slide-content" style="text-align: center;">
+            <div style="font-size: 5rem; margin-bottom: 2rem;">📍</div>
+            <h1 class="slide-title">Internal GPS Check-in Web App</h1>
+            <p class="slide-subtitle">輕量級外勤員工考勤解決方案</p>
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f5f5f5;">
+                <p style="color: #666; font-size: 1.1rem;">準備給：[客戶名稱]</p>
+                <p style="color: #666; font-size: 1.1rem; margin-top: 0.5rem;">準備者：[你的名字/公司]</p>
+                <p style="color: #666; font-size: 1.1rem; margin-top: 0.5rem;">日期：[演示日期]</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Problem Statement -->
+    <div class="slide" id="slide2">
+        <div class="slide-content">
+            <h2 class="slide-title">🚨 問題陳述</h2>
+            <p class="slide-subtitle">當前挑戰：外勤員工考勤追蹤人手操作且不可靠</p>
+            
+            <div class="grid-2">
+                <div>
+                    <h3 class="card-title" style="color: #c41230;">痛點</h3>
+                    <ul class="bullet-list">
+                        <li>無法實時查看員工工作期間位置</li>
+                        <li>難以核實早退或遲到</li>
+                        <li>現有承辦商方案要求最低人數 (10-20 人)</li>
+                        <li>原生 App 開發成本高且難維護</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title" style="color: #c41230;">業務影響</h3>
+                    <ul class="bullet-list">
+                        <li>薪資處理效率低下</li>
+                        <li>潛在時間欺詐</li>
+                        <li>管理開支增加</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Solution Overview -->
+    <div class="slide" id="slide3">
+        <div class="slide-content">
+            <h2 class="slide-title">💡 解決方案概述</h2>
+            <p class="slide-subtitle">網頁版 GPS 打卡系統</p>
+            
+            <div class="card" style="background: #e8f4f8; border-left-color: #c41230; margin-bottom: 2rem;">
+                <p style="font-size: 1.2rem; line-height: 1.8;">
+                    <strong>核心概念：</strong>員工通過手機瀏覽器打卡，<span class="highlight">無需安裝 App</span>
+                </p>
+            </div>
+            
+            <h3 class="card-title">主要組件</h3>
+            <ul class="bullet-list">
+                <li>手機友好打卡介面 + GPS + 自拍驗證</li>
+                <li>管理員 Dashboard 實時監控 + 報告生成</li>
+                <li>基本防欺詐機制確保數據完整性</li>
+                <li>單一組織內部系統部署 (非 SaaS)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 4: Key Benefits -->
+    <div class="slide" id="slide4">
+        <div class="slide-content">
+            <h2 class="slide-title">✨ 主要優勢</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">💰 成本效益</div>
+                    <p>總開發成本約 <span class="highlight">HK$6,000</span><br>無經常性許可費用</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🚀 快速部署</div>
+                    <p><span class="highlight">2-4 週</span> 從啟動到上線</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📱 零安裝</div>
+                    <p>員工通過 URL 訪問<br>無需 App Store 審批</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔧 低維護</div>
+                    <p>網頁版更新<br>無版本碎片化</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📈 可擴展</div>
+                    <p>支援最多 <span class="highlight">100 名員工</span><br>5 個管理賬戶</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚙️ 靈活</div>
+                    <p>易於自定義 UI<br>添加字段或調整規則</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: How It Works - User Flow -->
+    <div class="slide" id="slide5">
+        <div class="slide-content">
+            <h2 class="slide-title">🔄 運作流程</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3 class="card-title" style="color: #1a3a5c;">👤 員工旅程</h3>
+                    <ul class="bullet-list">
+                        <li>打開手機瀏覽器登入 (手機號 + 密碼/OTP)</li>
+                        <li>授予位置和相機權限 (一次性)</li>
+                        <li>查看当前位置與工作地點距離</li>
+                        <li>點擊「上班」/「下班」按鈕</li>
+                        <li>拍攝強制照片並提交</li>
+                        <li>查看個人歷史記錄</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title" style="color: #1a3a5c;">👨‍💼 管理員旅程</h3>
+                    <ul class="bullet-list">
+                        <li>登入網頁 Dashboard</li>
+                        <li>查看員工位置實時地圖</li>
+                        <li>審查標記異常並批准</li>
+                        <li>导出報告用於薪資處理</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Employee Frontend Features -->
+    <div class="slide" id="slide6">
+        <div class="slide-content">
+            <h2 class="slide-title">📱 員工前端功能</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">🔐 用戶登入</div>
+                    <p>手機號 + 密碼/OTP<br>記住我選項</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📍 GPS 捕捉</div>
+                    <p>瀏覽器地理位置 API<br>顯示坐標和精度</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ 位置驗證</div>
+                    <p>顯示與工作地點距離<br>超出範圍時警告</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">👆 打卡操作</div>
+                    <p>清晰的上班/下班按鈕<br>一鍵提交</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📸 照片驗證</div>
+                    <p>強制相機拍攝<br>防止代打卡</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 個人歷史</div>
+                    <p>查看打卡記錄<br>時間/位置/照片縮略圖</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Admin Dashboard Features -->
+    <div class="slide" id="slide7">
+        <div class="slide-content">
+            <h2 class="slide-title">👨‍💼 管理員 Dashboard 功能</h2>
+            
+            <ul class="bullet-list">
+                <li><strong>用戶管理：</strong>添加/編輯/停用員工，分配工作地點 + 地理圍欄半徑</li>
+                <li><strong>實時地圖：</strong>可視化今日打卡點，按狀態顏色編碼</li>
+                <li><strong>記錄列表：</strong>可篩選表格視圖，导出 Excel/CSV</li>
+                <li><strong>異常標記：</strong>自動標記距離/時間異常的記錄</li>
+                <li><strong>基本統計：</strong>Dashboard 卡片顯示出勤率/早退數/異常數</li>
+                <li><strong>審查流程：</strong>為標記記錄添加評論/更新狀態</li>
+                <li><strong>基於角色的訪問：</strong>管理員 vs 查看者權限</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 8: Anti-Fraud Mechanisms -->
+    <div class="slide" id="slide8">
+        <div class="slide-content">
+            <h2 class="slide-title">🛡️ 防欺詐機制 (基本)</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">📍 GPS 精度檢查</div>
+                    <p>標記精度 >100 米為低置信度</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📏 距離閾值</div>
+                    <p>超出允許半徑自動標記</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">⏰ 時間邏輯驗證</div>
+                    <p>檢測不可能序列 (如下班早於上班)</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📱 設備指紋</div>
+                    <p>記錄 User-Agent + IP + 時區<br>設備突變時警報</p>
+                </div>
+            </div>
+            
+            <div class="card" style="background: #fff3cd; border-left-color: #ffc107; margin-top: 2rem;">
+                <p style="color: #856404;">
+                    <strong>⚠️ 重要提示：</strong>網頁 App 無法檢測 Root/Jailbreak 設備或虛擬 GPS App；
+                    防欺詐依賴<strong>多因素驗證 + 管理流程</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Technical Architecture -->
+    <div class="slide" id="slide9">
+        <div class="slide-content">
+            <h2 class="slide-title">🏗️ 技術架構</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3 class="card-title">前端</h3>
+                    <ul class="bullet-list">
+                        <li>React/Vue + Vite</li>
+                        <li>Leaflet.js 地圖</li>
+                        <li>PWA 離線支援</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title">後端</h3>
+                    <ul class="bullet-list">
+                        <li>Node.js/Express 或 PHP/Laravel</li>
+                        <li>JWT 認證</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title">數據庫</h3>
+                    <ul class="bullet-list">
+                        <li>MySQL/PostgreSQL</li>
+                        <li>或 Supabase/Firebase 免費層</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title">託管</h3>
+                    <ul class="bullet-list">
+                        <li>前端：Vercel/Netlify</li>
+                        <li>後端：Railway/Render/共享主機</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem; background: #e8f4f8;">
+                <div class="card-title">第三方服務 (全部免費)</div>
+                <p>Nominatim 反向地理編碼 • Cloudflare DNS/SSL</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: System Limitations -->
+    <div class="slide" id="slide10">
+        <div class="slide-content">
+            <h2 class="slide-title">⚠️ 系統限制和範圍</h2>
+            
+            <ul class="bullet-list">
+                <li><strong>部署：</strong>僅內部使用，單一組織，無第三方服務提供</li>
+                <li><strong>用戶限制：</strong>最多 100 名員工賬戶，5 個管理員賬戶</li>
+                <li><strong>存儲限制：</strong>5GB 圖片文件，1GB 數據庫記錄</li>
+                <li><strong>訪問：</strong>單域名部署，無多租戶，無外部 API 暴露</li>
+                <li><strong>許可：</strong>不可轉讓，無白標或轉售權利</li>
+                <li><strong>維護範圍：</strong>僅錯誤修復，不包含功能擴展</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 11: Implementation Timeline -->
+    <div class="slide" id="slide11">
+        <div class="slide-content">
+            <h2 class="slide-title">📅 實施時間表</h2>
+            <p class="slide-subtitle">總時長：2-4 週 (取決於反饋週期)</p>
+            
+            <div style="margin-top: 2rem;">
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">第 1 週</div>
+                    <p>需求確認 • 開源項目評估 • 環境設置</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">第 2 週</div>
+                    <p>核心定制 (UI 品牌 • 地圖配置 • 驗證邏輯調整)</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">第 3 週</div>
+                    <p>測試 (功能 • 手機兼容性) • 錯誤修復 • UAT 準備</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">第 4 週</div>
+                    <p>部署 • 管理員培訓 • 文檔移交 • 上線支援</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Budget Breakdown -->
+    <div class="slide" id="slide12">
+        <div class="slide-content">
+            <h2 class="slide-title">💰 預算細分</h2>
+            <p class="slide-subtitle">總開發費用：<span class="highlight" style="font-size: 2rem;">HK$6,000</span></p>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">核心開發和定制</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~70%</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">測試和質量保證</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~15%</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">文檔和培訓</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~10%</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">項目管理和協調</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~5%</p>
+                </div>
+            </div>
+            
+            <div class="card" style="background: #fff3cd; border-left-color: #ffc107; margin-top: 2rem;">
+                <p style="color: #856404;">
+                    <strong>不包括：</strong>域名註冊 • 服務器託管 (客戶提供或單獨報價) • 第三方 API 超額費用
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Payment Milestones -->
+    <div class="slide" id="slide13">
+        <div class="slide-content">
+            <h2 class="slide-title">💳 付款里程碑</h2>
+            
+            <div style="margin-top: 2rem;">
+                <div class="card" style="margin-bottom: 1rem; border-left-color: #28a745;">
+                    <div class="card-title">啟動付款 (30%)</div>
+                    <p><span class="highlight">HK$1,800</span> - 需求簽核和可行性確認後</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem; border-left-color: #ffc107;">
+                    <div class="card-title">開發里程碑 (40%)</div>
+                    <p><span class="highlight">HK$2,400</span> - 核心功能完成並可演示</p>
+                </div>
+                <div class="card" style="border-left-color: #c41230;">
+                    <div class="card-title">最終交付 (30%)</div>
+                    <p><span class="highlight">HK$1,800</span> - 成功測試/部署/文檔移交後</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 2rem; color: #666;">付款條款：每個里程碑開具發票，7 天付款期</p>
+        </div>
+    </div>
+
+    <!-- Slide 14: Maintenance and Support -->
+    <div class="slide" id="slide14">
+        <div class="slide-content">
+            <h2 class="slide-title">🔧 維護和支援</h2>
+            
+            <div class="card" style="background: #e8f4f8; border-left-color: #1a3a5c; margin-bottom: 2rem;">
+                <h3 class="card-title">第一年包含 (HK$6,000 內)</h3>
+                <ul class="bullet-list">
+                    <li>每月服務器健康檢查</li>
+                    <li>關鍵錯誤修復 (48 小時響應)</li>
+                    <li>備份驗證確認</li>
+                    <li>小型 UI 更新 (Logo/配色)</li>
+                </ul>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">第二年可選</div>
+                    <p style="font-size: 1.5rem; color: #c41230;">~HK$2,800/年</p>
+                </div>
+                <div class="card" style="background: #fff3cd;">
+                    <div class="card-title">不包括</div>
+                    <p>新功能開發 • 重大架構變更 • 第三方服務兼容性更新</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Compliance and Data Security -->
+    <div class="slide" id="slide15">
+        <div class="slide-content">
+            <h2 class="slide-title">🔒 合規和數據安全</h2>
+            
+            <div class="card" style="background: #fff3cd; border-left-color: #ffc107; margin-bottom: 2rem;">
+                <p style="color: #856404;">
+                    <strong>PDPO 合規責任：</strong>客戶負責提供隱私政策並獲得員工同意
+                </p>
+            </div>
+            
+            <h3 class="card-title">系統支援功能</h3>
+            <ul class="bullet-list">
+                <li>登入頁隱私政策連結</li>
+                <li>位置/照片捕捉時清晰同意提示</li>
+                <li>數據导出和刪除功能 (員工訪問請求)</li>
+                <li>敏感數據 (照片) 與一般記錄分離存儲</li>
+            </ul>
+            
+            <h3 class="card-title" style="margin-top: 1.5rem;">安全措施</h3>
+            <p>HTTPS • 加密密碼 • JWT Tokens • 輸入驗證 • 定期依賴更新</p>
+        </div>
+    </div>
+
+    <!-- Slide 16: Risk Mitigation -->
+    <div class="slide" id="slide16">
+        <div class="slide-content">
+            <h2 class="slide-title">⚠️ 風險緩解</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3 class="card-title" style="color: #c41230;">技術風險</h3>
+                    <ul class="bullet-list" style="font-size: 0.95rem;">
+                        <li>Web App 防欺詐限制 → 管理流程補充</li>
+                        <li>iOS 背景位置限制 → 定期打卡提示</li>
+                        <li>瀏覽器兼容性 → 預發布設備測試</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="card-title" style="color: #c41230;">項目風險</h3>
+                    <ul class="bullet-list" style="font-size: 0.95rem;">
+                        <li>範圍蔓延 → 簽署規格文檔</li>
+                        <li>開源依賴 → 完整代碼備份</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title" style="color: #c41230;">運營風險</h3>
+                <ul class="bullet-list">
+                    <li>員工採用 → 簡單 UI + 清晰指引 + 試點測試</li>
+                    <li>數據隱私擔憂 → 透明溝通 + 同意流程 + 訪問控制</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 17: Comparison -->
+    <div class="slide" id="slide17">
+        <div class="slide-content">
+            <h2 class="slide-title">⚖️ 比較：自建 vs 購買 vs SaaS</h2>
+            
+            <div style="margin-top: 2rem;">
+                <div class="card" style="margin-bottom: 1rem; background: #e8f4f8; border-left-color: #28a745;">
+                    <div class="card-title">選項 A：定制 Web App (本提案) ✅ 推薦</div>
+                    <p><strong>優點：</strong>最低成本 • 完全控制 • 無經常性許可 • 快速部署</p>
+                    <p><strong>缺點：</strong>有限防欺詐 • 網頁平台限制 • 客戶管理合規</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">選項 B：商業 SaaS (如 JustLogin, Hubstaff)</div>
+                    <p><strong>優點：</strong>成熟功能 • 強大防欺詐 • 供應商處理合規</p>
+                    <p><strong>缺點：</strong>經常性按用戶費用 • 最低人數限制 • 定制較少</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">選項 C：原生 App 開發</div>
+                    <p><strong>優點：</strong>最佳防欺詐 • 背景追蹤 • 豐富 UX</p>
+                    <p><strong>缺點：</strong>高開發成本 (2-3 倍) • App Store 審批 • 雙平台維護</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 18: Next Steps -->
+    <div class="slide" id="slide18">
+        <div class="slide-content">
+            <h2 class="slide-title">🎯 下一步</h2>
+            
+            <h3 class="card-title">立即行動</h3>
+            <ul class="bullet-list">
+                <li>確認項目範圍並簽署規格</li>
+                <li>提供工作地點列表 (名稱/坐標/允許半徑)</li>
+                <li>準備員工溝通和同意材料</li>
+                <li>安排服務器/域名配置 (或授權開發商採購)</li>
+            </ul>
+            
+            <div class="card" style="margin-top: 2rem; background: #e8f4f8;">
+                <div class="card-title">啟動時間表</div>
+                <p>簽署協議和首期付款後 <span class="highlight">3 個工作日內</span> 開始項目</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 19: FAQ -->
+    <div class="slide" id="slide19">
+        <div class="slide-content">
+            <h2 class="slide-title">❓ FAQ 常見問題</h2>
+            
+            <div style="margin-top: 1.5rem;">
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">Q: 員工可以虛擬定位嗎？</div>
+                    <p>A: Web App 有基本驗證但無法檢測高級欺騙；建議結合管理檢查 (如隨機照片審查/主管驗證)</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">Q: 員工無信號怎麼辦？</div>
+                    <p>A: PWA 離線支援緩存本地數據，連接恢復時同步；提交狀態清晰顯示避免混淆</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">Q: 誰擁有源代碼？</div>
+                    <p>A: 客戶獲得內部使用許可；轉售或白標需單獨商業協議</p>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">Q: 可以後續添加功能嗎？</div>
+                    <p>A: 可以，新功能單獨報價；基礎維護僅涵蓋錯誤修復</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Q: 員工位置 24/7 追蹤嗎？</div>
+                    <p>A: <strong>不</strong>，位置僅在打卡瞬間捕捉；無背景追蹤</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 20: Contact -->
+    <div class="slide" id="slide20">
+        <div class="slide-content" style="text-align: center;">
+            <div style="font-size: 5rem; margin-bottom: 2rem;">📬</div>
+            <h2 class="slide-title">聯絡和問答</h2>
+            
+            <div style="margin: 2rem 0; padding: 2rem; background: #f5f5f5; border-radius: 12px;">
+                <p style="font-size: 1.3rem; margin-bottom: 1rem;"><strong>項目聯絡人：</strong>[你的名字]</p>
+                <p style="font-size: 1.3rem; margin-bottom: 1rem;"><strong>電郵：</strong>[your.email@example.com]</p>
+                <p style="font-size: 1.3rem;"><strong>電話：</strong>[+852 XXXX XXXX]</p>
+            </div>
+            
+            <h3 class="card-title" style="margin-top: 2rem;">下一步回顧</h3>
+            <ul class="bullet-list" style="display: inline-block; text-align: left;">
+                <li>審閱並批准規格</li>
+                <li>簽署協議並處理啟動付款</li>
+                <li>安排項目啟動會議</li>
+            </ul>
+            
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f5f5f5;">
+                <p style="font-size: 1.5rem; color: #666;">🎉 歡迎提問！</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 20;
+
+        function showSlide(n) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Show current slide
+            document.getElementById('slide' + n).classList.add('active');
+            
+            // Update progress bar
+            const progress = (n / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // Update slide number
+            document.getElementById('slideNumber').textContent = n + ' / ' + totalSlides;
+            
+            // Update buttons
+            document.getElementById('prevBtn').disabled = n === 1;
+            document.getElementById('nextBtn').disabled = n === totalSlides;
+            
+            currentSlide = n;
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Touch navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        }
+
+        // Initialize
+        showSlide(1);
+    </script>
+</body>
+</html>
