@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Check-in Vision - Empowering Your Future</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --toyo-navy: #1a3a5c;
+            --toyo-red: #c41230;
+            --electric-blue: #007AFF;
+            --future-purple: #764ba2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0F0F23 0%, #1a1a3e 100%);
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        
+        /* Language Toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .lang-toggle select {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .lang-toggle option {
+            background: #1a1a3e;
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero-subtitle {
+            font-size: 2rem;
+            color: #86868b;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+        
+        .hero-message {
+            font-size: 1.5rem;
+            max-width: 800px;
+            line-height: 1.8;
+            color: #d1d1d1;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+        
+        /* Network Visualization (2.5D Isometric) */
+        .network-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, #0F0F23 0%, #1a1a3e 100%);
+        }
+        
+        .network-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            height: 800px;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .network-node {
+            position: absolute;
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            border: 2px solid rgba(0,122,255,0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 280px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .network-node:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #007AFF;
+            box-shadow: 0 20px 40px rgba(0,122,255,0.3);
+        }
+        
+        .node-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .node-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #FFFFFF;
+        }
+        
+        .node-desc {
+            font-size: 0.95rem;
+            color: #86868b;
+            line-height: 1.5;
+        }
+        
+        /* Center Node (GPS Check-in) */
+        .center-node {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.2);
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border: 3px solid rgba(255,255,255,0.5);
+            width: 320px;
+            z-index: 10;
+        }
+        
+        .center-node .node-title {
+            color: #FFFFFF;
+        }
+        
+        .center-node .node-desc {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Satellite Nodes */
+        .node-1 { top: 10%; left: 50%; transform: translateX(-50%); }
+        .node-2 { top: 25%; left: 15%; }
+        .node-3 { top: 25%; right: 15%; }
+        .node-4 { top: 50%; left: 5%; transform: translateY(-50%); }
+        .node-5 { top: 50%; right: 5%; transform: translateY(-50%); }
+        .node-6 { bottom: 25%; left: 15%; }
+        .node-7 { bottom: 25%; right: 15%; }
+        .node-8 { bottom: 10%; left: 50%; transform: translateX(-50%); }
+        
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #007AFF, transparent);
+            transform-origin: left center;
+            opacity: 0.5;
+        }
+        
+        /* Pulse Animation */
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border: 2px solid rgba(0,122,255,0.3);
+            border-radius: 50%;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                width: 400px;
+                height: 400px;
+                opacity: 1;
+            }
+            100% {
+                width: 800px;
+                height: 800px;
+                opacity: 0;
+            }
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 6rem 2rem;
+            background: #0F0F23;
+        }
+        
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: #86868b;
+            font-size: 1.5rem;
+            margin-bottom: 4rem;
+        }
+        
+        .features-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            border-left: 4px solid #007AFF;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,122,255,0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #FFFFFF;
+        }
+        
+        .feature-desc {
+            color: #86868b;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-value {
+            color: #007AFF;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        /* AI Vision Section */
+        .ai-vision-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, #0F0F23 0%, #1a1a3e 100%);
+        }
+        
+        .ai-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .ai-card {
+            background: rgba(0,122,255,0.1);
+            border: 1px solid rgba(0,122,255,0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .ai-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Roadmap Section */
+        .roadmap-section {
+            padding: 6rem 2rem;
+            background: #0F0F23;
+        }
+        
+        .roadmap {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #007AFF, #5856D6);
+        }
+        
+        .roadmap-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 50%;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .roadmap-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 50%;
+        }
+        
+        .roadmap-content {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 400px;
+            margin-right: 3rem;
+            position: relative;
+        }
+        
+        .roadmap-item:nth-child(even) .roadmap-content {
+            margin-right: 0;
+            margin-left: 3rem;
+        }
+        
+        .roadmap-dot {
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: #007AFF;
+            border-radius: 50%;
+            border: 4px solid #0F0F23;
+        }
+        
+        .roadmap-item:nth-child(even) .roadmap-dot {
+            left: -10px;
+            right: auto;
+        }
+        
+        .roadmap-phase {
+            color: #007AFF;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .roadmap-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 0.75rem;
+        }
+        
+        .roadmap-desc {
+            color: #86868b;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, #1a1a3e 0%, #0F0F23 100%);
+            text-align: center;
+        }
+        
+        .footer-message {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            color: #86868b;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: #007AFF;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.5rem; }
+            .hero-message { font-size: 1.1rem; }
+            .section-title { font-size: 2rem; }
+            .network-container { height: 600px; }
+            .network-node { width: 240px; }
+            .center-node { width: 280px; }
+            .roadmap::before { left: 20px; }
+            .roadmap-item, .roadmap-item:nth-child(even) {
+                padding-left: 60px;
+                padding-right: 0;
+                justify-content: flex-start;
+            }
+            .roadmap-content, .roadmap-item:nth-child(even) .roadmap-content {
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .roadmap-dot, .roadmap-item:nth-child(even) .roadmap-dot {
+                left: -10px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Toggle -->
+    <div class="lang-toggle">
+        <select id="langSelect" onchange="changeLang()">
+            <option value="zh-HK">🇭🇰 繁體中文</option>
+            <option value="en-US">🇺🇸 English</option>
+        </select>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title" data-zh="GPS Check-in System" data-en="GPS Check-in System">GPS Check-in System</h1>
+        <p class="hero-subtitle" data-zh="只係起點" data-en="Just the Beginning">只係起點</p>
+        <p class="hero-message" data-zh="喺 AI 時代，呢個系統只係你公司系統化能力嘅第一個入口。從簡單嘅打卡開始，逐步構建完整嘅智慧物業管理生態系統。" data-en="In the AI era, this system is just the first entry point to your company's systematic capabilities. Starting from simple check-in, gradually build a complete smart property management ecosystem.">喺 AI 時代，呢個系統只係你公司系統化能力嘅第一個入口。從簡單嘅打卡開始，逐步構建完整嘅智慧物業管理生態系統。</p>
+        
+        <div class="scroll-indicator">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Network Visualization -->
+    <section class="network-section">
+        <h2 class="section-title" data-zh="系統擴展網絡" data-en="System Expansion Network">系統擴展網絡</h2>
+        <p class="section-subtitle" data-zh="從核心出發，連接無限可能" data-en="From Core to Infinite Possibilities">從核心出發，連接無限可能</p>
+        
+        <div class="network-container">
+            <!-- Pulse Ring -->
+            <div class="pulse-ring"></div>
+            
+            <!-- Center Node -->
+            <div class="network-node center-node">
+                <div class="node-icon">📍</div>
+                <div class="node-title" data-zh="GPS Check-in System" data-en="GPS Check-in System">GPS Check-in System</div>
+                <div class="node-desc" data-zh="系統化能力嘅入口點" data-en="Entry Point to Systematic Capabilities">系統化能力嘅入口點</div>
+            </div>
+            
+            <!-- Satellite Nodes -->
+            <div class="network-node node-1">
+                <div class="node-icon">👤</div>
+                <div class="node-title" data-zh="訪客管理系統" data-en="Visitor Management">訪客管理系統</div>
+                <div class="node-desc" data-zh="訪客登記 + GPS 追蹤" data-en="Visitor registration + GPS tracking">訪客登記 + GPS 追蹤</div>
+            </div>
+            
+            <div class="network-node node-2">
+                <div class="node-icon">🚶</div>
+                <div class="node-title" data-zh="巡更管理系統" data-en="Patrol Management">巡更管理系統</div>
+                <div class="node-desc" data-zh="保安巡邏路線優化" data-en="Security patrol route optimization">保安巡邏路線優化</div>
+            </div>
+            
+            <div class="network-node node-3">
+                <div class="node-icon">🔐</div>
+                <div class="node-title" data-zh="門禁控制系統" data-en="Access Control">門禁控制系統</div>
+                <div class="node-desc" data-zh="統一權限管理" data-en="Unified permission management">統一權限管理</div>
+            </div>
+            
+            <div class="network-node node-4">
+                <div class="node-icon">📊</div>
+                <div class="node-title" data-zh="樓宇管理系統" data-en="BMS Integration">樓宇管理系統</div>
+                <div class="node-desc" data-zh="中央監控所有設施" data-en="Central monitoring of all facilities">中央監控所有設施</div>
+            </div>
+            
+            <div class="network-node node-5">
+                <div class="node-icon">🤖</div>
+                <div class="node-title" data-zh="AI 數據分析" data-en="AI Analytics">AI 數據分析</div>
+                <div class="node-desc" data-zh="預測性維護 + 優化" data-en="Predictive maintenance + optimization">預測性維護 + 優化</div>
+            </div>
+            
+            <div class="network-node node-6">
+                <div class="node-icon">📱</div>
+                <div class="node-title" data-zh="流動應用程式" data-en="Mobile App">流動應用程式</div>
+                <div class="node-desc" data-zh="員工/訪客統一入口" data-en="Unified portal for staff/visitors">員工/訪客統一入口</div>
+            </div>
+            
+            <div class="network-node node-7">
+                <div class="node-icon">🚨</div>
+                <div class="node-title" data-zh="事故報告系統" data-en="Incident Reporting">事故報告系統</div>
+                <div class="node-desc" data-zh="快速應變處理" data-en="Rapid response handling">快速應變處理</div>
+            </div>
+            
+            <div class="network-node node-8">
+                <div class="node-icon">📈</div>
+                <div class="node-title" data-zh="績效分析儀表板" data-en="Performance Dashboard">績效分析儀表板</div>
+                <div class="node-desc" data-zh="數據驅動決策" data-en="Data-driven decision making">數據驅動決策</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2 class="section-title" data-zh="擴展功能詳解" data-en="Extended Features">擴展功能詳解</h2>
+        <p class="section-subtitle" data-zh="由 GPS Check-in 開始，構建完整生態" data-en="From GPS Check-in to Complete Ecosystem">由 GPS Check-in 開始，構建完整生態</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title" data-zh="智能人手編排" data-en="Smart Scheduling">智能人手編排</h3>
+                <p class="feature-desc" data-zh="AI 自動編排更表，考慮技能、可用性、法規要求" data-en="AI-powered automatic scheduling considering skills, availability, compliance">AI 自動編排更表，考慮技能、可用性、法規要求</p>
+                <p class="feature-value" data-zh="價值：節省 40% 編排時間" data-en="Value: Save 40% scheduling time">價值：節省 40% 編排時間</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3 class="feature-title" data-zh="實時通知系統" data-en="Real-time Alerts">實時通知系統</h3>
+                <p class="feature-desc" data-zh="異常事件即時推送，快速應變" data-en="Instant alerts for anomalies, rapid response">異常事件即時推送，快速應變</p>
+                <p class="feature-value" data-zh="價值：反應時間縮短 60%" data-en="Value: 60% faster response time">價值：反應時間縮短 60%</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title" data-zh="數據可視化" data-en="Data Visualization">數據可視化</h3>
+                <p class="feature-desc" data-zh="實時儀表板，一覽所有關鍵指標" data-en="Real-time dashboards with all key metrics">實時儀表板，一覽所有關鍵指標</p>
+                <p class="feature-value" data-zh="價值：決策效率提升 50%" data-en="Value: 50% better decision efficiency">價值：決策效率提升 50%</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3 class="feature-title" data-zh="第三方整合" data-en="Third-party Integration">第三方整合</h3>
+                <p class="feature-desc" data-zh="對接現有系統 (ERP, CRM, HRMS)" data-en="Integrate with existing systems (ERP, CRM, HRMS)">對接現有系統 (ERP, CRM, HRMS)</p>
+                <p class="feature-value" data-zh="價值：無縫數據流通" data-en="Value: Seamless data flow">價值：無縫數據流通</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title" data-zh="合規管理" data-en="Compliance Management">合規管理</h3>
+                <p class="feature-desc" data-zh="自動記錄 + 報告，符合 PDPO 要求" data-en="Automated records + reports, PDPO compliant">自動記錄 + 報告，符合 PDPO 要求</p>
+                <p class="feature-value" data-zh="價值：降低法律風險" data-en="Value: Reduce legal risks">價值：降低法律風險</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title" data-zh="預測性維護" data-en="Predictive Maintenance">預測性維護</h3>
+                <p class="feature-desc" data-zh="AI 預測設備故障，提前維護" data-en="AI predicts equipment failures, proactive maintenance">AI 預測設備故障，提前維護</p>
+                <p class="feature-value" data-zh="價值：減少 30% 停機時間" data-en="Value: 30% less downtime">價值：減少 30% 停機時間</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Vision Section -->
+    <section class="ai-vision-section">
+        <h2 class="section-title" data-zh="AI 時代願景" data-en="AI-Powered Future">AI 時代願景</h2>
+        <p class="section-subtitle" data-zh="從數據收集到智能決策" data-en="From Data Collection to Intelligent Decisions">從數據收集到智能決策</p>
+        
+        <div class="ai-grid">
+            <div class="ai-card">
+                <div class="ai-icon">🧠</div>
+                <h3 class="ai-title" data-zh="智能人流分析" data-en="Smart Crowd Analysis">智能人流分析</h3>
+            </div>
+            <div class="ai-card">
+                <div class="ai-icon">🎯</div>
+                <h3 class="ai-title" data-zh="預測性保安部署" data-en="Predictive Security">預測性保安部署</h3>
+            </div>
+            <div class="ai-card">
+                <div class="ai-icon">🗺️</div>
+                <h3 class="ai-title" data-zh="自動化巡邏優化" data-en="Auto Patrol Optimization">自動化巡邏優化</h3>
+            </div>
+            <div class="ai-card">
+                <div class="ai-icon">👁️</div>
+                <h3 class="ai-title" data-zh="異常行為檢測" data-en="Anomaly Detection">異常行為檢測</h3>
+            </div>
+            <div class="ai-card">
+                <div class="ai-icon">⚡</div>
+                <h3 class="ai-title" data-zh="能源使用優化" data-en="Energy Optimization">能源使用優化</h3>
+            </div>
+            <div class="ai-card">
+                <div class="ai-icon">🔮</div>
+                <h3 class="ai-title" data-zh="Predictive Maintenance" data-en="Predictive Maintenance">Predictive Maintenance</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="roadmap-section">
+        <h2 class="section-title" data-zh="實施路線圖" data-en="Implementation Roadmap">實施路線圖</h2>
+        <p class="section-subtitle" data-zh="逐步構建，穩健成長" data-en="Step by Step, Steady Growth">逐步構建，穩健成長</p>
+        
+        <div class="roadmap">
+            <div class="roadmap-item">
+                <div class="roadmap-content">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-phase" data-zh="Phase 1 (Now)" data-en="Phase 1 (Now)">Phase 1 (Now)</div>
+                    <h3 class="roadmap-title" data-zh="GPS Check-in System" data-en="GPS Check-in System">GPS Check-in System</h3>
+                    <p class="roadmap-desc" data-zh="入口點：建立基礎考勤系統，收集第一手數據" data-en="Entry Point: Build basic attendance system, collect initial data">入口點：建立基礎考勤系統，收集第一手數據</p>
+                </div>
+            </div>
+            
+            <div class="roadmap-item">
+                <div class="roadmap-content">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-phase" data-zh="Phase 2 (3-6 months)" data-en="Phase 2 (3-6 months)">Phase 2 (3-6 months)</div>
+                    <h3 class="roadmap-title" data-zh="Visitor + Patrol System" data-en="Visitor + Patrol System">Visitor + Patrol System</h3>
+                    <p class="roadmap-desc" data-zh="擴展：訪客管理 + 巡更系統，完善保安流程" data-en="Expansion: Visitor management + Patrol system, enhance security processes">擴展：訪客管理 + 巡更系統，完善保安流程</p>
+                </div>
+            </div>
+            
+            <div class="roadmap-item">
+                <div class="roadmap-content">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-phase" data-zh="Phase 3 (6-12 months)" data-en="Phase 3 (6-12 months)">Phase 3 (6-12 months)</div>
+                    <h3 class="roadmap-title" data-zh="BMS + AI Analytics" data-en="BMS + AI Analytics">BMS + AI Analytics</h3>
+                    <p class="roadmap-desc" data-zh="整合：樓宇管理系統對接 + AI 數據分析，實現智能決策" data-en="Integration: BMS integration + AI analytics, enable intelligent decisions">整合：樓宇管理系統對接 + AI 數據分析，實現智能決策</p>
+                </div>
+            </div>
+            
+            <div class="roadmap-item">
+                <div class="roadmap-content">
+                    <div class="roadmap-dot"></div>
+                    <div class="roadmap-phase" data-zh="Phase 4 (12+ months)" data-en="Phase 4 (12+ months)">Phase 4 (12+ months)</div>
+                    <h3 class="roadmap-title" data-zh="Smart Building Ecosystem" data-en="Smart Building Ecosystem">Smart Building Ecosystem</h3>
+                    <p class="roadmap-desc" data-zh="願景：完整智慧物業管理生態系統，全自動化運營" data-en="Vision: Complete smart property management ecosystem, fully automated operations">願景：完整智慧物業管理生態系統，全自動化運營</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="footer">
+        <p class="footer-message" data-zh="由 GPS Check-in 開始，構建未來" data-en="Start with GPS Check-in, Build the Future">由 GPS Check-in 開始，構建未來</p>
+        
+        <div class="footer-links">
+            <a href="gps-checkin-demo.html" class="footer-link" data-zh="📱 GPS Demo" data-en="📱 GPS Demo">📱 GPS Demo</a>
+            <a href="gps-checkin-pitch-deck.html" class="footer-link" data-zh="📊 Pitch Deck" data-en="📊 Pitch Deck">📊 Pitch Deck</a>
+            <a href="mailto:iamrogerli@lookfor.hk" class="footer-link">📧 iamrogerli@lookfor.hk</a>
+        </div>
+    </section>
+
+    <script>
+        let currentLang = 'zh-HK';
+
+        function changeLang() {
+            currentLang = document.getElementById('langSelect').value;
+            localStorage.setItem('visionLang', currentLang);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+                if (currentLang === 'zh-HK') {
+                    el.textContent = el.getAttribute('data-zh');
+                } else {
+                    el.textContent = el.getAttribute('data-en');
+                }
+            });
+            document.documentElement.lang = currentLang;
+        }
+
+        // Load saved language
+        const savedLang = localStorage.getItem('visionLang');
+        if (savedLang) {
+            currentLang = savedLang;
+            document.getElementById('langSelect').value = savedLang;
+            updateLanguage();
+        }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .ai-card, .roadmap-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
