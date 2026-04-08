@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Check-in Web App - Keynote Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .slide {
+            display: none;
+            min-height: 100vh;
+            padding: 4rem;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-content {
+            max-width: 1600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .slide-title {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+        }
+        
+        .slide-subtitle {
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: #86868b;
+            margin-bottom: 4rem;
+        }
+        
+        .big-number {
+            font-size: 12rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin: 2rem 0;
+        }
+        
+        .highlight-box {
+            background: #1c1c1e;
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background: #1c1c1e;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: left;
+        }
+        
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-desc {
+            font-size: 1.2rem;
+            color: #86868b;
+            line-height: 1.5;
+        }
+        
+        .nav-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        
+        .nav-btn:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slide-number {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 1rem;
+            color: #86868b;
+        }
+        
+        .controls-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            background: #1c1c1e;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            color: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .control-btn select {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin: 3rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #007AFF;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            color: #86868b;
+            margin-top: 0.5rem;
+        }
+        
+        .timeline {
+            margin: 3rem 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: #1c1c1e;
+            border-radius: 15px;
+        }
+        
+        .timeline-day {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #007AFF;
+            min-width: 200px;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-desc {
+            color: #86868b;
+            font-size: 1.1rem;
+        }
+        
+        .comparison-card {
+            background: #1c1c1e;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .comparison-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .comparison-pros {
+            color: #30D158;
+            margin: 1rem 0;
+        }
+        
+        .comparison-cons {
+            color: #FF453A;
+            margin: 1rem 0;
+        }
+        
+        .contact-card {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            border-radius: 30px;
+            padding: 4rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .slide-title { font-size: 3.5rem; }
+            .slide-subtitle { font-size: 1.8rem; }
+            .big-number { font-size: 8rem; }
+            .grid-3 { grid-template-columns: 1fr; }
+            .stat-row { flex-direction: column; gap: 2rem; }
+            .timeline-item { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide Number -->
+    <div class="slide-number" id="slideNumber">1 / 17</div>
+    
+    <!-- Controls -->
+    <div class="controls-container" id="controlsContainer">
+        <div class="control-btn">
+            <select id="langSelect" onchange="changeLang()">
+                <option value="zh-HK">🇭🇰 繁體中文</option>
+                <option value="en-US">🇺🇸 English</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()" disabled>◀ Prev</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next ▶</button>
+    </div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide active" id="slide1">
+        <div class="slide-content">
+            <div style="font-size: 8rem; margin-bottom: 2rem;">📍</div>
+            <h1 class="slide-title" data-zh="GPS Check-in Web App" data-en="GPS Check-in Web App">GPS Check-in Web App</h1>
+            <p class="slide-subtitle" data-zh="輕量級外勤員工考勤解決方案" data-en="Lightweight Attendance Solution for Field Staff">輕量級外勤員工考勤解決方案</p>
+            <div style="margin-top: 3rem; color: #86868b; font-size: 1.2rem;">
+                <p>Toyo Security</p>
+                <p style="margin-top: 1rem;">LOOKFOR.HK</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Problem -->
+    <div class="slide" id="slide2">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="問題陳述" data-en="Problem Statement">問題陳述</h1>
+            <p class="slide-subtitle" data-zh="外勤員工考勤追蹤，人手操作且不可靠" data-en="Field staff attendance tracking is manual and unreliable">外勤員工考勤追蹤，人手操作且不可靠</p>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <div class="feature-title" data-zh="無法實時查看" data-en="No Real-time Visibility">無法實時查看</div>
+                    <div class="feature-desc" data-zh="員工工作期間位置" data-en="Staff location during work hours">員工工作期間位置</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <div class="feature-title" data-zh="難以核實" data-en="Difficult to Verify">難以核實</div>
+                    <div class="feature-desc" data-zh="早退或遲到情況" data-en="Early departure or late arrival">早退或遲到情況</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title" data-zh="成本高" data-en="High Cost">成本高</div>
+                    <div class="feature-desc" data-zh="承辦商要求最低人數" data-en="Contractor minimum headcount">承辦商要求最低人數</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Solution -->
+    <div class="slide" id="slide3">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="解決方案" data-en="Solution">解決方案</h1>
+            <p class="slide-subtitle" data-zh="網頁版 GPS 打卡系統" data-en="Web-based GPS Check-in System">網頁版 GPS 打卡系統</p>
+            
+            <div class="big-number" data-zh="無需安裝 App" data-en="No App Installation">無需安裝 App</div>
+            
+            <div class="highlight-box">
+                <p style="font-size: 1.5rem; line-height: 1.8;" data-zh="員工通過手機瀏覽器打卡，即時完成考勤記錄" data-en="Employees clock in/out via mobile browser, instantly complete attendance records">員工通過手機瀏覽器打卡，即時完成考勤記錄</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Key Benefits -->
+    <div class="slide" id="slide4">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="主要優勢" data-en="Key Benefits">主要優勢</h1>
+            
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-value" data-zh="HK$6K" data-en="HK$6K">HK$6K</div>
+                    <div class="stat-label" data-zh="總開發成本" data-en="Total Cost">總開發成本</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-zh="1-2 週" data-en="1-2 Weeks">1-2 週</div>
+                    <div class="stat-label" data-zh="快速部署" data-en="Deployment">快速部署</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-zh="100" data-en="100">100</div>
+                    <div class="stat-label" data-zh="員工數量" data-en="Employees">員工數量</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: How It Works -->
+    <div class="slide" id="slide5">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="運作流程" data-en="How It Works">運作流程</h1>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <div class="feature-title" data-zh="員工" data-en="Employee">員工</div>
+                    <div class="feature-desc">
+                        <p data-zh="1. 打開瀏覽器" data-en="1. Open browser">1. 打開瀏覽器</p>
+                        <p data-zh="2. 點擊打卡" data-en="2. Tap check-in">2. 點擊打卡</p>
+                        <p data-zh="3. 拍攝照片" data-en="3. Take photo">3. 拍攝照片</p>
+                        <p data-zh="4. 完成提交" data-en="4. Submit">4. 完成提交</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍💼</div>
+                    <div class="feature-title" data-zh="管理員" data-en="Admin">管理員</div>
+                    <div class="feature-desc">
+                        <p data-zh="1. 登入 Dashboard" data-en="1. Login Dashboard">1. 登入 Dashboard</p>
+                        <p data-zh="2. 查看地圖" data-en="2. View map">2. 查看地圖</p>
+                        <p data-zh="3. 导出報告" data-en="3. Export report">3. 导出報告</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Employee Features -->
+    <div class="slide" id="slide6">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="員工功能" data-en="Employee Features">員工功能</h1>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <div class="feature-title" data-zh="無需登入" data-en="No Login">無需登入</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <div class="feature-title" data-zh="GPS 捕捉" data-en="GPS Capture">GPS 捕捉</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <div class="feature-title" data-zh="照片驗證" data-en="Photo Verify">照片驗證</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-title" data-zh="個人歷史" data-en="History">個人歷史</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📴</div>
+                    <div class="feature-title" data-zh="離線支援" data-en="Offline">離線支援</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Admin Dashboard -->
+    <div class="slide" id="slide7">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="管理員 Dashboard" data-en="Admin Dashboard">管理員 Dashboard</h1>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-title" data-zh="用戶管理" data-en="User Management">用戶管理</div>
+                    <div class="feature-desc" data-zh="添加/編輯/停用員工" data-en="Add/edit/deactivate employees">添加/編輯/停用員工</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <div class="feature-title" data-zh="實時地圖" data-en="Real-time Map">實時地圖</div>
+                    <div class="feature-desc" data-zh="可視化打卡點" data-en="Visualize clock-in points">可視化打卡點</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title" data-zh="報告导出" data-en="Export Reports">報告导出</div>
+                    <div class="feature-desc" data-zh="Excel/CSV 格式" data-en="Excel/CSV format">Excel/CSV 格式</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Anti-Fraud (Optional) -->
+    <div class="slide" id="slide8">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="防欺詐機制" data-en="Anti-Fraud">防欺詐機制</h1>
+            <p class="slide-subtitle"><span style="background: #007AFF; color: white; padding: 0.5rem 1.5rem; border-radius: 30px; font-size: 1rem;" data-zh="Optional Add-on" data-en="Optional Add-on">Optional Add-on</span></p>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <div class="feature-title" data-zh="GPS 精度" data-en="GPS Accuracy">GPS 精度</div>
+                    <div class="feature-desc" data-zh="標記 >100 米" data-en="Flag >100m">標記 >100 米</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📏</div>
+                    <div class="feature-title" data-zh="距離閾值" data-en="Distance">距離閾值</div>
+                    <div class="feature-desc" data-zh="超出半徑自動標記" data-en="Auto-flag if exceeded">超出半徑自動標記</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title" data-zh="設備指紋" data-en="Device Fingerprint">設備指紋</div>
+                    <div class="feature-desc" data-zh="User-Agent + IP" data-en="User-Agent + IP">User-Agent + IP</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Technical Architecture -->
+    <div class="slide" id="slide9">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="技術架構" data-en="Technical Architecture">技術架構</h1>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <div class="feature-title" data-zh="前端" data-en="Frontend">前端</div>
+                    <div class="feature-desc">React/Vue + Vite<br>Leaflet.js<br>PWA</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <div class="feature-title" data-zh="後端" data-en="Backend">後端</div>
+                    <div class="feature-desc">Node.js/Express<br>PHP/Laravel<br>JWT Auth</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <div class="feature-title" data-zh="部署" data-en="Deployment">部署</div>
+                    <div class="feature-desc" data-zh="現有網站主機" data-en="Current hosting">現有網站主機<br>Cloudflare DNS/SSL</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: System Limits -->
+    <div class="slide" id="slide10">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="系統限制" data-en="System Limits">系統限制</h1>
+            
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-value">100</div>
+                    <div class="stat-label" data-zh="員工賬戶" data-en="Employees">員工賬戶</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label" data-zh="管理賬戶" data-en="Admins">管理賬戶</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">5GB</div>
+                    <div class="stat-label" data-zh="圖片存儲" data-en="Image Storage">圖片存儲</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Timeline -->
+    <div class="slide" id="slide11">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="實施時間表" data-en="Timeline">實施時間表</h1>
+            <p class="slide-subtitle" data-zh="總時長：1-2 週" data-en="Total: 1-2 weeks">總時長：1-2 週</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-day" data-zh="第 1-3 天" data-en="Day 1-3">第 1-3 天</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Kickoff</div>
+                        <div class="timeline-desc" data-zh="需求確認 • 環境設置 • 簽署規格" data-en="Requirement confirmation • Environment setup • Sign spec">需求確認 • 環境設置 • 簽署規格</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-day" data-zh="第 4-10 天" data-en="Day 4-10">第 4-10 天</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Development</div>
+                        <div class="timeline-desc" data-zh="核心定制 • GPS 功能 • 拍照功能" data-en="Core customization • GPS feature • Photo feature">核心定制 • GPS 功能 • 拍照功能</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-day" data-zh="第 11-12 天" data-en="Day 11-12">第 11-12 天</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">UAT</div>
+                        <div class="timeline-desc" data-zh="功能測試 • 手機兼容性 • 用戶驗收" data-en="Functional testing • Mobile compatibility • User acceptance">功能測試 • 手機兼容性 • 用戶驗收</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-day" data-zh="第 13-14 天" data-en="Day 13-14">第 13-14 天</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Go Live</div>
+                        <div class="timeline-desc" data-zh="部署上線 • 管理員培訓 • 文檔移交" data-en="Deployment • Admin training • Documentation">部署上線 • 管理員培訓 • 文檔移交</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Payment -->
+    <div class="slide" id="slide12">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="付款里程碑" data-en="Payment">付款里程碑</h1>
+            
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-value">50%</div>
+                    <div class="stat-label" data-zh="啟動付款" data-en="Kickoff">啟動付款</div>
+                    <div style="color: #86868b; margin-top: 0.5rem;">HK$3,000</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">50%</div>
+                    <div class="stat-label" data-zh="最終交付" data-en="Final Delivery">最終交付</div>
+                    <div style="color: #86868b; margin-top: 0.5rem;">HK$3,000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Maintenance -->
+    <div class="slide" id="slide13">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="維護和支援" data-en="Maintenance">維護和支援</h1>
+            
+            <div class="highlight-box">
+                <p style="font-size: 1.5rem; margin-bottom: 1rem;" data-zh="第一年包含 (HK$6,000 內)" data-en="First Year Included (within HK$6,000)">第一年包含 (HK$6,000 內)</p>
+                <p style="color: #86868b; font-size: 1.2rem;" data-zh="每月服務器健康檢查 • 關鍵錯誤修復 • 備份驗證 • 小型 UI 更新" data-en="Monthly server health check • Critical bug fixes • Backup verification • Minor UI updates">每月服務器健康檢查 • 關鍵錯誤修復 • 備份驗證 • 小型 UI 更新</p>
+            </div>
+            
+            <div style="margin-top: 2rem; font-size: 2rem;">
+                <span data-zh="第二年服務費" data-en="Second Year Fee">第二年服務費</span>: <span style="color: #007AFF;">~HK$2,800/年</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14: Compliance -->
+    <div class="slide" id="slide14">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="合規和安全" data-en="Compliance & Security">合規和安全</h1>
+            
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-title" data-zh="PDPO 合規" data-en="PDPO Compliance">PDPO 合規</div>
+                    <div class="feature-desc" data-zh="客戶負責隱私政策" data-en="Client provides privacy policy">客戶負責隱私政策</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <div class="feature-title" data-zh="安全措施" data-en="Security">安全措施</div>
+                    <div class="feature-desc">HTTPS • 加密密碼<br>JWT Tokens • 輸入驗證</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Comparison -->
+    <div class="slide" id="slide15">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="比較分析" data-en="Comparison">比較分析</h1>
+            
+            <div class="comparison-card">
+                <div class="comparison-title" data-zh="選項 A：定制 Web App ✅ 推薦" data-en="Option A: Custom Web App ✅ Recommended">選項 A：定制 Web App ✅ 推薦</div>
+                <div class="comparison-pros" data-zh="✓ 最低成本 • 完全控制 • 無經常性許可 • 快速部署" data-en="✓ Lowest cost • Full control • No recurring license • Fast deployment">✓ 最低成本 • 完全控制 • 無經常性許可 • 快速部署</div>
+                <div class="comparison-cons" data-zh="✗ 有限防欺詐 • 網頁平台限制 • 客戶管理合規" data-en="✗ Limited anti-fraud • Web platform constraints • Client manages compliance">✗ 有限防欺詐 • 網頁平台限制 • 客戶管理合規</div>
+            </div>
+            
+            <div class="comparison-card">
+                <div class="comparison-title" data-zh="選項 C：原生 App" data-en="Option C: Native App">選項 C：原生 App</div>
+                <div class="comparison-cons" data-zh="✗ 高開發成本 (5-8 倍) • App Store 審批 • 雙平台維護" data-en="✗ High cost (5-8x) • App Store approval • Dual-platform maintenance">✗ 高開發成本 (5-8 倍) • App Store 審批 • 雙平台維護</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 16: Next Steps -->
+    <div class="slide" id="slide16">
+        <div class="slide-content">
+            <h1 class="slide-title" data-zh="下一步" data-en="Next Steps">下一步</h1>
+            
+            <div class="highlight-box">
+                <p style="font-size: 1.5rem; line-height: 1.8;" data-zh="確認項目範圍並簽署規格<br>準備員工溝通和同意材料<br>安排服務器/域名配置" data-en="Confirm project scope and sign spec<br>Prepare employee communication materials<br>Arrange server/domain provisioning">確認項目範圍並簽署規格<br>準備員工溝通和同意材料<br>安排服務器/域名配置</p>
+            </div>
+            
+            <p style="margin-top: 2rem; font-size: 1.3rem; color: #86868b;" data-zh="首期付款後 3 個工作日內 開始項目" data-en="Project starts within 3 business days of initial payment">首期付款後 3 個工作日內 開始項目</p>
+        </div>
+    </div>
+
+    <!-- Slide 17: Contact -->
+    <div class="slide" id="slide17">
+        <div class="slide-content">
+            <div style="font-size: 8rem; margin-bottom: 2rem;">📬</div>
+            <h1 class="slide-title" data-zh="聯絡和問答" data-en="Contact & Q&A">聯絡和問答</h1>
+            
+            <div class="contact-card">
+                <p style="font-size: 2rem; margin-bottom: 1rem;">Roger Li</p>
+                <p style="font-size: 1.5rem; opacity: 0.9;">iamrogerli@lookfor.hk</p>
+            </div>
+            
+            <p style="margin-top: 3rem; font-size: 2rem; color: #86868b;" data-zh="🎉 歡迎提問！" data-en="🎉 Open Floor: Questions!">🎉 歡迎提問！</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 17;
+        let currentLang = 'zh-HK';
+
+        function showSlide(n) {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            document.getElementById('slide' + n).classList.add('active');
+            
+            document.getElementById('slideNumber').textContent = n + ' / ' + totalSlides;
+            
+            document.getElementById('prevBtn').disabled = n === 1;
+            document.getElementById('nextBtn').disabled = n === totalSlides;
+            
+            const controlsContainer = document.getElementById('controlsContainer');
+            if (n === 1) {
+                controlsContainer.style.display = 'flex';
+            } else {
+                controlsContainer.style.display = 'none';
+            }
+            
+            currentSlide = n;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function changeLang() {
+            currentLang = document.getElementById('langSelect').value;
+            localStorage.setItem('keynoteLang', currentLang);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+                if (currentLang === 'zh-HK') {
+                    el.innerHTML = el.getAttribute('data-zh');
+                } else {
+                    el.innerHTML = el.getAttribute('data-en');
+                }
+            });
+            
+            document.getElementById('prevBtn').innerHTML = currentLang === 'zh-HK' ? '◀ 上一頁' : '◀ Prev';
+            document.getElementById('nextBtn').innerHTML = currentLang === 'zh-HK' ? '下一頁 ▶' : 'Next ▶';
+        }
+
+        const savedLang = localStorage.getItem('keynoteLang');
+        if (savedLang) {
+            currentLang = savedLang;
+            document.getElementById('langSelect').value = savedLang;
+            updateLanguage();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        showSlide(1);
+    </script>
+</body>
+</html>
